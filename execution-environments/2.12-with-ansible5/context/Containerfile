@@ -1,0 +1,25 @@
+ARG EE_BASE_IMAGE=quay.io/ansible/ansible-runner:stable-2.12-devel
+ARG EE_BUILDER_IMAGE=quay.io/ansible/ansible-builder:latest
+
+FROM $EE_BASE_IMAGE as galaxy
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=
+USER root
+
+ADD _build/ansible.cfg ~/.ansible.cfg
+
+ADD _build /build
+WORKDIR /build
+
+
+FROM $EE_BUILDER_IMAGE as builder
+ADD _build/requirements.txt requirements.txt
+ADD _build/bindep.txt bindep.txt
+RUN ansible-builder introspect --sanitize --user-pip=requirements.txt --user-bindep=bindep.txt --write-bindep=/tmp/src/bindep.txt --write-pip=/tmp/src/requirements.txt
+RUN assemble
+
+FROM $EE_BASE_IMAGE
+USER root
+COPY --from=builder /output/ /output/
+RUN /output/install-from-bindep && rm -rf /output/wheels
+RUN pip3 install ansible
+RUN dnf -y install epel-release && dnf --enablerepo=epel -y install cowsay && dnf -y remove epel-release

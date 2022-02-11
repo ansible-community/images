@@ -1,0 +1,5 @@
+python38 [platform:rpm]
+python38-devel [platform:rpm]
+python38-pip [platform:rpm]
+procps-ng [platform:rpm]
+git [default]
