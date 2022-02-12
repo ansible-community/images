@@ -1,0 +1,38 @@
+# If ara is installed in the images, we can use it to provide reporting for the playbooks
+# that ansible-test runs
+- when: images_enable_ara | bool
+  block:
+    - name: Get path to the ara callback plugin
+      ansible.builtin.command: >-
+        podman run -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
+      changed_when: false
+      register: _ara_callback_plugins
+
+    # TODO: Provide more control over the contents of the file ?
+    - name: Template an ansible configuration file for ansible-test
+      no_log: true
+      ansible.builtin.copy:
+        dest: "{{ _community_general }}/tests/integration/integration.cfg"
+        content: |
+          [defaults]
+          callback_plugins = {{ _ara_callback_plugins.stdout }}
+
+          [ara]
+          api_client = http
+          api_server = {{ images_ara_api_server }}
+          {% if ara_api_username is defined and ara_api_password is defined %}
+          api_username = {{ ara_api_username }}
+          api_password = {{ ara_api_password }}
+          {% endif %}
+          callback_threads = 4
+          argument_labels = check,tags,subset
+          default_labels = ansible-test,{{ item.name }}:{{ item.tag }},py{{ item.python }}
+          ignored_facts = ansible_env
+          ignored_arguments = vault_password_files
+
+- name: Run a simple integration test using the images we built
+  ansible.builtin.command: >-
+    {{ images_venv }}/bin/ansible-test integration --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file
+  args:
+    chdir: "{{ ansible_user_dir }}/.ansible/tmp/src/ansible_collections/community/general"
+  when: images_test | bool

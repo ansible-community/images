@@ -1,0 +1,21 @@
+- name: Build and test ansible-test container images
+  hosts: all
+  gather_facts: true
+  vars:
+    images_available:
+      - name: localhost/test-image
+        tag: archlinux
+        script: ansible-test/archlinux/build.sh
+        python: "3.10"
+      - name: localhost/test-image
+        tag: centos-stream8
+        script: ansible-test/centos-stream8/build.sh
+        python: "3.8"
+      - name: localhost/test-image
+        tag: debian-bullseye
+        script: ansible-test/debian-bullseye/build.sh
+        python: "3.9"
+  tasks:
+    - name: Build ansible-test images
+      include_role:
+        name: build-ansible-test-images
