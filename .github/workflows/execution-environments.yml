@@ -1,0 +1,45 @@
+name: execution environment images
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Run once per week (Monday at 08:00 UTC)
+  schedule:
+    - cron: '0 8 * * 1'
+
+jobs:
+  build:
+    name: 'Build EE image: ${{ matrix.name }}'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: 2.12-with-ansible5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install podman
+          pip install ansible-core ansible-builder ansible-navigator
+
+      - name: Build ${{ matrix.name }} image
+        run: |
+          ansible-builder build -v 3 -t test-ee:${{ matrix.name }}
+        working-directory: ./execution-environments/${{ matrix.name }}
+
+      - name: Run basic tests with ${{ matrix.name }} image
+        run: |
+          ansible-navigator --mode stdout --pull-policy never \
+            --execution-environment-image test-ee:${{ matrix.name }} \
+            run tests.yml
+        working-directory: ./execution-environments/${{ matrix.name }}
