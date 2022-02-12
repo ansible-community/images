@@ -54,4 +54,5 @@ ansible-test integration --python 3.8 --docker localhost/test-image:centos-strea
 
 ## Available images
 
-- [test-image:centos-stream8](https://quay.io/ansible-community/test-image:centos-stream8): A centos-stream8 image with python38 inspired by the [centos8 ansible-test image](https://github.com/ansible/distro-test-containers/blob/c4fe28818f5a33b675652637e3057bafe50039ee/centos8-test-container/Dockerfile)
+- [test-image:centos-stream8](https://quay.io/ansible-community/test-image:centos-stream8): A centos-stream8 image with Python 3.8 inspired by the [centos8 ansible-test image](https://github.com/ansible/distro-test-containers/blob/c4fe28818f5a33b675652637e3057bafe50039ee/centos8-test-container/Dockerfile)
+- [test-image:archlinux](https://quay.io/ansible-community/test-image:archlinux): An ArchLinux image with Python 3.10

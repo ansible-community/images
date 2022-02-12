@@ -18,6 +18,8 @@ jobs:
         include:
           - name: centos-stream8
             python: '3.8'
+          - name: archlinux
+            python: '3.10'
 
     steps:
       - name: Check out repository
