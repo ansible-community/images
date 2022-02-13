@@ -1,4 +1,4 @@
-# ansible-community ansible-test images
+# Ansible Community `ansible-test` Images
 
 ## About ansible-test
 
@@ -29,14 +29,15 @@ target docker images and supported python version (choose one):
 
 ansible-test supports specifying custom images instead and the purpose of this repository is to provide suitable images for it.
 
-## Important
+## Important ⚠️
 
 Images provided by this repository are tailored for development, testing and CI purposes.
-They are maintained by the community and are not supported for production use: they can and will break or run out of maintenance.
+**They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
+Do not use these images for production!
 
 You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own images tailored to your needs.
 
-Thank you !
+Thank you!
 
 ## Building and using images from this repository
 
