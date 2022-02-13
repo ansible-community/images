@@ -1,5 +1,4 @@
 acl
-apache2
 bzip2
 curl
 debhelper
