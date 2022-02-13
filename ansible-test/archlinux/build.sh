@@ -5,7 +5,7 @@
 SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
 DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 
-build=$(buildah from docker.io/library/archlinux:latest)
+build=$(buildah from quay.io/official-images/archlinux:latest)
 buildah run "${build}" -- /bin/bash -c "pacman -Syyu --noconfirm && pacman -S ${DEPENDENCIES} --noconfirm && pacman -Scc --noconfirm"
 
 # Extra python dependencies
