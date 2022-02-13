@@ -14,5 +14,3 @@ additional_build_steps:
     # The ansible package contains a curated set of Ansible collections in addition to ansible-core, include it in the EE
     # here since it can't be in requirements.txt for now: https://github.com/ansible/ansible-builder/issues/323
     - RUN pip3 install ansible
-    # Cows are a reminder that these are not for production use :)
-    - RUN dnf -y install epel-release && dnf --enablerepo=epel -y install cowsay && dnf -y remove epel-release
