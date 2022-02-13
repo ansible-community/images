@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds a centos-stream8 image suitable for use with ansible-test
+# Builds a debian bullseye image suitable for use with ansible-test
 # Based on https://github.com/ansible/distro-test-containers/blob/c4fe28818f5a33b675652637e3057bafe50039ee/ubuntu2004-test-container/Dockerfile
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
@@ -14,8 +14,8 @@ buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 i
 # Ansible-specific setup:
 buildah run "${build}" -- /bin/bash -c "ln -s /lib/systemd/systemd /sbin/init"
 buildah run "${build}" -- /bin/bash -c "rm /etc/apt/apt.conf.d/docker-clean"
-buildah run "${build}" -- /bin/bash -c "mkdir /etc/ansible/"
-buildah run "${build}" -- /bin/bash -c "/bin/echo -e \"[local]\nlocalhost ansible_connection=local\" > /etc/ansible/hosts"
+buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' /etc/sudoers"
+buildah run "${build}" -- /bin/bash -c "mkdir -p /etc/ansible && echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts"
 buildah run "${build}" -- /bin/bash -c "locale-gen en_US.UTF-8"
 
 # TODO: What is the container env variable used for ?
