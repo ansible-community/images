@@ -18,7 +18,7 @@ buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Default
 buildah run "${build}" -- /bin/bash -c "mkdir -p /etc/ansible && echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts"
 buildah run "${build}" -- /bin/bash -c "locale-gen en_US.UTF-8"
 
-# TODO: What is the container env variable used for ?
+buildah config --volume /sys/fs/cgroup --volume /run/lock  --volume /run --volume /tmp "${build}"
 buildah config --env container=docker "${build}"
 buildah config --cmd "/sbin/init" "${build}"
 buildah commit "${build}" "${1:-localhost/test-image:debian-bullseye}"
