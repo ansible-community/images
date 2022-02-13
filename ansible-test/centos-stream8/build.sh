@@ -11,10 +11,6 @@ buildah run "${build}" -- /bin/bash -c "dnf update -y && dnf install --alloweras
 # Extra python dependencies
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 install -r /tmp/src/requirements.txt"
 
-# Cows are a good reminder that these are not for production use :)
-buildah run "${build}" -- /bin/bash -c "dnf -y install epel-release && dnf -y install cowsay && dnf -y remove epel-release && dnf clean all"
-buildah config --env ANSIBLE_NOCOWS=0 "${build}"
-
 # Ansible-specific setup: Generate new SSH host keys, remove requiretty, set up a default inventory
 buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' /etc/sudoers"
 buildah run "${build}" -- /bin/bash -c "mkdir -p /etc/ansible && echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts"
