@@ -12,7 +12,7 @@ They can be built using [ansible-builder](https://github.com/ansible/ansible-bui
 ## Important ⚠️
 
 Images provided by this repository are tailored for development, testing and CI purposes.
-**They are maintained by the community and are not supported by RedHat**: they can and will break or run out of maintenance.
+**They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
 Do not use these images for production!
 
 You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own images tailored to your needs.
