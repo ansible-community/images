@@ -1,0 +1,8 @@
+---
+- project:
+    check:
+      jobs:
+        - community-images-ansible-test-build
+    post:
+      jobs:
+        - community-images-ansible-test-publish

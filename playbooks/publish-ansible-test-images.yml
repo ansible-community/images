@@ -19,6 +19,6 @@
 
     - name: Push images to the destination repository
       command: |
-        buildah push --creds {{ registry.username }}:{{ registry.password }} {{ destination }}:{{ item.tag }}
+        buildah push --creds {{ images_registry.username }}:{{ images_registry.password }} {{ destination }}:{{ item.tag }}
       no_log: yes
       loop: "{{ images }}"
