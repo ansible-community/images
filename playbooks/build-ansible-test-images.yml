@@ -1,6 +1,6 @@
 - name: Build and test ansible-test container images
   hosts: all
-  gather_facts: true
+  gather_facts: false
   vars:
     images_available:
       - name: localhost/test-image
@@ -15,6 +15,17 @@
         tag: debian-bullseye
         script: ansible-test/debian-bullseye/build.sh
         python: "3.9"
+  pre_tasks:
+    - name: Collect some facts
+      setup:
+        gather_subset:
+          - '!all'
+          - '!any'
+          - date_time
+          - distribution
+          - dns
+          - kernel
+          - python
   tasks:
     - name: Build ansible-test images
       include_role:
