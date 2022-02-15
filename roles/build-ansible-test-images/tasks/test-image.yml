@@ -20,9 +20,9 @@
           [ara]
           api_client = http
           api_server = {{ images_ara_api_server }}
-          {% if ara_api_username is defined and ara_api_password is defined %}
-          api_username = {{ ara_api_username }}
-          api_password = {{ ara_api_password }}
+          {% if images_ara_api_username is defined and images_ara_api_password is defined %}
+          api_username = {{ images_ara_api_username }}
+          api_password = {{ images_ara_api_password }}
           {% endif %}
           callback_threads = 4
           argument_labels = check,tags,subset
