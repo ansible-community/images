@@ -2,8 +2,8 @@
   include_tasks: pre-requirements.yml
 
 - name: Build ansible-test container image
-  ansible.builtin.command: >-
-    {{ playbook_dir | dirname }}/{{ item.script }} {{ item.name }}:{{ item.tag }}
+  ansible.builtin.command:
+    cmd: "{{ playbook_dir | dirname }}/{{ item.script }} {{ item.name }}:{{ item.tag }}"
   when: images_build | bool
   loop: "{{ images_available }}"
 
