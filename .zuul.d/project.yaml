@@ -1,5 +1,7 @@
 ---
 - project:
+    name: ansible-community/images
+    default-branch: main
     check:
       jobs:
         - community-images-ansible-test-build
