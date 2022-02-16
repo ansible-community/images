@@ -38,4 +38,4 @@ ansible-navigator --pull-policy never \
 
 ## Available images
 
-- [test-ee:2.12-with-ansible5](https://quay.io/ansible-community/test-ee:2.12-with-ansible5): [ansible-runner:stable-2.12-devel](https://quay.io/ansible/ansible-runner:stable-2.12-devel) with some extra packages, including ``pip install "ansible>=5,<6" ara``
+- [test-ee:2.12-with-ansible5](https://quay.io/ansible-community/test-ee:2.12-with-ansible5): [ansible-runner:stable-2.12-latest](https://quay.io/ansible/ansible-runner:stable-2.12-latest) with some extra packages, including ``pip install "ansible>=5,<6" ara``
