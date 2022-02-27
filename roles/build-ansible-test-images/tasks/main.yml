@@ -1,16 +1,30 @@
 - name: Ensure dependencies are available
   include_tasks: pre-requirements.yml
 
-- name: List everything recursively
-  ansible.builtin.command:
-    cmd: "ls -lahR {{ playbook_dir | dirname }}"
-  when: images_build | bool
+- when: images_build | bool
+  block:
+    - name: Create temporary directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: .test
+      register: remote_tmp_dir
 
-- name: Build ansible-test container image
-  ansible.builtin.command:
-    cmd: "{{ playbook_dir | dirname }}/{{ item.script }} {{ item.name }}:{{ item.tag }}"
-  when: images_build | bool
-  loop: "{{ images_available }}"
+    - name: Copy repository files to temporary directory
+      ansible.builtin.copy:
+        src: '{{ playbook_dir | dirname }}/ansible-test/'
+        dest: '{{ remote_tmp_dir.path }}/ansible-test/'
+
+    - name: Build ansible-test container image
+      ansible.builtin.command:
+        cmd: "{{ remote_tmp_dir.path }}/{{ item.script }} {{ item.name }}:{{ item.tag }}"
+      loop: "{{ images_available }}"
+
+  always:
+    - name: Delete temporary directory
+      file:
+        path: "{{ remote_tmp_dir.path }}"
+        state: absent
+      no_log: yes
 
 - name: Install ansible-test in a virtualenv
   include_tasks: install-ansible-test.yml
