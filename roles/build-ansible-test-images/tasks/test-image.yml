@@ -4,7 +4,7 @@
   block:
     - name: Get path to the ara callback plugin
       ansible.builtin.command: >-
-        podman run -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
+        podman run --rm -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
       changed_when: false
       register: _ara_callback_plugins
 
