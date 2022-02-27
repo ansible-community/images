@@ -13,6 +13,7 @@
       ansible.builtin.copy:
         src: '{{ playbook_dir | dirname }}/ansible-test/'
         dest: '{{ remote_tmp_dir.path }}/ansible-test/'
+        mode: preserve
 
     - name: Build ansible-test container image
       ansible.builtin.command:
