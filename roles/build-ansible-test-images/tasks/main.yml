@@ -5,6 +5,7 @@
   ansible.builtin.command:
     cmd: "{{ ansible_user_dir }}/src/github.com/ansible-community/images/{{ item.script }} {{ item.name }}:{{ item.tag }}"
   loop: "{{ images_available }}"
+  when: images_build | bool
 
 - name: Install ansible-test in a virtualenv
   include_tasks: install-ansible-test.yml
