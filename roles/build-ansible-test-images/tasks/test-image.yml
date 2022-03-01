@@ -34,7 +34,7 @@
   ansible.builtin.command:
     cmd: >-
       {{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file
-    chdir: "{{ ansible_user_dir }}/.ansible/tmp/src/ansible_collections/community/general"
+    chdir: "{{ _community_general }}"
   environment:
     ANSIBLE_TEST_PREFER_PODMAN: '1'
   when: images_test | bool
