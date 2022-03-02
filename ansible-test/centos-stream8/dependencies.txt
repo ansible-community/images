@@ -15,6 +15,7 @@ net-tools
 openssh-clients
 openssh-server
 openssl-devel
+procps
 python38
 python38-cffi
 python38-cryptography
