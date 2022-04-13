@@ -6,6 +6,7 @@ file
 gcc
 git
 glibc-langpack-en
+glibc-locale-source
 iproute
 libffi
 libffi-devel
