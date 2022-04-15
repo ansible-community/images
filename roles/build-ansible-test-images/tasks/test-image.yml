@@ -3,8 +3,7 @@
 - when: images_enable_ara | bool
   block:
     - name: Get path to the ara callback plugin in {{ item.name }}:{{ item.tag }}
-      ansible.builtin.command:
-        cmd: podman run --rm -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
+      command: podman run --rm -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
       changed_when: false
       register: _ara_callback_plugins
 
@@ -31,9 +30,8 @@
           ignored_arguments = vault_password_files
 
 - name: Run a simple integration test using the image {{ item.name }}:{{ item.tag }} we built
-  ansible.builtin.command:
-    cmd: >-
-      {{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file
+  command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file"
+  args:
     chdir: "{{ _community_general }}"
   environment:
     ANSIBLE_TEST_PREFER_PODMAN: '1'
