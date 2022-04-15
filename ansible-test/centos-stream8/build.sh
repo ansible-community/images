@@ -9,6 +9,9 @@ DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 build=$(buildah from quay.io/centos/centos:stream8)
 buildah run "${build}" -- /bin/bash -c "dnf update -y && dnf install --allowerasing -y ${DEPENDENCIES} && dnf clean all"
 
+# Make sure en_US-UTF8 is around
+buildah run "${build}" -- /bin/bash -c "localedef --no-archive -i en_US -f UTF-8 en_US.UTF-8"
+
 # Extra python dependencies
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 install -r /tmp/src/requirements.txt"
 
