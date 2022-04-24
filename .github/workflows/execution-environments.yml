@@ -33,6 +33,11 @@ jobs:
           sudo apt-get install podman
           pip install ansible-core ansible-builder ansible-navigator
 
+      - name: Download requirements for ${{ matrix.name }} image
+        run: |
+          ./download.sh
+        working-directory: ./execution-environments/${{ matrix.name }}
+
       - name: Build ${{ matrix.name }} image
         run: |
           ansible-builder build -v 3 -t test-ee:${{ matrix.name }}

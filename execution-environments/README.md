@@ -29,6 +29,8 @@ pip install --user ansible-builder ansible-navigator
 
 cd 2.12-with_ansible5
 
+./download.sh
+
 ansible-builder build -v 3 -t test-ee:2.12-with-ansible5
 
 ansible-navigator --pull-policy never \
