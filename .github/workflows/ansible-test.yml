@@ -51,7 +51,16 @@ jobs:
         run: |
           podman push localhost/test-image:${{ matrix.name }} docker-daemon:localhost/test-image:${{ matrix.name }}
 
-      - name: Run basic tests with ${{ matrix.name }} image
+      - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release)
+        run: |
+          ansible-test integration --color -v --python ${{ matrix.python }} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
+        working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
+
+      - name: Install ansible-core devel
+        run: |
+          pip install https://github.com/ansible/ansible/archive/devel.tar.gz
+
+      - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel)
         run: |
           ansible-test integration --color -v --python ${{ matrix.python }} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
