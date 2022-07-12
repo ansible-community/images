@@ -21,6 +21,6 @@ buildah run "${build}" -- /bin/bash -c "locale-gen en_US.UTF-8"
 
 buildah config --volume /sys/fs/cgroup --volume /run/lock --volume /run --volume /tmp "${build}"
 buildah config --env container=docker "${build}"
-buildah config --env LANG=en_US.UTF-8 "${build}"
+buildah config --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8 "${build}"
 buildah config --cmd "/sbin/init" "${build}"
 buildah commit "${build}" "${1:-localhost/test-image:debian-bullseye}"
