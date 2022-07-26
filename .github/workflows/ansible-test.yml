@@ -45,9 +45,11 @@ jobs:
           ${{ matrix.name }}/build.sh
         working-directory: ./ansible-test/
 
-      # Right now it is not possible to use some of the images (Debian Bullseye, ArchLinux) with podman in GitHub Actions,
-      # while others (CentOS 8 Stream) work fine. This is not specific to the images in this repository, the official
-      # ansible-test Ubuntu 20.04 image also does not work with podman in GHA, but does work with Docker in GHA.
+      # This is necessary to allow running systemd in rootless containers
+      - name: Start systemd user service
+        run: |
+          loginctl enable-linger runner
+          sleep 1
 
       - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release), Python versions ${{ matrix.python }}
         run: |
