@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install podman
-          pip install ansible-core ansible-builder ansible-navigator
+          pip install https://github.com/mattclay/ansible/archive/at-container-testing.tar.gz ansible-builder ansible-navigator
 
       - name: Build ${{ matrix.name }} image
         run: |
