@@ -1,4 +1,4 @@
-images_ansible_name: ansible-core
+images_ansible_name: https://github.com/mattclay/ansible/archive/at-container-testing.tar.gz
 images_ansible_version: latest
 
 images_available:

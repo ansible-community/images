@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install podman buildah
-          pip install ansible-core
+          pip install https://github.com/mattclay/ansible/archive/at-container-testing.tar.gz
 
       - name: Build ${{ matrix.name }} image
         run: |
