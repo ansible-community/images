@@ -16,6 +16,7 @@ buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 i
 buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' /etc/sudoers"
 buildah run "${build}" -- /bin/bash -c "mkdir -p /etc/ansible && echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts"
 buildah run "${build}" -- /bin/bash -c "systemctl enable sshd"
+buildah run "${build}" -- /bin/bash -c "ln -s /usr/share/zoneinfo/UTC /etc/localtime"
 
 buildah config --volume /sys/fs/cgroup --volume /run/lock --volume /run --volume /tmp "${build}"
 buildah config --env container=docker "${build}"
