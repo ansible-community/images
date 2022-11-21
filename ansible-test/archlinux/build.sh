@@ -17,7 +17,6 @@ buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Default
 buildah run "${build}" -- /bin/bash -c "mkdir -p /etc/ansible && echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts"
 buildah run "${build}" -- /bin/bash -c "systemctl enable sshd"
 
-buildah config --volume /sys/fs/cgroup --volume /run/lock --volume /run --volume /tmp "${build}"
 buildah config --env container=docker "${build}"
 buildah config --cmd "/usr/sbin/init" "${build}"
 buildah commit "${build}" "${1:-localhost/test-image:archlinux}"
