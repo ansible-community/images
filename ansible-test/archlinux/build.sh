@@ -1,7 +1,7 @@
 #!/bin/bash
 # Builds a archlinux image suitable for use with ansible-test
 # Based on the centos8-stream image from this repository
-set -e
+set -ex
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
 DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"

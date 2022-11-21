@@ -1,7 +1,7 @@
 #!/bin/bash
 # Builds a debian bullseye image suitable for use with ansible-test
 # Based on https://github.com/ansible/distro-test-containers/blob/c4fe28818f5a33b675652637e3057bafe50039ee/ubuntu2004-test-container/Dockerfile
-set -e
+set -ex
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
 DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
