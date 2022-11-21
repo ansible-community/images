@@ -1,5 +1,5 @@
-python38 [platform:rpm]
-python38-devel [platform:rpm]
-python38-pip [platform:rpm]
+python39 [platform:rpm]
+python39-devel [platform:rpm]
+python39-pip [platform:rpm]
 procps-ng [platform:rpm]
 git [default]

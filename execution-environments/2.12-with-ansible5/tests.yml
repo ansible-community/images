@@ -38,6 +38,6 @@
           - ansible_distribution == "CentOS"
           - ansible_distribution_release == "Stream"
           - ansible_distribution_version == "8"
-          - ansible_python_version is version("3.8.0", ">=")
+          - ansible_python_version is version("3.9.0", ">=")
           # - query("community.general.collection_version", "community.general") is version("4.4.0", ">=")
           # ...
