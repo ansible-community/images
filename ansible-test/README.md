@@ -61,6 +61,8 @@ ansible-test integration --python 3.8 --docker localhost/test-image:centos-strea
 | [centos-stream8]  |      |      |  ✔️   |      |        | Based on [centos8 ansible-test image]    |
 | [debian-bullseye] |      |      |      |  ✔️   |        | Based on [ubuntu2004 ansible-test image] |
 
+Note that these images from only work with ansible-test from ansible-core 2.14.0 or later.
+
 [archlinux]: https://quay.io/ansible-community/test-image:archlinux
 [centos-stream8]: https://quay.io/ansible-community/test-image:centos-stream8
 [debian-bullseye]: https://quay.io/ansible-community/test-image:debian-bullseye
