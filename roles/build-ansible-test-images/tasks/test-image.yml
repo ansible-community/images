@@ -29,10 +29,14 @@
           ignored_facts = ansible_env
           ignored_arguments = vault_password_files
 
+- name: Copy podman image to docker daemon
+  command: podman push {{ item.name }}:{{ item.tag }} docker-daemon:{{ item.name }}:{{ item.tag }}
+  when: images_test | bool
+
 - name: Run a simple integration test using the image {{ item.name }}:{{ item.tag }} we built
   command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file"
   args:
     chdir: "{{ _community_general }}"
   environment:
-    ANSIBLE_TEST_PREFER_PODMAN: '1'
+    ANSIBLE_TEST_PREFER_PODMAN: '0'
   when: images_test | bool
