@@ -27,9 +27,10 @@
           - kernel
           - python
   tasks:
-    - name: podman may need iptables kernel modules
+    - name: Podman may need ip_tables kernel modules
       command: modprobe ip_tables
       become: true
+
     - name: Build ansible-test images
       include_role:
         name: build-ansible-test-images
