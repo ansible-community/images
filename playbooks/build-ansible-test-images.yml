@@ -1,20 +1,9 @@
+---
 - name: Build and test ansible-test container images
   hosts: all
   gather_facts: false
-  vars:
-    images_available:
-      - name: localhost/test-image
-        tag: archlinux
-        script: ansible-test/archlinux/build.sh
-        python: "3.10"
-      - name: localhost/test-image
-        tag: centos-stream8
-        script: ansible-test/centos-stream8/build.sh
-        python: "3.8"
-      - name: localhost/test-image
-        tag: debian-bullseye
-        script: ansible-test/debian-bullseye/build.sh
-        python: "3.9"
+  vars_files:
+    - images.yml
   pre_tasks:
     - name: Collect some facts
       setup:
@@ -27,10 +16,15 @@
           - kernel
           - python
   tasks:
-    - name: Podman may need ip_tables kernel modules
-      command: modprobe ip_tables
-      become: true
-
-    - name: Build ansible-test images
+    - name: Build ansible-test images and run tests
       include_role:
-        name: build-ansible-test-images
+        name: build-ansible-test-image
+      vars:
+        image_name: "{{ item.name }}"
+        image_tag: "{{ item.tag }}"
+        build_script: "{{ item.script }}"
+        image_python: "{{ item.python }}"
+        run_tests: true
+        remove_image: true
+        publish_image: false
+      loop: "{{ ansible_test_images_available }}"

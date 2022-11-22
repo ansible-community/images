@@ -1,3 +1,8 @@
+---
+- name: Podman may need ip_tables kernel modules
+  ansible.builtin.command: modprobe ip_tables
+  become: true
+
 - name: Check if git, buildah and podman are installed
   ansible.builtin.package_facts:
     manager: "auto"

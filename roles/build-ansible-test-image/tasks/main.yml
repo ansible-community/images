@@ -1,0 +1,58 @@
+---
+- name: Ensure dependencies are available
+  include_tasks: pre-requirements.yml
+
+- name: Work with images
+  block:
+    - name: Build ansible-test container image
+      command: "{{ ansible_user_dir }}/src/github.com/ansible-community/images/{{ build_script }} {{ image_name }}:{{ image_tag }}"
+      when: build_image
+
+    - name: Install ansible-test in a virtualenv
+      ansible.builtin.import_tasks: install-ansible-test.yml
+
+    # TODO: This gets us started with simple testing but we should be able to iterate across
+    # a list of collections and test specified targets against specified versions of python
+    - name: Set path to community.general checkout
+      ansible.builtin.set_fact:
+        _community_general: "{{ ansible_user_dir }}/.ansible/tmp/src/ansible_collections/community/general"
+
+    - name: Retrieve community.general to test ansible-test with
+      ansible.builtin.git:
+        repo: "https://github.com/ansible-collections/community.general"
+        dest: "{{ _community_general }}"
+        depth: 1
+        version: main
+
+    - name: Test the container image
+      ansible.builtin.import_tasks: test-image.yml
+
+    - name: List available images
+      vars:
+        _images: >-
+          {% for image in ansible_test_images_available %}
+          {{- image['name'] }}:{{ image['tag'] -}}{% if not loop.last %},{% endif %}
+          {% endfor %}
+      ansible.builtin.debug:
+        msg: "The following images have been built and tested: {{ _images }}"
+
+    - name: Publish images
+      when: publish_image
+      block:
+        - name: Tag images with buildah
+          command: |
+            buildah tag {{ image_name }}:{{ image_tag }} {{ destination_image }}
+
+        - name: Push images to the destination repository
+          command: |
+            buildah push --creds {{ images_registry.username }}:{{ images_registry.password }} {{ destination_image }}
+          no_log: true
+
+  always:
+    - name: Remove podman image
+      command: podman image rm {{ image_name }}:{{ image_tag }}
+      when: remove_image
+
+    - name: Remove tagged podman image
+      command: podman image rm {{ destination_image }}
+      when: remove_image and publish_image

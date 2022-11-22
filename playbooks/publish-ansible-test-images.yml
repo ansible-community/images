@@ -1,24 +1,31 @@
-- name: Publish ansible-test container images
+---
+- name: Build, test, and publish ansible-test container images
   hosts: all
   gather_facts: false
-  vars:
-    destination: "{{ destination_repository | default('quay.io/ansible-community/test-image') }}"
-    images:
-      # These images are meant to be provided by running the "build-ansible-test-images.yml" playbook.
-      - name: localhost/test-image
-        tag: archlinux
-      - name: localhost/test-image
-        tag: centos-stream8
-      - name: localhost/test-image
-        tag: debian-bullseye
+  vars_files:
+    - images.yml
+  pre_tasks:
+    - name: Collect some facts
+      setup:
+        gather_subset:
+          - '!all'
+          - '!any'
+          - date_time
+          - distribution
+          - dns
+          - kernel
+          - python
   tasks:
-    - name: Tag images with buildah
-      command: |
-        buildah tag {{ item.name }}:{{ item.tag }} {{ destination }}:{{ item.tag }}
-      loop: "{{ images }}"
-
-    - name: Push images to the destination repository
-      command: |
-        buildah push --creds {{ images_registry.username }}:{{ images_registry.password }} {{ destination }}:{{ item.tag }}
-      no_log: yes
-      loop: "{{ images }}"
+    - name: Build ansible-test images, run tests, and publish
+      include_role:
+        name: build-ansible-test-image
+      vars:
+        image_name: "{{ item.name }}"
+        image_tag: "{{ item.tag }}"
+        destination_image: "{{ destination_repository | default('quay.io/ansible-community/test-image') }}:{{ item.tag }}"
+        build_script: "{{ item.script }}"
+        image_python: "{{ item.python }}"
+        run_tests: true
+        remove_image: true
+        publish_image: true
+      loop: "{{ ansible_test_images_available }}"

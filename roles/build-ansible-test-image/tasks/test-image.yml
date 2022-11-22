@@ -1,9 +1,10 @@
+---
 # If ara is installed in the images, we can use it to provide reporting for the playbooks
 # that ansible-test runs
 - when: images_enable_ara | bool
   block:
-    - name: Get path to the ara callback plugin in {{ item.name }}:{{ item.tag }}
-      command: podman run --rm -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
+    - name: Get path to the ara callback plugin in {{ image_name }}:{{ image_tag }}
+      command: podman run --rm -it {{ image_name }}:{{ image_tag }} python{{ image_python }} -m ara.setup.callback_plugins
       changed_when: false
       register: _ara_callback_plugins
 
@@ -25,18 +26,25 @@
           {% endif %}
           callback_threads = 4
           argument_labels = check,tags,subset
-          default_labels = ansible-test,{{ item.name }}:{{ item.tag }},py{{ item.python }}
+          default_labels = ansible-test,{{ image_name }}:{{ image_tag }},py{{ image_python }}
           ignored_facts = ansible_env
           ignored_arguments = vault_password_files
 
-- name: Copy podman image to docker daemon
-  command: podman push {{ item.name }}:{{ item.tag }} docker-daemon:{{ item.name }}:{{ item.tag }}
-  when: images_test | bool
+- name: Run tests on docker
+  block:
+    - name: Copy podman image to docker daemon
+      command: podman push {{ image_name }}:{{ image_tag }} docker-daemon:{{ image_name }}:{{ image_tag }}
+      when: run_tests | bool
 
-- name: Run a simple integration test using the image {{ item.name }}:{{ item.tag }} we built
-  command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file"
-  args:
-    chdir: "{{ _community_general }}"
-  environment:
-    ANSIBLE_TEST_PREFER_PODMAN: '0'
-  when: images_test | bool
+    - name: Run a simple integration test using the image {{ image_name }}:{{ image_tag }} we built
+      command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ image_python }} --docker {{ image_name }}:{{ image_tag }} ini_file"
+      args:
+        chdir: "{{ _community_general }}"
+      environment:
+        ANSIBLE_TEST_PREFER_PODMAN: '0'
+      when: run_tests | bool
+
+  always:
+    - name: Remove docker image
+      command: docker image rm {{ image_name }}:{{ image_tag }}
+      when: remove_image

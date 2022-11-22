@@ -1,3 +1,4 @@
+---
 # The name can be "ansible", "ansible-base" or "ansible-core" in which case
 # they would be installed from PyPI.
 # The name can otherwise be the path to a git repository or release tarball.

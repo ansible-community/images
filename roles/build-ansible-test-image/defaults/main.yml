@@ -1,25 +1,18 @@
+---
 images_ansible_name: ansible-core
 images_ansible_version: latest
 
-images_available:
-  - name: localhost/test-image
-    tag: archlinux
-    script: ansible-test/archlinux/build.sh
-    python: "3.10"
-  - name: localhost/test-image
-    tag: centos-stream8
-    script: ansible-test/centos-stream8/build.sh
-    python: "3.8"
-  - name: localhost/test-image
-    tag: debian-bullseye
-    script: ansible-test/debian-bullseye/build.sh
-    python: "3.9"
+# Whether to run tests
+run_tests: true
 
-# Whether to always build the image (even if it already exists)
-images_build: true
+# Whether to remove the image after testing and publishing
+remove_image: true
 
-# Whether to test the images or not
-images_test: true
+# Whether to remove the image afterwards
+publish_image: false
+
+# Whether to build the image
+build_image: true
 
 # Whether ara should be enabled and configured to record playbook results on an ara server
 images_enable_ara: false
