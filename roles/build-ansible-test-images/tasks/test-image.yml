@@ -30,7 +30,7 @@
           ignored_arguments = vault_password_files
 
 - name: Run a simple integration test using the image {{ item.name }}:{{ item.tag }} we built
-  command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker {{ item.name }}:{{ item.tag }} ini_file"
+  command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker-network podman --docker {{ item.name }}:{{ item.tag }} ini_file"
   args:
     chdir: "{{ _community_general }}"
   environment:
