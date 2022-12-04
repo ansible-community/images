@@ -17,16 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: 2.12-with-ansible5
+          - name: 2.14-with-ansible7
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.11
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
