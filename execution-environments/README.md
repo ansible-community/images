@@ -27,17 +27,17 @@ Example:
 dnf -y install podman
 pip install --user ansible-builder ansible-navigator
 
-cd 2.12-with_ansible5
+cd 2.14-with-ansible7
 
 ./download.sh
 
-ansible-builder build -v 3 -t test-ee:2.12-with-ansible5
+ansible-builder build -v 3 -t test-ee:2.14-with-ansible7
 
 ansible-navigator --pull-policy never \
-    --execution-environment-image test-ee:2.12-with-ansible5 \
+    --execution-environment-image test-ee:2.14-with-ansible7 \
     run tests.yml
 ```
 
 ## Available images
 
-- [test-ee:2.12-with-ansible5](https://quay.io/ansible-community/test-ee:2.12-with-ansible5): [ansible-runner:stable-2.12-latest](https://quay.io/ansible/ansible-runner:stable-2.12-latest) with some extra packages, including ``pip install "ansible>=5,<6" ara``
+- [test-ee:2.14-with-ansible7](https://quay.io/ansible-community/test-ee:2.14-with-ansible7): [ansible-runner:stable-2.12-latest](https://quay.io/ansible/ansible-runner:stable-2.12-latest) with some extra packages, including ``pip install "ansible>=5,<6" ara``

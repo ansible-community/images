@@ -1,0 +1,5 @@
+python39 [platform:rpm]
+python39-devel [platform:rpm]
+python39-pip [platform:rpm]
+procps-ng [platform:rpm]
+git [default]
