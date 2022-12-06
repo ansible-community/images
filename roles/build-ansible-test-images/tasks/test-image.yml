@@ -2,13 +2,13 @@
 # that ansible-test runs
 - when: images_enable_ara | bool
   block:
-    - name: Get path to the ara callback plugin in {{ item.name }}:{{ item.tag }}
-      command: podman run --rm -it {{ item.name }}:{{ item.tag }} python{{ item.python }} -m ara.setup.callback_plugins
+    - name: Get path to the ara callback plugin in {{ item.name }}:{{ item.tag }} for Python {{ item_python }}
+      command: podman run --rm -it {{ item.name }}:{{ item.tag }} python{{ item_python }} -m ara.setup.callback_plugins
       changed_when: false
       register: _ara_callback_plugins
 
     # TODO: Provide more control over the contents of the file ?
-    - name: Template an ansible configuration file for ansible-test
+    - name: Template an ansible configuration file for ansible-test for Python {{ item_python }}
       no_log: true
       ansible.builtin.copy:
         dest: "{{ _community_general }}/tests/integration/integration.cfg"
@@ -25,12 +25,12 @@
           {% endif %}
           callback_threads = 4
           argument_labels = check,tags,subset
-          default_labels = ansible-test,{{ item.name }}:{{ item.tag }},py{{ item.python }}
+          default_labels = ansible-test,{{ item.name }}:{{ item.tag }},py{{ item_python }}
           ignored_facts = ansible_env
           ignored_arguments = vault_password_files
 
-- name: Run a simple integration test using the image {{ item.name }}:{{ item.tag }} we built
-  command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item.python }} --docker-network podman --docker {{ item.name }}:{{ item.tag }} ini_file"
+- name: Run a simple integration test using the image {{ item.name }}:{{ item.tag }} we built with Python {{ item_python }}
+  command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item_python }} --docker-network podman --docker {{ item.name }}:{{ item.tag }} ini_file"
   args:
     chdir: "{{ _community_general }}"
   environment:

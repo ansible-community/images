@@ -23,7 +23,7 @@
     version: main
 
 - name: Test the container images
-  include_tasks: test-image.yml
+  include_tasks: test-image-pythons.yml
   loop: "{{ images_available }}"
 
 - name: List available images
