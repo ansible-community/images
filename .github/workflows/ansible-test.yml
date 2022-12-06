@@ -20,7 +20,7 @@ jobs:
           - name: archlinux
             python: '3.10'
           - name: centos-stream8
-            python: '3.8'
+            python: '3.6'
           - name: debian-bullseye
             python: '3.9'
 

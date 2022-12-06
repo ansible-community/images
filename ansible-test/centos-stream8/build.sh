@@ -4,16 +4,21 @@
 set -ex
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
-DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
+DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | grep -v '^#' | tr '\n' ' ')"
 
 build=$(buildah from quay.io/centos/centos:stream8)
 buildah run "${build}" -- /bin/bash -c "dnf update -y && dnf install --allowerasing -y ${DEPENDENCIES} && dnf clean all"
+# Set
 
 # Make sure en_US-UTF8 is around
 buildah run "${build}" -- /bin/bash -c "localedef --no-archive -i en_US -f UTF-8 en_US.UTF-8"
 
 # Extra python dependencies
-buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 install -r /tmp/src/requirements.txt"
+# python3.6 (default system interpreter)
+buildah run "${build}" -- /bin/bash -c "alternatives --set python3 /usr/bin/python3.6"
+buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.6 install -r /tmp/src/requirements.txt"
+# python3.8 (DEPRECATED)
+buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.8 install -r /tmp/src/requirements.txt"
 
 # Ansible-specific setup: Generate new SSH host keys, remove requiretty, set up a default inventory
 buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' /etc/sudoers"
