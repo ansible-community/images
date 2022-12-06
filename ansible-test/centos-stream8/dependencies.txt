@@ -35,6 +35,15 @@ python38-lxml
 python38-pip
 python38-setuptools
 python38-wheel
+# python3.9
+python39
+python39-cffi
+python39-cryptography
+python39-devel
+python39-lxml
+python39-pip
+python39-setuptools
+python39-wheel
 rpm-build
 rubygems
 sshpass
