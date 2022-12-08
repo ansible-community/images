@@ -20,7 +20,7 @@ jobs:
           - name: archlinux
             python: '3.10'
           - name: centos-stream8
-            python: '3.6'
+            python: '3.6 3.8 3.9'
           - name: debian-bullseye
             python: '3.9'
 
@@ -51,16 +51,20 @@ jobs:
         run: |
           podman push localhost/test-image:${{ matrix.name }} docker-daemon:localhost/test-image:${{ matrix.name }}
 
-      - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release)
+      - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release), Python versions ${{ matrix.python }}
         run: |
-          ansible-test integration --color -v --python ${{ matrix.python }} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
+          for PYTHON in ${{ matrix.python }}; do
+            ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
+          done
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
 
       - name: Install ansible-core devel
         run: |
           pip install https://github.com/ansible/ansible/archive/devel.tar.gz
 
-      - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel)
+      - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel), Python versions ${{ matrix.python }}
         run: |
-          ansible-test integration --color -v --python ${{ matrix.python }} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
+          for PYTHON in ${{ matrix.python }}; do
+            ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
+          done
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol

@@ -19,6 +19,8 @@ buildah run "${build}" -- /bin/bash -c "alternatives --set python3 /usr/bin/pyth
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.6 install -r /tmp/src/requirements.txt"
 # python3.8 (DEPRECATED)
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.8 install -r /tmp/src/requirements.txt"
+# python3.9
+buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.9 install -r /tmp/src/requirements.txt"
 
 # Ansible-specific setup: Generate new SSH host keys, remove requiretty, set up a default inventory
 buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' /etc/sudoers"
