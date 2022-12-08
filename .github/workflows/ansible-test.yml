@@ -36,7 +36,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install podman buildah
-          pip install ansible-core
+          # Install ansible-core form stable-2.14 until the ansible-core 2.14.2 release is out
+          pip install https://github.com/ansible/ansible/archive/stable-2.14.tar.gz
+          # pip install ansible-core
 
       - name: Build ${{ matrix.name }} image
         run: |
