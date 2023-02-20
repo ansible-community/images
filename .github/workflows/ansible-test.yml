@@ -17,9 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # TODO: re-enable arch
-          # - name: archlinux
-          #   python: '3.10'
+          - name: archlinux
+            python: '3.10'
           # TODO: re-enable CentOS Stream 8
           # - name: centos-stream8
           #   python: '3.6 3.8 3.9'

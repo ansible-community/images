@@ -5,9 +5,8 @@
     destination: "{{ destination_repository | default('quay.io/ansible-community/test-image') }}"
     images:
       # These images are meant to be provided by running the "build-ansible-test-images.yml" playbook.
-      # TODO: re-enable arch
-      # - name: localhost/test-image
-      #   tag: archlinux
+      - name: localhost/test-image
+        tag: archlinux
       - name: localhost/test-image
         tag: centos-stream8
       - name: localhost/test-image
