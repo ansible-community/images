@@ -1,4 +1,4 @@
-coverage==4.5.4
+coverage==6.5.0
 resolvelib==0.5.4
 # include ara for optional test and CI reporting
 ara
