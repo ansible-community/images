@@ -26,15 +26,6 @@ python3-lxml
 python3-pip
 python3-setuptools
 python3-wheel
-# python3.8 (DEPRECATED)
-python38
-python38-cffi
-python38-cryptography
-python38-devel
-python38-lxml
-python38-pip
-python38-setuptools
-python38-wheel
 # python3.9
 python39
 python39-cffi

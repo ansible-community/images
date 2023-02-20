@@ -12,7 +12,6 @@ images_available:
     script: ansible-test/centos-stream8/build.sh
     pythons:
       - "3.6"
-      - "3.8"
       - "3.9"
   - name: localhost/test-image
     tag: debian-bullseye

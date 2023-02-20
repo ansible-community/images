@@ -17,8 +17,6 @@ buildah run "${build}" -- /bin/bash -c "localedef --no-archive -i en_US -f UTF-8
 # python3.6 (default system interpreter)
 buildah run "${build}" -- /bin/bash -c "alternatives --set python3 /usr/bin/python3.6"
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.6 install -r /tmp/src/requirements-old.txt"
-# python3.8 (DEPRECATED)
-buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.8 install -r /tmp/src/requirements-old.txt"
 # python3.9
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3.9 install -r /tmp/src/requirements.txt"
 
