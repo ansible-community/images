@@ -2,11 +2,12 @@ images_ansible_name: ansible-core
 images_ansible_version: latest
 
 images_available:
-  - name: localhost/test-image
-    tag: archlinux
-    script: ansible-test/archlinux/build.sh
-    pythons:
-      - "3.10"
+  # TODO: re-enable arch
+  # - name: localhost/test-image
+  #   tag: archlinux
+  #   script: ansible-test/archlinux/build.sh
+  #   pythons:
+  #     - "3.10"
   - name: localhost/test-image
     tag: centos-stream8
     script: ansible-test/centos-stream8/build.sh
