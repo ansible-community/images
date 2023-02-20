@@ -33,6 +33,6 @@
   command: "{{ images_venv }}/bin/ansible-test integration -v --python {{ item_python }} --docker-network podman --docker {{ item.name }}:{{ item.tag }} ini_file"
   args:
     chdir: "{{ _community_general }}"
-  environment:
-    ANSIBLE_TEST_PREFER_PODMAN: '1'
+  # environment:
+  #   ANSIBLE_TEST_PREFER_PODMAN: '1'
   when: images_test | bool

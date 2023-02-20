@@ -1,3 +1,6 @@
+- name: Push the container image {{ item.name }} to Docker
+  ansible.builtin.command: podman push {{ item.name }}:{{ item.tag }} docker-daemon:{{ item.name }}:{{ item.tag }}
+
 - name: Test the container image {{ item.name }}:{{ item.tag }} for Python versions
   include_tasks: test-image.yml
   loop: "{{ item.pythons }}"
