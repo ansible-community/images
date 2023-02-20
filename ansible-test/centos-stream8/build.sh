@@ -32,4 +32,5 @@ buildah run "${build}" -- /bin/bash -c "find /usr/lib/locale -mindepth 1 -maxdep
 
 buildah config --env container=docker "${build}"
 buildah config --cmd "/usr/sbin/init" "${build}"
+buildah config --user 0 "${build}"
 buildah commit "${build}" "${1:-localhost/test-image:centos-stream8}"
