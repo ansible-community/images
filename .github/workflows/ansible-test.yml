@@ -20,8 +20,9 @@ jobs:
           # TODO: re-enable arch
           # - name: archlinux
           #   python: '3.10'
-          - name: centos-stream8
-            python: '3.6 3.8 3.9'
+          # TODO: re-enable CentOS Stream 8
+          # - name: centos-stream8
+          #   python: '3.6 3.8 3.9'
           - name: debian-bullseye
             python: '3.9'
 
