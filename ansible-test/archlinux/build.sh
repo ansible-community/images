@@ -22,7 +22,7 @@ buildah run "${build}" -- /bin/bash -c "systemctl enable sshd"
 buildah run "${build}" -- /bin/bash -c "ln -s /usr/share/zoneinfo/UTC /etc/localtime"
 buildah run "${build}" -- /bin/bash -c "sed /etc/locale.gen -i -e 's/# en_US\\.UTF-8/en_US.UTF-8/'"
 buildah run "${build}" -- /bin/bash -c "locale-gen"
-buildah run "${build}" -- /bin/bash -c "localectl set-locale LANG=en_US.UTF-8"
+buildah run "${build}" -- /bin/bash -c "echo 'LANG=en_US.UTF-8' > /etc/locale.conf"
 
 buildah config --env container=docker "${build}"
 buildah config --cmd "/usr/sbin/init" "${build}"
