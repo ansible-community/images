@@ -20,7 +20,7 @@ buildah run "${build}" -- /bin/bash -c "ssh-keygen -A && sed -i -e 's/^\(Default
 buildah run "${build}" -- /bin/bash -c "mkdir -p /etc/ansible && echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts"
 buildah run "${build}" -- /bin/bash -c "systemctl enable sshd"
 buildah run "${build}" -- /bin/bash -c "ln -s /usr/share/zoneinfo/UTC /etc/localtime"
-buildah run "${build}" -- /bin/bash -c "sed /etc/locale.gen -i -e 's/# en_US\\.UTF-8/en_US.UTF-8/'"
+buildah run "${build}" -- /bin/bash -c "sed /etc/locale.gen -i -e 's/# *en_US\\.UTF-8/en_US.UTF-8/'"
 buildah run "${build}" -- /bin/bash -c "locale-gen"
 buildah run "${build}" -- /bin/bash -c "echo 'LANG=en_US.UTF-8' > /etc/locale.conf"
 
