@@ -55,11 +55,11 @@ ansible-test integration --python 3.6 --docker localhost/test-image:centos-strea
 
 ## Available images
 
-| image             | py27 | py36 | py38 | py39 | py3.10 | Notes                                    |
-|-------------------|------|------|------|------|--------|------------------------------------------|
-| [archlinux]       |      |      |      |      |   ✔️    |                                          |
-| [centos-stream8]  |      |  ✔️   |✔️[^1] |  ✔️   |        | Based on [centos8 ansible-test image]; **Build temporarily disabled** |
-| [debian-bullseye] |      |      |      |  ✔️   |        | Based on [ubuntu2004 ansible-test image] |
+| image             | py27 | py36 | py38 | py39 | py3.10 | py3.11 | Notes                                    |
+|-------------------|------|------|------|------|--------|--------|------------------------------------------|
+| [archlinux]       |      |      |      |      |        |   ✔️    |                                          |
+| [centos-stream8]  |      |  ✔️   |✔️[^1] |  ✔️   |        |        | Based on [centos8 ansible-test image]; **Build temporarily disabled** |
+| [debian-bullseye] |      |      |      |  ✔️   |        |        | Based on [ubuntu2004 ansible-test image] |
 
 
 [^1]: python3.8 support on centos-stream8 is DEPRECATED. It will be removed
