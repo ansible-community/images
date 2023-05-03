@@ -7,14 +7,13 @@ images_available:
     script: ansible-test/archlinux/build.sh
     pythons:
       - "3.11"
-  # TODO: re-enable CentOS Stream 8
-  # - name: localhost/test-image
-  #   tag: centos-stream8
-  #   script: ansible-test/centos-stream8/build.sh
-  #   pythons:
-  #     - "3.6"
-  #     - "3.8"
-  #     - "3.9"
+  - name: localhost/test-image
+    tag: centos-stream8
+    script: ansible-test/centos-stream8/build.sh
+    pythons:
+      - "3.6"
+      - "3.8"
+      - "3.9"
   - name: localhost/test-image
     tag: debian-bullseye
     script: ansible-test/debian-bullseye/build.sh
