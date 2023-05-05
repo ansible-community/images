@@ -51,7 +51,7 @@ jobs:
           loginctl enable-linger runner
           sleep 1
 
-      - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release), Python versions ${{ matrix.python }}
+      - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release), Python versions ${{ matrix.python }}, Podman
         run: |
           for PYTHON in ${{ matrix.python }}; do
             ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
@@ -64,11 +64,13 @@ jobs:
         run: |
           pip install https://github.com/ansible/ansible/archive/devel.tar.gz
 
-      - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel), Python versions ${{ matrix.python }}
+      - name: Copy image from podman to docker
+        run: |
+          podman push localhost/test-image:${{ matrix.name }} docker-daemon:localhost/test-image:${{ matrix.name }}
+
+      - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel), Python versions ${{ matrix.python }}, Docker
         run: |
           for PYTHON in ${{ matrix.python }}; do
             ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
           done
-        env:
-          ANSIBLE_TEST_PREFER_PODMAN: 1
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
