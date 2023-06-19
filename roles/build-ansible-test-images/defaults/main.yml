@@ -18,6 +18,11 @@ images_available:
     script: ansible-test/debian-bullseye/build.sh
     pythons:
       - "3.9"
+  - name: localhost/test-image
+    tag: debian-bookworm
+    script: ansible-test/debian-bookworm/build.sh
+    pythons:
+      - "3.11"
 
 # Whether to always build the image (even if it already exists)
 images_build: true

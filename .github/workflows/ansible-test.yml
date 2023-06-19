@@ -23,6 +23,8 @@ jobs:
             python: '3.6 3.9'
           - name: debian-bullseye
             python: '3.9'
+          - name: debian-bookworm
+            python: '3.11'
 
     steps:
       - name: Check out repository
