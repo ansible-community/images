@@ -21,6 +21,9 @@ buildah run "${build}" -- /bin/bash -c "sed /etc/locale.gen -i -e 's/# *en_US\\.
 buildah run "${build}" -- /bin/bash -c "locale-gen"
 buildah run "${build}" -- /bin/bash -c "echo 'LANG=en_US.UTF-8' > /etc/locale.conf"
 
+# Disable PEP 668 marker
+buildah run "${build}" -- /bin/bash -c "rm /usr/lib/python3.11/EXTERNALLY-MANAGED"
+
 buildah config --env container=docker "${build}"
 buildah config --cmd "/usr/sbin/init" "${build}"
 buildah commit "${build}" "${1:-localhost/test-image:archlinux}"
