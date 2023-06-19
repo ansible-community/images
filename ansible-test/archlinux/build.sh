@@ -9,6 +9,9 @@ DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 build=$(buildah from docker.io/library/archlinux:latest)
 buildah run "${build}" -- /bin/bash -c "pacman -Syy && pacman-key --init && pacman -S archlinux-keyring --noconfirm && pacman -Su --noconfirm && pacman -S ${DEPENDENCIES} --noconfirm && pacman -Scc --noconfirm"
 
+# Disable PEP 668 marker
+buildah run "${build}" -- /bin/bash -c "rm /usr/lib/python3.11/EXTERNALLY-MANAGED"
+
 # Extra python dependencies
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 install -r /tmp/src/requirements.txt"
 
