@@ -9,6 +9,9 @@ DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 build=$(buildah from docker.io/library/archlinux:latest)
 buildah run "${build}" -- /bin/bash -c "pacman -Syy && pacman-key --init && pacman -S archlinux-keyring --noconfirm && pacman -Su --noconfirm && pacman -S ${DEPENDENCIES} --noconfirm && pacman -Scc --noconfirm"
 
+# Disable PEP 668 marker
+buildah run "${build}" -- /bin/bash -c "rm /usr/lib/python3.11/EXTERNALLY-MANAGED"
+
 # Extra python dependencies
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 install -r /tmp/src/requirements.txt"
 
@@ -20,9 +23,6 @@ buildah run "${build}" -- /bin/bash -c "ln -s /usr/share/zoneinfo/UTC /etc/local
 buildah run "${build}" -- /bin/bash -c "sed /etc/locale.gen -i -e 's/# *en_US\\.UTF-8/en_US.UTF-8/'"
 buildah run "${build}" -- /bin/bash -c "locale-gen"
 buildah run "${build}" -- /bin/bash -c "echo 'LANG=en_US.UTF-8' > /etc/locale.conf"
-
-# Disable PEP 668 marker
-buildah run "${build}" -- /bin/bash -c "rm /usr/lib/python3.11/EXTERNALLY-MANAGED"
 
 buildah config --env container=docker "${build}"
 buildah config --cmd "/usr/sbin/init" "${build}"
