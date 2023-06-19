@@ -9,6 +9,9 @@ DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 build=$(buildah from docker.io/library/debian:bookworm)
 buildah run "${build}" -- /bin/bash -c "apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --no-install-recommends && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${DEPENDENCIES} && apt-get clean && rm -rf /var/lib/apt/lists/*"
 
+# Disable PEP 668 marker
+buildah run "${build}" -- /bin/bash -c "rm /usr/lib/python3.11/EXTERNALLY-MANAGED"
+
 # Extra python dependencies
 buildah run --volume ${SCRIPT_DIR}:/tmp/src:z "${build}" -- /bin/bash -c "pip3 install -r /tmp/src/requirements.txt"
 
