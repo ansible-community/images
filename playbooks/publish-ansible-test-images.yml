@@ -11,6 +11,8 @@
         tag: centos-stream8
       - name: localhost/test-image
         tag: debian-bullseye
+      - name: localhost/test-image
+        tag: debian-bookworm
   tasks:
     - name: Tag images with buildah
       command: |
