@@ -1,0 +1,43 @@
+- name: Basic integration tests
+  hosts: localhost
+  gather_facts: false
+  pre_tasks:
+    - name: Collect some facts
+      ansible.builtin.setup:
+        gather_subset:
+          - "!all"
+          - "!any"
+          - date_time
+          - distribution
+          - dns
+          - kernel
+          - python
+
+    - name: Print running Ansible processes
+      ansible.builtin.shell: ps fauxwww | grep -i ansible
+      changed_when: false
+
+    - name: Retrieve the installed version of ansible-core
+      ansible.builtin.shell: pip show ansible-core | awk "/Version/ {print $2}"
+      changed_when: false
+      register: _installed_ansible_core
+
+    - name: Retrieve the installed version of ansible with pip
+      ansible.builtin.shell: pip show ansible | awk "/Version/ {print $2}"
+      changed_when: false
+      register: _ansible_version_pypi
+
+    - name: Retrieve the builtin reported version of ansible
+      ansible.builtin.command: python3 -c "from ansible_collections.ansible_release import ansible_version; print(ansible_version)"
+      changed_when: false
+      register: _ansible_version_builtin
+  tasks:
+    - name: Validate image
+      assert:
+        that:
+          - ansible_distribution == "CentOS"
+          - ansible_distribution_release == "Stream"
+          - ansible_distribution_version == "8"
+          - ansible_python_version is version("3.8.0", ">=")
+          # - query("community.general.collection_version", "community.general") is version("4.4.0", ">=")
+          # ...
