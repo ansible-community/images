@@ -13,6 +13,12 @@
           - kernel
           - python
 
+    - name: Install ps
+      become: true
+      ansible.builtin.package:
+        name: procps-ng
+        state: latest
+
     - name: Print running Ansible processes
       ansible.builtin.shell: ps fauxwww | grep -i ansible
       changed_when: false
@@ -27,17 +33,11 @@
       changed_when: false
       register: _ansible_version_pypi
 
-    - name: Retrieve the builtin reported version of ansible
-      ansible.builtin.command: python3 -c "from ansible_collections.ansible_release import ansible_version; print(ansible_version)"
-      changed_when: false
-      register: _ansible_version_builtin
   tasks:
     - name: Validate image
       assert:
         that:
-          - ansible_distribution == "CentOS"
-          - ansible_distribution_release == "Stream"
-          - ansible_distribution_version == "8"
-          - ansible_python_version is version("3.8.0", ">=")
-          # - query("community.general.collection_version", "community.general") is version("4.4.0", ">=")
-          # ...
+          - ansible_distribution == "Fedora"
+          - ansible_distribution_release == ""
+          - ansible_distribution_version == "38"
+
