@@ -13,12 +13,6 @@
           - kernel
           - python
 
-    - name: Install ps
-      become: true
-      ansible.builtin.package:
-        name: procps-ng
-        state: latest
-
     - name: Print running Ansible processes
       ansible.builtin.shell: ps fauxwww | grep -i ansible
       changed_when: false
