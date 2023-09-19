@@ -11,8 +11,6 @@ dependencies:
     package_pip: ansible-runner
   galaxy:
     collections:
-    - name: ansible.netcommon
-      version: 5.1.0
     - name: ansible.posix
       version: 1.5.0
     - name: ansible.utils
