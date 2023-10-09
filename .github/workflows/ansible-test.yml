@@ -19,12 +19,20 @@ jobs:
         include:
           - name: archlinux
             python: '3.11'
+            ansible-core-1: ''
+            ansible-core-2: devel
           - name: centos-stream8
             python: '3.6 3.9'
+            ansible-core-1: '==2.15'
+            ansible-core-2: stable-2.16
           - name: debian-bullseye
             python: '3.9'
+            ansible-core-1: ''
+            ansible-core-2: devel
           - name: debian-bookworm
             python: '3.11'
+            ansible-core-1: ''
+            ansible-core-2: devel
 
     steps:
       - name: Check out repository
@@ -38,9 +46,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install podman buildah
-          # Install ansible-core form stable-2.14 until the ansible-core 2.14.2 release is out
-          pip install https://github.com/ansible/ansible/archive/stable-2.14.tar.gz
-          # pip install ansible-core
+          pip install ansible-core${{ matrix.ansible-core-1 }}
 
       - name: Build ${{ matrix.name }} image
         run: |
@@ -53,7 +59,7 @@ jobs:
           loginctl enable-linger runner
           sleep 1
 
-      - name: Run basic tests with ${{ matrix.name }} image (latest ansible-core release), Python versions ${{ matrix.python }}, Podman
+      - name: Run basic tests with ${{ matrix.name }} image (ansible-core${{ matrix.ansible-core-1 }}), Python versions ${{ matrix.python }}, Podman
         run: |
           for PYTHON in ${{ matrix.python }}; do
             ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
@@ -62,13 +68,13 @@ jobs:
           ANSIBLE_TEST_PREFER_PODMAN: 1
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
 
-      - name: Install ansible-core devel
-        run: |
-          pip install https://github.com/ansible/ansible/archive/devel.tar.gz
-
       - name: Copy image from podman to docker
         run: |
           podman push localhost/test-image:${{ matrix.name }} docker-daemon:localhost/test-image:${{ matrix.name }}
+
+      - name: Install ansible-core ${{ matrix.ansible-core-2 }}
+        run: |
+          pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible-core-2 }}.tar.gz
 
       - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel), Python versions ${{ matrix.python }}, Docker
         run: |
