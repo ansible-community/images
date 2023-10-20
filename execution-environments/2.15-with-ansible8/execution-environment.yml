@@ -1,0 +1,22 @@
+---
+
+version: 3
+images:
+  base_image:
+    name: quay.io/fedora/fedora:latest
+dependencies:
+  ansible_core:
+    package_pip: ansible-core
+  ansible_runner:
+    package_pip: ansible-runner
+  system:
+    - openssh-clients
+    - sshpass
+  galaxy:
+    collections:
+    - name: ansible.posix
+      version: 1.5.0
+    - name: ansible.utils
+      version: 2.10.0
+    - name: ansible.windows
+      version: 1.14.0
