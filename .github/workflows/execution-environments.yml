@@ -42,7 +42,7 @@ jobs:
 
       - name: Run basic tests with ${{ matrix.name }} image
         run: |
-          ansible-navigator --mode stdout --pull-policy never \
+          ansible-navigator -v --mode stdout --pull-policy never \
             --execution-environment-image test-ee:${{ matrix.name }} \
             run tests.yml
         working-directory: ./execution-environments/${{ matrix.name }}
