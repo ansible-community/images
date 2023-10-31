@@ -39,5 +39,4 @@
         that:
           - ansible_distribution == "Fedora"
           - ansible_distribution_release == ""
-          - ansible_distribution_version == "38"
-
+          - ansible_distribution_version | int >= 38
