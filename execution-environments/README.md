@@ -27,17 +27,16 @@ Example:
 dnf -y install podman
 pip install --user ansible-builder ansible-navigator
 
-cd 2.12-with_ansible5
+cd community-ee-base
 
-ansible-builder build -v 3 -t test-ee:2.12-with-ansible5
+ansible-builder build -v 3 -t community-ee-base:latest
 
-ansible-navigator --pull-policy never \
-    --execution-environment-image test-ee:2.12-with-ansible5 \
+ansible-navigator -v --pull-policy never \
+    --execution-environment-image community-ee-base:latest \
     run tests.yml
 ```
 
 ## Available images
 
-- [test-ee:2.12-with-ansible5](https://quay.io/ansible-community/test-ee:2.12-with-ansible5): [ansible-runner:stable-2.12-latest](https://quay.io/ansible/ansible-runner:stable-2.12-latest) with some extra packages, including ``pip install "ansible>=5,<6" ara``
 - [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal): ansible-core with no collections
 - [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base): ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows`
