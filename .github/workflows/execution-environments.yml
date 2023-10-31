@@ -18,7 +18,8 @@ jobs:
       matrix:
         include:
           - name: 2.12-with-ansible5
-          - name: 2.15-with-ansible8
+          - name: community-ee-base
+          - name: community-ee-minimal
 
     steps:
       - name: Check out repository
