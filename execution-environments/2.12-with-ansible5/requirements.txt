@@ -1,2 +1,0 @@
-# include ara for optional test and CI reporting
-ara

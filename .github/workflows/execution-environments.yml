@@ -17,7 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: 2.12-with-ansible5
           - name: community-ee-base
           - name: community-ee-minimal
 
