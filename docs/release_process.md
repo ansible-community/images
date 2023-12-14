@@ -6,8 +6,8 @@ Community EE is to be built and published on the next day and/or the day after a
 
 Versioning would be the core tag + a patch number, e.g
 
-    - EE with core `2.15.2` comes out -> `community-ee:2.15.2-1`
-    - EE with core `2.15.3` comes out -> `community-ee:2.15.3-1`
+    - EE with core `2.16.2` comes out -> `community-ee:2.16.2-1`
+    - EE with core `2.16.3` comes out -> `community-ee:2.16.3-1`
 
 
 ## Dependencies
@@ -16,7 +16,7 @@ Versioning would be the core tag + a patch number, e.g
 
 ##  Credentials
 
-- Access to  https://github.com/ansible/ansible repo
+- Access to  https://github.com/ansible-community/images repo
 - Access to ghcr.io
 
 
@@ -87,151 +87,37 @@ podman push ghcr.io/ansible-community/community-ee-base:latest
 
 
 
-## Community-ee-minimal
+## Build steps for Community-ee-minimal
+
+1. Go to the working directory
+
+`cd images/execution-environments/community-ee-minimal`
+
+2. List images in local storage
+
+`podman images`
+
+3. Delete the existing community-ee-minimal image
+
+`podman rmi <podman_community-ee-minimal_IMAGE_ID>`
+
+4. Build the ansible community-ee-minimal podman image with ansible-builder. (versioning : 2.16.1-1)
+
+`ansible-builder build --tag ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>`
+
+5. Check if the image has been created or not and get the < image ID> of `community-ee-minimal`
+
+`podman images`
+
+6. Build `latest` tag for the community-ee-minimal image
+
+`podman tag <image id> ghcr.io/ansible-community/community-ee-minimal:latest`
+
+7. Push both the images (general versioning and the latest) to Github Registry by using the Github Token created before
 
 ```
-
-cd /home/adas/code/redhat/images/execution-environments/community-ee-minimal
-```
-
-
-```
-ansible-builder build --tag ghcr.io/ansible-community/community-ee-minimal:2.16.0-1
-```
-
-```
-podman images
-```
-
-```
-podman tag <image id> ghcr.io/ansible-community/community-ee-minimal:latest
-```
-
-
-### Test
-
-podman run --rm -it ghcr.io/ansible-community/community-ee-minimal:2.15.7-1 /bin/bash
-cat /etc/os-release
-ansible --version
-ansible-galaxy collection list
-
-
-
-```
-podman push ghcr.io/ansible-community/community-ee-minimal:2.15.5-1
-
-```
-
-```
+podman push ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>
 podman push ghcr.io/ansible-community/community-ee-minimal:latest
 ```
+10.   Check the community-ee-minimal images [here](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal)  and get the sha256 sum.
 
-
-
-
-Release Announcement
-
-```
-Hello everyone,
-
-We’re happy to announce the release of the
-
-Base Ansible Community Excution Environment 2.16.1-1
-Base Ansible Community Excution Environment 2.16.1-1
-Minimal Ansible Community Excution Environment 2.16.0-1
-Minimal Ansible Community Excution Environment 2.16.0-1
-
-
-
-## Whats inside community-ee-minimal ?
-
-Ansible community-ee-minimal is a container image. <Ansible community-ee version> includes :
-
-- `base_image`: fedora-minimal
-
-- `ansible-core`: ansible-core 2.16.0 (latest version of ansible-core)
-
-- `collections`: The following set of collections
-
-    - ansible.posix <version>
-    - ansible.utils <version>
-    - ansible.windows <version>
-
-## sha256 sum value of the container image :
-
-7849a7f261d1080c47d38718169bae13b1a05cd65b34c7ffba4a2a9604db730d
-
-## How to get community-ee-minimal?
-
-### Install from command line via @sha256_sum_value of the image
-
-`podman pull http://ghcr.io/ansible-community/community-ee-minimal@sha256:7849a7f261d1080c47d38718169bae13b1a05cd65b34c7ffba4a2a9604db730d`
-
-### Install from command line via image tag
-
-`podman pull ghcr.io/ansible-community/community-ee-minimal:latest`
-`podman pull ghcr.io/ansible-community/community-ee-minimal:2.16.0-1`
-
-
-
-## Whats inside community-ee-base?
-
-- `base_image`: fedora-minimal
-
-- `ansible-core`: ansible-core 2.16.0 (latest version of ansible-core)
-
-## sha256 sum value of the container image :
-
-24863f44ca9cce42f4d3015dce728bab4de3ad16cd2c7d4737196ccde6f8cef8
-
-## How to get community-ee-base?
-
-### Install from command line via @sha256_sum_value of the image
-
-`podman pull http://ghcr.io/ansible-community/community-ee-base@sha256:24863f44ca9cce42f4d3015dce728bab4de3ad16cd2c7d4737196ccde6f8cef8`
-
-### Install from command line via image tag
-
-`podman pull ghcr.io/ansible-community/community-ee-base:latest`
-`podman pull ghcr.io/ansible-community/community-ee-base:2.16.0-1`
-
-
-## To know about the future releases
-
-Join the new Ansible Community Forum to follow along and participate
-in all the discussions and release related discussions and
-announcements. Feel free to share your thoughts, ideas and concerns
-there.
-
-Register here to join the Ansible Forum:
-
-https://forum.ansible.com
-
-Subscribe to the Bullhorn for all future release dates, announcements,
-and Ansible community contributor news at:
-
-[https://bit.ly/subscribe-bullhorn](https://bit.ly/subscribe-bullhorn)
-
-You can find all past Bullhorn issues on the official wiki page:
-[https://github.com/ansible/community/wiki/News#the-bullhorn](https://github.com/ansible/community/wiki/News#the-bullhorn)
-
-On behalf of the Ansible community, thank you and happy automating!
-
-Cheers,
-Ansible Community Team
-
-```
-
-
-After uploading an image to ghcr.io the sha256 sum is not matching the with local digest value. I am finding the local value in the build machine via `podman inspect ghcr.io/repo/image-name:tag-name |grep Digest`. Any tips what I am doing wrong
-
-1a224490e5025eb6a96e0831a3f6d5f5f1d236f65a56e33d88f406869ba3d41a
-
-
-
-
-# Forum post
-
-Release announcement to be done  in the  [Ecosystem Releases category](https://forum.ansible.com/c/news/releases)  under the News and Announcement section.
-
-`ghcr.io/ansible-community/community-ee-base:latest`
