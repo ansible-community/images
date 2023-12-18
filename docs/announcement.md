@@ -8,19 +8,19 @@ Release announcement to be done  in the  [Ecosystem Releases category](https://f
 
 `ansible-annouce` Google Groups
 
-# community-ee-base announcement
+# Community-ee (both Base and Minimal) announcement
 
 ```
 Hello everyone,
 
 We’re happy to announce the release of the
 
-Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee-version> and Ansible Community Execution Environment Base <ansible-core-version-base-ee-version> !!!
+Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee-version> and Ansible Community Execution Environment Base <ansible-core-version-base-ee-version>!
 
 
 ## Whats inside community-ee-minimal <ansible-core-version-minimal-ee-version>?
 
-Ansible community-ee-minimal is a container image. It includes :
+Ansible community-ee-minimal is a container image. It includes:
 
 - `base_image`: fedora-minimal
 
@@ -32,7 +32,7 @@ Ansible community-ee-minimal is a container image. It includes :
     - ansible.utils <version>
     - ansible.windows <version>
 
-## sha256 sum value of the container image :
+## sha256 sum value of the container image:
 
 
 
@@ -55,7 +55,7 @@ Ansible community-ee-minimal is a container image. It includes :
 
 - `ansible-core`: ansible-core 2.16.0 (latest version of ansible-core)
 
-## sha256 sum value of the container image :
+## sha256 sum value of the container image:
 
 
 
@@ -112,7 +112,7 @@ Posting news for the Bullhorn newsletter @newbot
 ```
 We’re happy to announce the release of the
 
-Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee-version> and Ansible Community Execution Environment Base <ansible-core-version-base-ee-version> !!!
+Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee-version> and Ansible Community Execution Environment Base <ansible-core-version-base-ee-version>!
 
 Get the details of both the images [here](<link to the forum post>).
 

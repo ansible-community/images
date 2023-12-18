@@ -30,7 +30,7 @@ Versioning would be the core tag + a patch number, e.g
 
 `git checkout -b base-<ansible-core-version-base-ee-version>`
 
-3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct `[ansible-core](https://pypi.org/project/ansible-core/)` version and `[ansible-<version>.deps](https://github.com/ansible-community/ansible-build-data/blob/main/9/ansible-9.0.1.deps)` and edit accordinly.
+3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and [ansible-<version>.deps](https://github.com/ansible-community/ansible-build-data/blob/main/9/ansible-9.0.1.deps) and edit accordinly.
 
 `vim execution-environments/community-ee-base/execution-environment.yml`
 
@@ -89,7 +89,7 @@ python3 -m pip install setuptools
 
 `ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:<ansible-core-version-base-ee-version>`
 
-10. Check if the image has been created or not and get the < image ID> of `community-ee-base`
+10. Check if the image has been created or not and get the <image ID> of `community-ee-base`
 
 `podman images`
 
@@ -139,7 +139,7 @@ Compare and create the pull request.
 
 `git checkout -b base-<ansible-core-version-minimal-ee-version>`
 
-3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct `[ansible-core](https://pypi.org/project/ansible-core/)` version and edit accordinly.
+3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and edit accordinly.
 
 `vim execution-environments/community-ee-minimal/execution-environment.yml`
 
