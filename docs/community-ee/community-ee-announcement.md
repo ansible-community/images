@@ -1,14 +1,16 @@
+# Announcing the community-ee-* execution environments
+
 We announce both community-ee-base and community-ee-minimal together
 
-# Forum Announcement
+## Forum Announcement
 
 Release announcement to be done  in the  Ecosystem Release sub-category under the News & Announcements category.
 
-# E-Mail Announcement
+## E-Mail Announcement
 
 `ansible-announce` Google Groups
 
-# Community-ee (both Base and Minimal) announcement
+## Community-ee (both Base and Minimal) announcement
 
 ```
 Hello everyone,
@@ -93,7 +95,7 @@ Ansible Community Team
 
 ```
 
-# Matrix Announcement
+## Matrix Announcement
 
 Inform the Ansible users - Matrix: #users:ansible.com
 
@@ -102,7 +104,7 @@ Inform Discussions on community and collections related topics - Matrix: #commun
 Inform the Release Managers Working Group: Matrix: #release-management:ansible.com
 
 Inform Community social room - Matrix: #social:ansible.com
-Posting news for the Bullhorn newsletter @newbot
+Posting news for the Bullhorn newsletter @newsbot
 
 
 ```

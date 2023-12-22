@@ -1,6 +1,8 @@
+# Releasing the community-ee-* execution environments
+
 ## Release Cadence
 
-Community EE is to be built and published on the next day and/or the day after ansible-core is released.
+The community EEs are to be built and published on the next day and/or the day after ansible-core is released.
 
 ## EE tag versioning
 
@@ -85,7 +87,7 @@ python3 -m pip install setuptools
 
 `podman pull fedora:latest`
 
-9. Build the ansible community-ee-base podman image with ansible-builder. (versioning : 2.16.1-1)
+9. Build the ansible community-ee-base podman image with ansible-builder. (versioning: 2.16.1-1)
 
 `ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:<ansible-core-version-base-ee-version>`
 
