@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - name: archlinux
-            python: '3.11'
+            python: '3.12'
             ansible-core-1: ''
             ansible-core-2: devel
           - name: centos-stream8
