@@ -145,21 +145,6 @@ Compare and create the pull request.
 
 `vim execution-environments/community-ee-minimal/execution-environment.yml`
 
-```
-version: <minimal-community-ee with the specific ansible core>
-images:
-  base_image:
-    name: quay.io/fedora/fedora:latest
-dependencies:
-  ansible_core:
-    package_pip: ansible-core==<ansible-core-version>
-  ansible_runner:
-    package_pip: ansible-runner
-  system:
-    - openssh-clients
-    - sshpass
-
-```
 
 4. List images in local storage
 
