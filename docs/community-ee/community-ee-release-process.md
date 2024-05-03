@@ -173,7 +173,7 @@ dependencies:
 
 `ansible-builder build --tag ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>`
 
-7. Check if the image has been created or not and get the < image ID> of `community-ee-minimal`
+7. Check if the image has been created or not and get the <image ID> of `community-ee-minimal`
 
 `podman images`
 
