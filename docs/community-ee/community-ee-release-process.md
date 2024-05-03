@@ -36,29 +36,6 @@ Versioning would be the core tag + a patch number, e.g
 
 `vim execution-environments/community-ee-base/execution-environment.yml`
 
-```
-version: <base-community-ee with the specific ansible core>
-images:
-  base_image:
-    name: quay.io/fedora/fedora:latest
-dependencies:
-  ansible_core:
-    package_pip: ansible-core==<ansible-core-version>
-  ansible_runner:
-    package_pip: ansible-runner
-  system:
-    - openssh-clients
-    - sshpass
-  galaxy:
-    collections:
-    - name: ansible.posix
-      version: <correct-version>
-    - name: ansible.utils
-      version: <correct-version>
-    - name: ansible.windows
-      version: <correct-version>
-
-```
 
 4. List images in local storage
 
