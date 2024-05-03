@@ -169,7 +169,7 @@ dependencies:
 
 `podman rmi <podman_community-ee-minimal_IMAGE_ID>`
 
-6. Build the ansible community-ee-minimal podman image with ansible-builder. (versioning : 2.16.1-1)
+6. Build the ansible community-ee-minimal podman image with ansible-builder. (versioning: 2.16.1-1)
 
 `ansible-builder build --tag ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>`
 
