@@ -32,7 +32,7 @@ Versioning would be the core tag + a patch number, e.g
 
 `git checkout -b base-<ansible-core-version-base-ee-version>`
 
-3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and [ansible-<version>.deps](https://github.com/ansible-community/ansible-build-data/blob/main/9/ansible-9.0.1.deps) and edit accordinly.
+3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and [ansible-<version>.deps](https://github.com/ansible-community/ansible-build-data/blob/main/9/ansible-9.0.1.deps) and edit accordingly.
 
 `vim execution-environments/community-ee-base/execution-environment.yml`
 
