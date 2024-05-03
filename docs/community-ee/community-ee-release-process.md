@@ -118,7 +118,7 @@ Compare and create the pull request.
 
 `git checkout -b base-<ansible-core-version-minimal-ee-version>`
 
-3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and edit accordinly.
+3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and edit accordingly.
 
 `vim execution-environments/community-ee-minimal/execution-environment.yml`
 
