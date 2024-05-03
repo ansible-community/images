@@ -14,7 +14,7 @@ Versioning would be the core tag + a patch number, e.g
 
 ## Dependencies
 
--   Podman/Docker
+- Podman/Docker
 
 ##  Credentials
 
