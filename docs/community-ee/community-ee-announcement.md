@@ -1,6 +1,6 @@
 # Announcing the community-ee-* execution environments
 
-We announce both community-ee-base and community-ee-minimal together
+We announce both community-ee-base and community-ee-minimal together.
 
 ## Forum Announcement
 
