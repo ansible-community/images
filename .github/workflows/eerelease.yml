@@ -1,3 +1,171 @@
+  # TODO: Find out which verion to release
+  # Same workflow for both minimal and ee
+  # remove the old container image
+  # start a container 
+  # checkout images, ansible-build-data repo
+  # install podman
+  # get setuptools, ansible-builder and fedora
+  # need to build dependency, execution-environment.yml
+  # update the ansible-core,fedora and ansible collections versions
+  #
+  # commit the changes in the main branch
+  # run this action once
+  # build the image with ansible-builder
+  # run the eercheck
+
+name: Release Ansible Base Execution Environment
+on:
+  workflow_dispatch:
+    inputs:
+      ansible-core-version:
+        description: >-
+          Release Version. Example: 11.1.0
+        required: true
+      ee-version:
+        description: >-
+          Base EE Release Version. Example: 1
+        required: true
+env:
+  BASE_EE_VERSION: ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
+
+jobs:
+  build:
+    name: Build Ansible (${{ inputs.ansible-version }})
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Set the derived variable
+        run:|
+        echo "CI_COMMIT_MSG=\"Relasing the new excution environment image: ${{ env.BASE_EE_VERSION }}\"" >> $GITHUB_ENV #check if the Commit msg is correct or not
+
+      - name: Check out ansible-build-data
+        uses: actions/checkout@v4
+        with:
+          repository: ansible-community/ansible-build-data
+          ref: main
+          path: ansible-build-data
+
+
+      - name: Check out images
+        uses: actions/checkout@v4
+        with:
+          reposiroty: ansible-community/images
+          ref: main
+          path: images
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install ansible-builder
+          python3 -m pip install setuptools
+          apt install docker --yes
+
+      - name: Checking out to a new branch
+        working-directory: antsibull/build/ansible-build-data
+        run: |
+          git checkout -b "publish-${ANSIBLE_VERSION}"
+
+      - name: Setting the user details
+        run: |
+          git config --global user.name "Github Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Run the playbook according to the current release process
+
+      - name: Building a release with the defaults
+        working-directory: antsibull
+        run: >-
+          ansible-playbook -vv playbooks/build-single-release.yaml
+          -e antsibull_data_reset=false
+          -e "antsibull_ansible_version=${ANSIBLE_VERSION}"
+        env:
+          # Make result better readable
+          ANSIBLE_CALLBACK_RESULT_FORMAT: yaml
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        id: upload-artifact
+        with:
+          name: sdist-and-wheel
+          path: antsibull/build/ansible-*.*
+
+      - name: Commit ansible-build-data and push the changes to github
+        working-directory: >-
+          antsibull/build/ansible-build-data/${{ inputs.ansible-major-version }}
+        run: |
+         git add .
+         git commit -m "${CI_COMMIT_MESSAGE}"
+         git push origin "publish-${ANSIBLE_VERSION}"
+
+      - name: Create PR to the ansible-build-data
+        working-directory: antsibull/build/ansible-build-data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_URL: ${{ steps.upload-artifact.outputs.artifact-url }}
+        run: |
+          body="$(echo -e "${CI_COMMIT_MESSAGE}\nRelease artifacts: <${ARTIFACT_URL}>")"
+          gh pr create \
+          --base main \
+          --head "publish-${ANSIBLE_VERSION}" \
+          --title "Release Ansible ${ANSIBLE_VERSION}" \
+          --body "${body}"
+
+  # publish job downloads the arifacts and publish it to PyPI
+
+  publish:
+    needs: build
+    name: Upload Ansible (${{ inputs.ansible-version }}) to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ansible/${{ inputs.ansible-version }}
+    permissions:
+      id-token: write
+
+    steps:
+
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: sdist-and-wheel
+        path: dist/
+
+    - name: Upload Ansible sdist and wheel to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+  # git-tag job creates the git tag
+
+  git-tag:
+    needs: publish
+    name: Creates git tag for Ansible (${{ inputs.ansible-version }})
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: Check out ansible-build-data
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Create git tag
+        run: |
+          git config --global user.name "Github Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${ANSIBLE_VERSION}" -m "Ansible ${ANSIBLE_VERSION}: Changelog, Porting Guide and Dependent Collection Details"
+          git push origin "${ANSIBLE_VERSION}"
+
+  
+
 name: Release Excution Environments
 on:
 
