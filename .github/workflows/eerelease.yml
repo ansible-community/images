@@ -56,6 +56,12 @@ jobs:
           ref: main
           path: images
 
+    7 - name: Check out eercheck repo for testing
+  6   ¦ ¦ ¦ uses: actions/checkout@v4
+  5   ¦ ¦ ¦ with:
+  4   ¦ ¦ ¦ ¦ reposiroty: anweshadas/eercheck
+  3   ¦ ¦ ¦ ¦ ref: main
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -65,29 +71,30 @@ jobs:
         run: |
           python3 -m pip install ansible-builder
           python3 -m pip install setuptools
-          apt install docker --yes
+          apt install podman --yes
 
-      - name: Checking out to a new branch
-        working-directory: antsibull/build/ansible-build-data
+      - name: Pull the latest fedora image
         run: |
-          git checkout -b "publish-${ANSIBLE_VERSION}"
+          podman pull fedora:latest
 
-      - name: Setting the user details
+      - name: Build the Base Community EE image
         run: |
-          git config --global user.name "Github Actions"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+           ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
 
-      # Run the playbook according to the current release process
+      - name: Find the id of the latest Base EE image 
+        run: |
+          echo "IMAGE_ID=${podman images -q community-ee-base:${{ env.BASE_EE_VERSION }})" >> $GITHUB_ENV
 
-      - name: Building a release with the defaults
-        working-directory: antsibull
+      - name: Test the image with eercheck
+        working-directory: >-
+          eercheck
         run: >-
-          ansible-playbook -vv playbooks/build-single-release.yaml
-          -e antsibull_data_reset=false
-          -e "antsibull_ansible_version=${ANSIBLE_VERSION}"
-        env:
-          # Make result better readable
-          ANSIBLE_CALLBACK_RESULT_FORMAT: yaml
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install -r requirements.txt
+          systemctl start podman.socket --user
+          ./containertest.py ${{ env.IMAGE_ID }}
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
