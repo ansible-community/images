@@ -78,7 +78,7 @@ jobs:
         run: |
           python3 -m pip install ansible-builder
           python3 -m pip install setuptools
-          apt install podman --yes
+          sudo apt install podman --yes
 
       - name: Pull the latest fedora image
         run: |
