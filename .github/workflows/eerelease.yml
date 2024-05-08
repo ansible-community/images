@@ -1,7 +1,7 @@
   # TODO: Find out which verion to release
   # Same workflow for both minimal and ee
   # remove the old container image
-  # start a container 
+  # start a container
   # checkout images, ansible-build-data repo
   # install podman
   # get setuptools, ansible-builder and fedora
@@ -25,12 +25,19 @@ on:
         description: >-
           Base EE Release Version. Example: 1
         required: true
+      tag:
+        description: >-
+          Whether to tag the image as latest.
+        type: boolean
+        required: false
+        default: false
+
 env:
   BASE_EE_VERSION: ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
 
 jobs:
   build:
-    name: Build Ansible (${{ inputs.ansible-version }})
+    name: Build Base EE ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -38,8 +45,8 @@ jobs:
 
     steps:
       - name: Set the derived variable
-        run:|
-        echo "CI_COMMIT_MSG=\"Relasing the new excution environment image: ${{ env.BASE_EE_VERSION }}\"" >> $GITHUB_ENV #check if the Commit msg is correct or not
+        run: |
+          echo "CI_COMMIT_MSG=\"Relasing the new excution environment image: ${{ env.BASE_EE_VERSION }}\"" >> $GITHUB_ENV #check if the Commit msg is correct or not
 
       - name: Check out ansible-build-data
         uses: actions/checkout@v4
@@ -56,11 +63,11 @@ jobs:
           ref: main
           path: images
 
-    7 - name: Check out eercheck repo for testing
-  6   ¦ ¦ ¦ uses: actions/checkout@v4
-  5   ¦ ¦ ¦ with:
-  4   ¦ ¦ ¦ ¦ reposiroty: anweshadas/eercheck
-  3   ¦ ¦ ¦ ¦ ref: main
+      - name: Check out eercheck repo for testing
+        uses: actions/checkout@v4
+        with:
+          reposiroty: anweshadas/eercheck
+          ref: main
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -81,7 +88,7 @@ jobs:
         run: |
            ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
 
-      - name: Find the id of the latest Base EE image 
+      - name: Find the id of the latest Base EE image
         run: |
           echo "IMAGE_ID=${podman images -q community-ee-base:${{ env.BASE_EE_VERSION }})" >> $GITHUB_ENV
 
@@ -94,85 +101,33 @@ jobs:
           python -m pip install -r requirements.txt
           systemctl start podman.socket --user
           ./containertest.py ${{ env.IMAGE_ID }}
+          echo "STATUS_CODE=$?">>$GITHUB_ENV
 
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        id: upload-artifact
-        with:
-          name: sdist-and-wheel
-          path: antsibull/build/ansible-*.*
-
-      - name: Commit ansible-build-data and push the changes to github
-        working-directory: >-
-          antsibull/build/ansible-build-data/${{ inputs.ansible-major-version }}
+      - name: Checking the status code
         run: |
-         git add .
-         git commit -m "${CI_COMMIT_MESSAGE}"
-         git push origin "publish-${ANSIBLE_VERSION}"
+          if test ${{ env.STATUS_CODE }}!= 0; then
+            exit 1;
+          fi
 
-      - name: Create PR to the ansible-build-data
-        working-directory: antsibull/build/ansible-build-data
+      - name: Create the latest tag
+        if: ${{ inputs.tag }}
+        run: |
+          podman tag ${{ env.IMAGE_ID }} ghcr.io/ansible-community/community-ee-base:latest
+
+      - name: Login to the Github Container registry
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_URL: ${{ steps.upload-artifact.outputs.artifact-url }}
-        run: |
-          body="$(echo -e "${CI_COMMIT_MESSAGE}\nRelease artifacts: <${ARTIFACT_URL}>")"
-          gh pr create \
-          --base main \
-          --head "publish-${ANSIBLE_VERSION}" \
-          --title "Release Ansible ${ANSIBLE_VERSION}" \
-          --body "${body}"
-
-  # publish job downloads the arifacts and publish it to PyPI
-
-  publish:
-    needs: build
-    name: Upload Ansible (${{ inputs.ansible-version }}) to PyPI
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/project/ansible/${{ inputs.ansible-version }}
-    permissions:
-      id-token: write
-
-    steps:
-
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: sdist-and-wheel
-        path: dist/
-
-    - name: Upload Ansible sdist and wheel to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-
-  # git-tag job creates the git tag
-
-  git-tag:
-    needs: publish
-    name: Creates git tag for Ansible (${{ inputs.ansible-version }})
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-
-      - name: Check out ansible-build-data
-        uses: actions/checkout@v4
+          REGISTRY_USER:
+        uses: redhat-actions/podman-login@v1
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
-      - name: Create git tag
-        run: |
-          git config --global user.name "Github Actions"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "${ANSIBLE_VERSION}" -m "Ansible ${ANSIBLE_VERSION}: Changelog, Porting Guide and Dependent Collection Details"
-          git push origin "${ANSIBLE_VERSION}"
+      - #name: Upload artifact Base EE
+        #run: |
+          #podman push ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
 
-  
-
-name: Release Excution Environments
-on:
-
+      - #name: Check and upload the image latest tag
+        #if: ${{ inputs.tag }}
+        #run: |
+          #podman push ghcr.io/ansible-community/community-ee-base:latest
