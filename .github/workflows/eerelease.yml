@@ -85,8 +85,10 @@ jobs:
           podman pull fedora:latest
 
       - name: Build the Base Community EE image
-        run: |
-           ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
+        #working-directory:
+        run: >-
+          pwd
+          ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
 
       - name: Find the id of the latest Base EE image
         run: |
