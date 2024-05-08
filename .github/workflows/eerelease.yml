@@ -63,11 +63,11 @@ jobs:
           ref: main
           path: images
 
-      - name: Check out eercheck repo for testing
-        uses: actions/checkout@v4
-        with:
-          reposiroty: anweshadas/eercheck
-          ref: main
+      # name: Check out eercheck repo for testing
+       # uses: actions/checkout@v4
+        #with:
+         # reposiroty: anweshadas/eercheck
+          #ref: main
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -95,15 +95,19 @@ jobs:
           echo "IMAGE_ID=$(podman images -q community-ee-base:${{ env.BASE_EE_VERSION }})">>$GITHUB_ENV
 
       - name: Test the image with eercheck
-        working-directory: >-
-          eercheck
-        run: >-
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python -m pip install -r requirements.txt
-          systemctl start podman.socket --user
-          ./containertest.py ${{ env.IMAGE_ID }}
-          echo "STATUS_CODE=$?">>$GITHUB_ENV
+        uses: actions/checkout@v4
+        with:
+          reposiroty: anweshadas/eercheck
+          ref: main
+          working-directory: >-
+            eercheck
+          run: >-
+            python3 -m venv .venv
+            source .venv/bin/activate
+            python -m pip install -r requirements.txt
+            systemctl start podman.socket --user
+            ./containertest.py ${{ env.IMAGE_ID }}
+            echo "STATUS_CODE=$?">>$GITHUB_ENV
 
       - name: Checking the status code
         run: |
