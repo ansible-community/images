@@ -92,7 +92,7 @@ jobs:
 
       - name: Find the id of the latest Base EE image
         run: |
-          echo "IMAGE_ID=${podman images -q community-ee-base:${{ env.BASE_EE_VERSION }})">>$GITHUB_ENV
+          echo "IMAGE_ID=$(podman images -q community-ee-base:${{ env.BASE_EE_VERSION }})">>$GITHUB_ENV
 
       - name: Test the image with eercheck
         working-directory: >-
