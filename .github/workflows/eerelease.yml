@@ -117,8 +117,13 @@ jobs:
 
       - name: Create the latest tag
         if: ${{ inputs.tag }}
-        run: |
-          podman tag ${{ env.IMAGE_ID }} ghcr.io/ansible-community/community-ee-base:latest
+        uses: actions/checkout@v4
+        with:
+          reposiroty: ansible-community/images
+          ref: main
+          path: images
+          run: |
+            podman tag ${{ env.IMAGE_ID }} ghcr.io/ansible-community/community-ee-base:latest
 
       - name: Login to the Github Container registry
         env:
