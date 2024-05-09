@@ -85,7 +85,7 @@ jobs:
           podman pull fedora:latest
 
       - name: Build the Base Community EE image
-        working-directory: images/execution-environments/community-ee-base
+        working-directory: execution-environments/community-ee-base
         run: |
           ansible-builder build --tag ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
