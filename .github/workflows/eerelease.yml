@@ -86,8 +86,7 @@ jobs:
 
       - name: Build the Base Community EE image
         working-directory:
-        run: >-
-          pwd
+        run: |
           ansible-builder build --tag ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
       - name: Find the id of the latest Base EE image
@@ -97,15 +96,16 @@ jobs:
 # Break down to 2 spearate step/ cd ../eercheck
 
       - name: Test the image with eercheck
-        run: >-
+        working-directory: eercheck
+        run: |
           pwd
           ls -l
-          # python3 -m venv .venv
-          # source .venv/bin/activate
-          # python -m pip install -r requirements.txt
-          #systemctl start podman.socket --user
-          #./containertest.py ${{ env.IMAGE_ID }}
-          #echo "STATUS_CODE=$?">>$GITHUB_ENV
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install -r requirements.txt
+          systemctl start podman.socket --user
+          ./containertest.py ${{ env.IMAGE_ID }}
+          echo "STATUS_CODE=$?">>$GITHUB_ENV
 
       - name: Checking the status code
         run: |
