@@ -59,15 +59,15 @@ jobs:
       - name: Check out images
         uses: actions/checkout@v4
         with:
-          reposiroty: ansible-community/images
+          repository: ansible-community/images
           ref: main
           path: images
 
-      # name: Check out eercheck repo for testing
-       # uses: actions/checkout@v4
-        #with:
-         # reposiroty: anweshadas/eercheck
-          #ref: main
+      - name: Check out eercheck repo for testing
+        uses: actions/checkout@v4
+        with:
+          repository: anweshadas/eercheck
+          ref: main
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -86,7 +86,7 @@ jobs:
           podman pull fedora:latest
 
       - name: Build the Base Community EE image
-        #working-directory:
+        working-directory:
         run: >-
           pwd
           ansible-builder build --tag ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
@@ -95,20 +95,18 @@ jobs:
         run: |
           echo "IMAGE_ID=$(podman images -q community-ee-base:${{ env.BASE_EE_VERSION }})">>$GITHUB_ENV
 
+# Break down to 2 spearate step/ cd ../eercheck
+
       - name: Test the image with eercheck
-        uses: actions/checkout@v4
-        with:
-          reposiroty: anweshadas/eercheck
-          ref: main
-          working-directory: >-
+        working-directory: >-
             eercheck
-          run: >-
-            python3 -m venv .venv
-            source .venv/bin/activate
-            python -m pip install -r requirements.txt
-            systemctl start podman.socket --user
-            ./containertest.py ${{ env.IMAGE_ID }}
-            echo "STATUS_CODE=$?">>$GITHUB_ENV
+        run: >-
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install -r requirements.txt
+          systemctl start podman.socket --user
+          ./containertest.py ${{ env.IMAGE_ID }}
+          echo "STATUS_CODE=$?">>$GITHUB_ENV
 
       - name: Checking the status code
         run: |
@@ -120,7 +118,7 @@ jobs:
         if: ${{ inputs.tag }}
         uses: actions/checkout@v4
         with:
-          reposiroty: anweshadas/images
+          repository: anweshadas/images
           ref: main
           path: images
           run: |
