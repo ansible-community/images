@@ -88,7 +88,7 @@ jobs:
         #working-directory:
         run: >-
           pwd
-          ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
+          ansible-builder build --tag ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
       - name: Find the id of the latest Base EE image
         run: |
@@ -119,11 +119,11 @@ jobs:
         if: ${{ inputs.tag }}
         uses: actions/checkout@v4
         with:
-          reposiroty: ansible-community/images
+          reposiroty: anweshadas/images
           ref: main
           path: images
           run: |
-            podman tag ${{ env.IMAGE_ID }} ghcr.io/ansible-community/community-ee-base:latest
+            podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/community-ee-base:latest
 
       - name: Login to the Github Container registry
         env:
@@ -134,11 +134,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      # name: Upload artifact Base EE
-        #run: |
-          #podman push ghcr.io/ansible-community/community-ee-base:${{ env.BASE_EE_VERSION }}
+      - name: Upload artifact Base EE
+        run: |
+          podman push ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
-      # name: Check and upload the image latest tag
-        #if: ${{ inputs.tag }}
-        #run: |
-          #podman push ghcr.io/ansible-community/community-ee-base:latest
+      - name: Check and upload the image latest tag
+        if: ${{ inputs.tag }}
+        run: |
+          podman push ghcr.io/anweshadas/community-ee-base:latest
