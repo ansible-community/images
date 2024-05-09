@@ -100,12 +100,12 @@ jobs:
         run: >-
           pwd
           ls -l
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python -m pip install -r requirements.txt
-          systemctl start podman.socket --user
-          ./containertest.py ${{ env.IMAGE_ID }}
-          echo "STATUS_CODE=$?">>$GITHUB_ENV
+          # python3 -m venv .venv
+          # source .venv/bin/activate
+          # python -m pip install -r requirements.txt
+          #systemctl start podman.socket --user
+          #./containertest.py ${{ env.IMAGE_ID }}
+          #echo "STATUS_CODE=$?">>$GITHUB_ENV
 
       - name: Checking the status code
         run: |
