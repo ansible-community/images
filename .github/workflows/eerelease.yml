@@ -97,9 +97,9 @@ jobs:
 # Break down to 2 spearate step/ cd ../eercheck
 
       - name: Test the image with eercheck
-        working-directory: >-
-            eercheck
         run: >-
+          pwd
+          ls -l
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install -r requirements.txt
