@@ -85,7 +85,7 @@ jobs:
           podman pull fedora:latest
 
       - name: Build the Base Community EE image
-        working-directory:
+        working-directory: images/execution-environments/community-ee-base
         run: |
           ansible-builder build --tag ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
@@ -96,7 +96,7 @@ jobs:
 # Break down to 2 spearate step/ cd ../eercheck
 
       - name: Test the image with eercheck
-        working-directory: eercheck
+        working-directory: ~/eercheck
         run: |
           pwd
           ls -l
