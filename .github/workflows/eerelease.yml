@@ -76,6 +76,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          podman rm community-ee-base
           python3 -m pip install ansible-builder
           python3 -m pip install setuptools
           sudo apt install podman --yes
