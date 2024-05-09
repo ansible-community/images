@@ -48,26 +48,19 @@ jobs:
         run: |
           echo "CI_COMMIT_MSG=\"Relasing the new excution environment image: ${{ env.BASE_EE_VERSION }}\"" >> $GITHUB_ENV #check if the Commit msg is correct or not
 
-      - name: Check out ansible-build-data
-        uses: actions/checkout@v4
-        with:
-          repository: ansible-community/ansible-build-data
-          ref: main
-          path: ansible-build-data
-
-
       - name: Check out images
         uses: actions/checkout@v4
         with:
           repository: ansible-community/images
           ref: main
-          path: images
+          path: image
 
       - name: Check out eercheck repo for testing
         uses: actions/checkout@v4
         with:
           repository: anweshadas/eercheck
           ref: main
+          path: eercheck
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -79,13 +72,15 @@ jobs:
           python3 -m pip install ansible-builder
           python3 -m pip install setuptools
           sudo apt install podman --yes
+          pwd
+          ls -l
 
       - name: Pull the latest fedora image
         run: |
           podman pull fedora:latest
 
       - name: Build the Base Community EE image
-        working-directory: execution-environments/community-ee-base
+        working-directory: image/execution-environments/community-ee-base
         run: |
           ansible-builder build --tag ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
@@ -96,14 +91,14 @@ jobs:
 # Break down to 2 spearate step/ cd ../eercheck
 
       - name: Test the image with eercheck
-        working-directory: ~/eercheck
+        working-directory: eercheck
         run: |
           pwd
           ls -l
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install -r requirements.txt
-          systemctl start podman.socket --user
+          sudo systemctl start podman.socket
           ./containertest.py ${{ env.IMAGE_ID }}
           echo "STATUS_CODE=$?">>$GITHUB_ENV
 
@@ -115,13 +110,8 @@ jobs:
 
       - name: Create the latest tag
         if: ${{ inputs.tag }}
-        uses: actions/checkout@v4
-        with:
-          repository: anweshadas/images
-          ref: main
-          path: images
-          run: |
-            podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/community-ee-base:latest
+        run: |
+          podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/community-ee-base:latest
 
       - name: Login to the Github Container registry
         env:
