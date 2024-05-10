@@ -113,13 +113,6 @@ jobs:
           podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/community-ee-base:latest
           podman images
 
-  publish:
-    needs: build
-    name: Upload Base EE artifact to ghcr.io
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-
       - name: Login to the Github Container registry
         env:
           REGISTRY_USER:
@@ -129,12 +122,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Upload artifact Base EE
-        env:
-          permissions: write-all
-        run: |
-          podman images
-          podman push ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
+      - name: Upload artifact Base EE to ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: community-ee-base
+          tags: ${{ env.BASE_EE_VERSION }}
+          registry: ghcr.io/anweshadas
+
+
+
+        #run: |
+          #podman images
+          #podman push ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
       - name: Check and upload the image latest tag
         if: ${{ inputs.tag }}
