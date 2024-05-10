@@ -7,7 +7,6 @@
   # get setuptools, ansible-builder and fedora
   # need to build dependency, execution-environment.yml
   # update the ansible-core,fedora and ansible collections versions
-  #
   # commit the changes in the main branch
   # run this action once
   # build the image with ansible-builder
@@ -113,6 +112,13 @@ jobs:
         run: |
           podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/community-ee-base:latest
 
+  publish:
+    needs: build
+    name: Upload Base EE artifact to ghcr.io
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+
       - name: Login to the Github Container registry
         env:
           REGISTRY_USER:
@@ -123,6 +129,8 @@ jobs:
           password: ${{ github.token }}
 
       - name: Upload artifact Base EE
+        env:
+          permissions: write-all
         run: |
           podman push ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
