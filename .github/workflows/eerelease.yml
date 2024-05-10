@@ -41,6 +41,7 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+      packages: write
 
     steps:
       - name: Set the derived variable
