@@ -111,6 +111,7 @@ jobs:
         if: ${{ inputs.tag }}
         run: |
           podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/community-ee-base:latest
+          podman images
 
   publish:
     needs: build
@@ -132,6 +133,7 @@ jobs:
         env:
           permissions: write-all
         run: |
+          podman images
           podman push ghcr.io/anweshadas/community-ee-base:${{ env.BASE_EE_VERSION }}
 
       - name: Check and upload the image latest tag
