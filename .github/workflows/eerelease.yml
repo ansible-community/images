@@ -1,24 +1,10 @@
-  # TODO: Find out which verion to release
-  # Same workflow for both minimal and ee
-  # remove the old container image
-  # start a container
-  # checkout images, ansible-build-data repo
-  # install podman
-  # get setuptools, ansible-builder and fedora
-  # need to build dependency, execution-environment.yml
-  # update the ansible-core,fedora and ansible collections versions
-  # commit the changes in the main branch
-  # run this action once
-  # build the image with ansible-builder
-  # run the eercheck
-
 name: Release Ansible Execution Environment
 on:
   workflow_dispatch:
     inputs:
       ee-name:
         description: >-
-          EE name if it is Community-EE-Base or Community-EE-Minimal. Example: Community-EE-Base
+          EE name if it is community-ee-base or community-ee-minimal. Example: community-ee-base
         required: true
       ansible-core-version:
         description: >-
@@ -40,7 +26,7 @@ env:
 
 jobs:
   build:
-    name: Build EE ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
+    name: Build Execution Environment ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -48,10 +34,6 @@ jobs:
       packages: write
 
     steps:
-      # name: Set the derived variable
-        #run: |
-          #echo "CI_COMMIT_MSG=\"Relasing the new excution environment image: ${{ env.EE_VERSION }}\"" >> $GITHUB_ENV #check if the Commit msg is correct or not
-
       - name: Check out images
         uses: actions/checkout@v4
         with:
@@ -86,13 +68,11 @@ jobs:
       - name: Build Community EE image
         working-directory: image/execution-environments/${{ inputs.ee-name }}
         run: |
-          ansible-builder build --tag ghcr.io/anweshadas/${{ inputs.ee-name }}:${{ env.EE_VERSION }}
+          ansible-builder build --tag ghcr.io/ansible-community/${{ inputs.ee-name }}:${{ env.EE_VERSION }}
 
       - name: Find the id of the latest EE image
         run: |
           echo "IMAGE_ID=$(podman images -q ${{ inputs.ee-name }}:${{ env.EE_VERSION }})">>$GITHUB_ENV
-
-# Break down to 2 spearate step/ cd ../eercheck
 
       - name: Test the image with eercheck
         working-directory: eercheck
@@ -115,7 +95,7 @@ jobs:
       - name: Create the latest tag
         if: ${{ inputs.tag }}
         run: |
-          podman tag ${{ env.IMAGE_ID }} ghcr.io/anweshadas/${{ inputs.ee-name }}:latest
+          podman tag ${{ env.IMAGE_ID }} ghcr.io/ansible-community/${{ inputs.ee-name }}:latest
           podman images
 
       - name: Login to the Github Container registry
@@ -132,7 +112,7 @@ jobs:
         with:
           image: ${{ inputs.ee-name }}
           tags: ${{ env.EE_VERSION }}
-          registry: ghcr.io/anweshadas
+          registry: ghcr.io/ansible-community
 
       - name: Check and upload the image latest tag
         if: ${{ inputs.tag }}
@@ -140,5 +120,5 @@ jobs:
         with:
           image: ${{ inputs.ee-name }}
           tags: ${{ env.EE_VERSION }}
-          registry: ghcr.io/anweshadas
+          registry: ghcr.io/ansible-community
 
