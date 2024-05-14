@@ -14,7 +14,7 @@ on:
         description: >-
           EE Release Version. Example: 1
         required: true
-      tag:
+      tag_as_latest:
         description: >-
           Whether to tag the image as latest.
         type: boolean
@@ -86,14 +86,14 @@ jobs:
           ./containertest.py ${{ env.IMAGE_ID }}
           echo "STATUS_CODE=$?">>$GITHUB_ENV
 
-      - name: Checking the status code
+      - name: Checking the STATUS_CODE
         run: |
           if test ${{ env.STATUS_CODE }}!= 0; then
             exit 1;
           fi
 
       - name: Create the latest tag
-        if: ${{ inputs.tag }}
+        if: ${{ inputs.tag_as_latest }}
         run: |
           podman tag ${{ env.IMAGE_ID }} ghcr.io/ansible-community/${{ inputs.ee-name }}:latest
           podman images
@@ -115,10 +115,10 @@ jobs:
           registry: ghcr.io/ansible-community
 
       - name: Check and upload the image latest tag
-        if: ${{ inputs.tag }}
+        if: ${{ inputs.tag_as_latest}}
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ inputs.ee-name }}
-          tags: ${{ env.EE_VERSION }}
+          tags: latest
           registry: ghcr.io/ansible-community
 
