@@ -40,8 +40,8 @@
 - name: Initialize virtual environment with the specified ansible(-core) package
   ansible.builtin.pip:
     name: "{{ images_ansible_name }}"
-    version: "{{ _install_ansible_version | default(omit, True) }}"
-    state: "{{ _install_ansible_state | default(omit, True) }}"
+    version: "{{ _install_ansible_version | default(omit, true) }}"
+    state: "{{ _install_ansible_state | default(omit, true) }}"
     virtualenv: "{{ images_venv }}"
     virtualenv_command: "{{ ansible_python.executable }} -m venv"
 

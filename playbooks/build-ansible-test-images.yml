@@ -20,3 +20,6 @@
     - name: Build ansible-test images
       include_role:
         name: build-ansible-test-images
+      vars:
+        images_ansible_name: ansible-core
+        images_ansible_version: '==2.16'
