@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       ee-name:
-        description: 'ee name'
+        description: 'EE name'
         required: true
         type: choice
         options:
@@ -11,11 +11,11 @@ on:
           - community-ee-minimal
       ansible-core-version:
         description: >-
-          Release Version. Example: 11.1.0
+          Ansible-core version. Example: 2.17.0
         required: true
       ee-version:
         description: >-
-          EE Release Version. Example: 1
+          EE Release Version, to be appended to the ansible-core version. Example: 1
         required: true
       tag_as_latest:
         description: >-
@@ -75,7 +75,7 @@ jobs:
 
       - name: Find the id of the latest EE image
         run: |
-          echo "IMAGE_ID=$(podman images -q ${{ inputs.ee-name }}:${{ env.EE_VERSION }})">>$GITHUB_ENV
+          echo "IMAGE_ID=$(podman images -q ${{ inputs.ee-name }}:${EE_VERSION})">>$GITHUB_ENV
 
       - name: Test the image with eercheck
         working-directory: eercheck
@@ -86,12 +86,12 @@ jobs:
           source .venv/bin/activate
           python -m pip install -r requirements.txt
           sudo systemctl start podman.socket
-          ./containertest.py ${{ env.IMAGE_ID }}
+          ./containertest.py ${IMAGE_ID}
           echo "STATUS_CODE=$?">>$GITHUB_ENV
 
       - name: Checking the STATUS_CODE
         run: |
-          if test ${{ env.STATUS_CODE }}!= 0; then
+          if test ${STATUS_CODE} != 0; then
             exit 1;
           fi
 
@@ -123,5 +123,5 @@ jobs:
         with:
           image: ${{ inputs.ee-name }}
           tags: latest
-          registry: ghcr.io/ansible-community
+          registry: ghcr.io/${{ github.repository_owner }}
 
