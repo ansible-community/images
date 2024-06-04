@@ -1,0 +1,120 @@
+name: Release Ansible Execution Environment
+on:
+  workflow_dispatch:
+    inputs:
+      ee-name:
+        description: 'EE name'
+        required: true
+        type: choice
+        options:
+          - community-ee-base
+          - community-ee-minimal
+      ansible-core-version:
+        description: >-
+          Ansible-core version. Example: 2.17.0
+        required: true
+      ee-version:
+        description: >-
+          EE Release Version, to be appended to the ansible-core version. Example: 1
+        required: true
+      tag_as_latest:
+        description: >-
+          Whether to tag the image as latest.
+        type: boolean
+        required: false
+        default: false
+
+env:
+  EE_VERSION: ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
+
+jobs:
+  build:
+    name: Build Execution Environment ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+      packages: write
+
+    steps:
+      - name: Check out images
+        uses: actions/checkout@v4
+        with:
+          repository: ansible-community/images
+          ref: main
+          path: image
+
+      - name: Check out eercheck repo for testing
+        uses: actions/checkout@v4
+        with:
+          repository: anweshadas/eercheck
+          ref: main
+          path: eercheck
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install ansible-builder
+          python3 -m pip install setuptools
+          sudo apt install podman --yes
+          pwd
+          ls -l
+
+      - name: Pull the latest fedora image
+        run: |
+          podman pull quay.io/fedora/fedora:latest
+
+      - name: Build Community EE image
+        working-directory: image/execution-environments/${{ inputs.ee-name }}
+        run: |
+          ansible-builder build --tag "ghcr.io/ansible-community/${{ inputs.ee-name }}:${EE_VERSION}"
+
+      - name: Find the id of the latest EE image
+        run: |
+          echo "IMAGE_ID=$(podman images -q ${{ inputs.ee-name }}:${EE_VERSION})">>$GITHUB_ENV
+
+      - name: Test the image with eercheck
+        working-directory: eercheck
+        run: |
+          pwd
+          ls -l
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install -r requirements.txt
+          sudo systemctl start podman.socket
+          ./containertest.py "${IMAGE_ID}"
+
+      - name: Create the latest tag
+        if: ${{ inputs.tag_as_latest }}
+        run: |
+          podman tag "${IMAGE_ID}" ghcr.io/ansible-community/${{ inputs.ee-name }}:latest
+          podman images
+
+      - name: Login to the Github Container registry
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Upload artifact EE to ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ inputs.ee-name }}
+          tags: ${{ env.EE_VERSION }}
+          registry: ghcr.io/ansible-community
+
+      - name: Check and upload the image latest tag
+        if: ${{ inputs.tag_as_latest}}
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ inputs.ee-name }}
+          tags: latest
+          registry: ghcr.io/${{ github.repository_owner }}
+
