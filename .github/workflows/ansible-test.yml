@@ -21,10 +21,6 @@ jobs:
             python: '3.12'
             ansible-core-1: ''
             ansible-core-2: devel
-          - name: centos-stream8
-            python: '3.6 3.9'
-            ansible-core-1: '==2.15'
-            ansible-core-2: stable-2.16
           - name: debian-bullseye
             python: '3.9'
             ansible-core-1: ''
