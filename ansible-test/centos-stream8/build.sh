@@ -7,6 +7,7 @@ SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
 DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | grep -v '^#' | tr '\n' ' ')"
 
 build=$(buildah from quay.io/centos/centos:stream8)
+buildah run "${build}" -- /bin/bash -c 'sed -e "s/mirrorlist=/#mirrorlist=/g" -e "s/#baseurl=http:\/\/mirror.centos.org/baseurl=http:\/\/vault.centos.org/g" -i /etc/yum.repos.d/*.repo'
 buildah run "${build}" -- /bin/bash -c "dnf update -y && dnf install --allowerasing -y ${DEPENDENCIES} && dnf clean all"
 # Set
 
