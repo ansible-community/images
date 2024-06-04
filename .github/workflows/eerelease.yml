@@ -71,7 +71,7 @@ jobs:
       - name: Build Community EE image
         working-directory: image/execution-environments/${{ inputs.ee-name }}
         run: |
-          ansible-builder build --tag ghcr.io/ansible-community/${{ inputs.ee-name }}:${{ env.EE_VERSION }}
+          ansible-builder build --tag "ghcr.io/ansible-community/${{ inputs.ee-name }}:${EE_VERSION}"
 
       - name: Find the id of the latest EE image
         run: |
