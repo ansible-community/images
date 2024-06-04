@@ -52,7 +52,7 @@ ansible-test integration --python 3.6 --docker localhost/test-image:centos-strea
 ## Available images
 
 | image             | py27 | py36 | py38 | py39 | py3.10 | py3.11 | py3.12 | Notes                                       |
-|-------------------|------|------|------|------|--------|--------|---------------------------------------------|
+|-------------------|------|------|------|------|--------|--------|--------|---------------------------------------------|
 | [archlinux]       |      |      |      |      |        |        |   ✔️    |                                             |
 | [centos-stream8]  |      |  ✔️   |      |  ✔️   |        |        |        | Based on [centos8 ansible-test image]       |
 | [debian-bullseye] |      |      |      |  ✔️   |        |        |        | Based on [ubuntu2004 ansible-test image]    |
