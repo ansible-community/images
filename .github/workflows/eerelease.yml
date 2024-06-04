@@ -86,7 +86,7 @@ jobs:
           source .venv/bin/activate
           python -m pip install -r requirements.txt
           sudo systemctl start podman.socket
-          ./containertest.py ${IMAGE_ID}
+          ./containertest.py "${IMAGE_ID}"
 
       - name: Create the latest tag
         if: ${{ inputs.tag_as_latest }}
