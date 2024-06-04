@@ -87,13 +87,6 @@ jobs:
           python -m pip install -r requirements.txt
           sudo systemctl start podman.socket
           ./containertest.py ${IMAGE_ID}
-          #echo "STATUS_CODE=$?">>$GITHUB_ENV
-
-      #- name: Checking the STATUS_CODE
-        #run: |
-          #if test ${STATUS_CODE} != 0; then
-           #exit 1;
-          #fi
 
       - name: Create the latest tag
         if: ${{ inputs.tag_as_latest }}
