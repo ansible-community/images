@@ -7,8 +7,8 @@
       # These images are meant to be provided by running the "build-ansible-test-images.yml" playbook.
       - name: localhost/test-image
         tag: archlinux
-      - name: localhost/test-image
-        tag: centos-stream8
+#      - name: localhost/test-image
+#        tag: centos-stream8
       - name: localhost/test-image
         tag: debian-bullseye
       - name: localhost/test-image
