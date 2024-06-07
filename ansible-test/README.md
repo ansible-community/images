@@ -41,12 +41,12 @@ Example:
 
 ```bash
 dnf -y install podman buildah
-./centos-stream8/build.sh
+./archlinux/build.sh
 
 pip install ansible-core --user
 git clone https://github.com/ansible-collections/community.general ansible_collections/community/general
 cd ansible_collections/community/general
-ansible-test integration --python 3.6 --docker localhost/test-image:centos-stream8 ini_file
+ansible-test integration --python 3.12 --docker localhost/test-image:archlinux ini_file
 ```
 
 ## Available images
@@ -54,7 +54,6 @@ ansible-test integration --python 3.6 --docker localhost/test-image:centos-strea
 | image             | py27 | py36 | py38 | py39 | py3.10 | py3.11 | py3.12 | Notes                                       |
 |-------------------|------|------|------|------|--------|--------|--------|---------------------------------------------|
 | [archlinux]       |      |      |      |      |        |        |   ✔️    |                                             |
-| [centos-stream8]  |      |  ✔️   |      |  ✔️   |        |        |        | Based on [centos8 ansible-test image]       |
 | [debian-bullseye] |      |      |      |  ✔️   |        |        |        | Based on [ubuntu2004 ansible-test image]    |
 | [debian-bookworm] |      |      |      |      |        |   ✔️    |        | Based on debian-bullseye ansible-test image |
 
@@ -62,9 +61,7 @@ ansible-test integration --python 3.6 --docker localhost/test-image:centos-strea
 Note that these images from only work with ansible-test from ansible-core 2.14.0 or later.
 
 [archlinux]: https://quay.io/ansible-community/test-image:archlinux
-[centos-stream8]: https://quay.io/ansible-community/test-image:centos-stream8
 [debian-bullseye]: https://quay.io/ansible-community/test-image:debian-bullseye
 [debian-bookworm]: https://quay.io/ansible-community/test-image:debian-bookworm
 
-[centos8 ansible-test image]: https://github.com/ansible/distro-test-containers/blob/c4fe28818f5a33b675652637e3057bafe50039ee/centos8-test-container/Dockerfile
 [ubuntu2004 ansible-test image]: https://github.com/ansible/distro-test-containers/blob/c4fe28818f5a33b675652637e3057bafe50039ee/ubuntu2004-test-container/Dockerfile

@@ -8,12 +8,6 @@ images_available:
     pythons:
       - "3.12"
   - name: localhost/test-image
-    tag: centos-stream8
-    script: ansible-test/centos-stream8/build.sh
-    pythons:
-      # - "3.6"  -- don't run tests
-      - "3.9"
-  - name: localhost/test-image
     tag: debian-bullseye
     script: ansible-test/debian-bullseye/build.sh
     pythons:

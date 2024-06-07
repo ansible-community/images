@@ -1,3 +1,0 @@
-coverage==6.5.0
-# include ara for optional test and CI reporting
-ara
