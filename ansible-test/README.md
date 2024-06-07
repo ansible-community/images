@@ -7,7 +7,7 @@ ansible-test provides ways to test ansible itself as well as ansible-core and an
 Since integration tests can result in changes to a system (such as installing packages or changing files and configuration), it may be preferred to run them inside a container image to avoid making unnecessary changes to the host on which the tests are run.
 Container images also happen to be useful and convenient for quickly testing different operating systems and versions of python.
 
-Some container images are provided and supported by ansible-test, such as the following (from the devel branch at time of writing):
+Some container images are provided and supported by ansible-test, such as the following (from the `devel` branch at time of writing):
 
 ```bash
 ansible-test integration --help
