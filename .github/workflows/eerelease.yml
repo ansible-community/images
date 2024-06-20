@@ -97,19 +97,23 @@ jobs:
       - name: Login to the Github Container registry
         env:
           REGISTRY_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: redhat-actions/podman-login@v1
         with:
           registry: ghcr.io/${{ github.repository_owner }}
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          username: $REGISTRY_USER
+          password: $GITHUB_TOKEN
 
       - name: Upload artifact EE to ghcr
         uses: redhat-actions/push-to-registry@v2
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           image: ${{ inputs.ee-name }}
           tags: ${{ env.EE_VERSION }}
           registry: ghcr.io/ansible-community
-          password: ${{ github.token }}
+          password: $GITHUB_TOKEN
 
       - name: Check and upload the image latest tag
         if: ${{ inputs.tag_as_latest}}
