@@ -116,4 +116,3 @@ jobs:
           image: ${{ inputs.ee-name }}
           tags: latest
           registry: ghcr.io/${{ github.repository_owner }}
-
