@@ -107,6 +107,7 @@ jobs:
           image: ${{ inputs.ee-name }}
           tags: ${{ env.EE_VERSION }}
           registry: ghcr.io/ansible-community
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check and upload the image latest tag
