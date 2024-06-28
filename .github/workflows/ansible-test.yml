@@ -20,8 +20,8 @@ on:
     - cron: '0 8 * * *'
 
 env:
-  QUAY_REPO: quay.io/ansible-community
-  QUAY_IMAGE_NAME: test-image
+  CONTAINER_REGISTRY: quay.io
+  CONTAINER_IMAGE_NAME: ansible-community/test-image
 
 jobs:
   build:
@@ -67,7 +67,7 @@ jobs:
       - name: Build ${{ matrix.name }} image
         run: |
           ${{ matrix.name }}/build.sh
-          podman tag localhost/test-image:${{ matrix.name }} "${QUAY_REPO}/${QUAY_IMAGE_NAME}:${{ matrix.name }}"
+          podman tag localhost/test-image:${{ matrix.name }} "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_NAME}:${{ matrix.name }}"
         working-directory: ./ansible-test/
 
       # This is necessary to allow running systemd in rootless containers
@@ -104,18 +104,12 @@ jobs:
           done
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
 
-      - name: Login to the Github Container registry
-        if: github.event_name != 'pull_request'
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ${{ env.QUAY_REPO }}
-          username: ${{ secrets.quay_write_user }}
-          password: ${{ secrets.quay_write_pass }}
-
-      - name: Upload artifact EE to ghcr
+      - name: Publish container image as ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ matrix.name }}
         if: github.event_name != 'pull_request'
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ env.QUAY_IMAGE_NAME }}
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          image: ${{ env.CONTAINER_IMAGE_NAME }}
           tags: ${{ matrix.name }}
-          registry: ${{ env.QUAY_REPO }}
+          username: ${{ secrets.quay_write_user }}
+          password: ${{ secrets.quay_write_pass }}
