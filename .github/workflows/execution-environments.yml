@@ -2,9 +2,18 @@ name: execution environment images
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - .github/workflows/execution-environments.yml
+      - execution-environments/**
   pull_request:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - .github/workflows/execution-environments.yml
+      - execution-environments/**
+  workflow_dispatch:
   # Run once per week (Monday at 08:00 UTC)
   schedule:
     - cron: '0 8 * * 1'
