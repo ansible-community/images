@@ -1,5 +1,0 @@
-- name: Test the container image {{ item.name }}:{{ item.tag }} for Python versions
-  include_tasks: test-image.yml
-  loop: "{{ item.pythons }}"
-  loop_control:
-    loop_var: item_python

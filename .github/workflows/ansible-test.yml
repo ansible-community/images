@@ -1,13 +1,27 @@
+---
 name: ansible-test images
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - .github/workflows/ansible-test.yml
+      - ansible-test/**
   pull_request:
-    branches: [main]
-  # Run once per week (Monday at 08:00 UTC)
+    branches:
+      - main
+    paths:
+      - .github/workflows/ansible-test.yml
+      - ansible-test/**
+  workflow_dispatch:
+  # Run daily (Monday at 08:00 UTC)
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 8 * * *'
+
+env:
+  QUAY_REPO: quay.io/ansible-community
+  QUAY_IMAGE_NAME: test-image
 
 jobs:
   build:
@@ -19,16 +33,22 @@ jobs:
         include:
           - name: archlinux
             python: '3.12'
-            ansible-core-1: ''
+            ansible-core-1: ansible-core
             ansible-core-2: devel
+            test-with-podman: false  # TODO: re-enable this once we figure out how to run tests with podman again...
+            test-with-docker: true
           - name: debian-bullseye
             python: '3.9'
-            ansible-core-1: ''
+            ansible-core-1: ansible-core
             ansible-core-2: devel
+            test-with-podman: false  # TODO: re-enable this once we figure out how to run tests with podman again...
+            test-with-docker: true
           - name: debian-bookworm
             python: '3.11'
-            ansible-core-1: ''
+            ansible-core-1: ansible-core
             ansible-core-2: devel
+            test-with-podman: false  # TODO: re-enable this once we figure out how to run tests with podman again...
+            test-with-docker: true
 
     steps:
       - name: Check out repository
@@ -42,11 +62,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install podman buildah
-          pip install ansible-core${{ matrix.ansible-core-1 }}
+          pip install ${{ matrix.ansible-core-1 }}
 
       - name: Build ${{ matrix.name }} image
         run: |
           ${{ matrix.name }}/build.sh
+          podman tag localhost/test-image:${{ matrix.name }} "${QUAY_REPO}/${QUAY_IMAGE_NAME}:${{ matrix.name }}"
         working-directory: ./ansible-test/
 
       # This is necessary to allow running systemd in rootless containers
@@ -55,27 +76,46 @@ jobs:
           loginctl enable-linger runner
           sleep 1
 
-      - name: Run basic tests with ${{ matrix.name }} image (ansible-core${{ matrix.ansible-core-1 }}), Python versions ${{ matrix.python }}, Podman
+      - name: Run basic tests with ${{ matrix.name }} image (${{ matrix.ansible-core-1 }}, Python versions ${{ matrix.python }}, Podman)
+        if: ${{ matrix.test-with-podman }}
+        env:
+          ANSIBLE_TEST_PREFER_PODMAN: 1
         run: |
           for PYTHON in ${{ matrix.python }}; do
             ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
           done
-        env:
-          ANSIBLE_TEST_PREFER_PODMAN: 1
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
-        if: false  # TODO: re-enable this once we figure out how to run tests with podman again...
 
       - name: Copy image from podman to docker
+        if: ${{ matrix.test-with-docker }}
         run: |
           podman push localhost/test-image:${{ matrix.name }} docker-daemon:localhost/test-image:${{ matrix.name }}
 
       - name: Install ansible-core ${{ matrix.ansible-core-2 }}
+        if: ${{ matrix.test-with-docker }}
         run: |
           pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible-core-2 }}.tar.gz
 
-      - name: Run basic tests with ${{ matrix.name }} image (ansible-core devel), Python versions ${{ matrix.python }}, Docker
+      - name: Run basic tests with ${{ matrix.name }} image (ansible-core ${{ matrix.ansible-core-2 }}, Python versions ${{ matrix.python }}, Docker)
+        if: ${{ matrix.test-with-docker }}
         run: |
           for PYTHON in ${{ matrix.python }}; do
             ansible-test integration --color -v --python ${PYTHON} --docker localhost/test-image:${{ matrix.name }} shippable/posix/group1/
           done
         working-directory: ./.github/ansible-test-tests/ansible_collections/testns/testcol
+
+      - name: Login to the Github Container registry
+        if: github.event_name != 'pull_request'
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ env.QUAY_REPO }}
+          username: ${{ secrets.quay_write_user }}
+          password: ${{ secrets.quay_write_pass }}
+
+      - name: Upload artifact EE to ghcr
+        if: github.event_name != 'pull_request'
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ env.QUAY_IMAGE_NAME }}
+          tags: ${{ matrix.name }}
+          registry: ${{ env.QUAY_REPO }}
