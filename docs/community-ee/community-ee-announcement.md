@@ -1,16 +1,6 @@
-# Announcing the community-ee-* execution environments
-
-We announce both community-ee-base and community-ee-minimal together.
-
-## Forum Announcement
+# Forum Announcement
 
 Release announcement to be done  in the  Ecosystem Release sub-category under the News & Announcements category.
-
-## E-Mail Announcement
-
-`ansible-announce` Google Groups
-
-## Community-ee (both Base and Minimal) announcement
 
 ```
 Hello everyone,
@@ -37,7 +27,6 @@ Ansible community-ee-minimal is a container image. It includes:
 ## sha256 sum value of the container image:
 
 
-
 ## How to get community-ee-minimal?
 
 ### Install from command line via @sha256_sum_value of the image
@@ -48,7 +37,6 @@ Ansible community-ee-minimal is a container image. It includes:
 
 `podman pull ghcr.io/ansible-community/community-ee-minimal:latest`
 `podman pull ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>`
-
 
 
 ## What's inside community-ee-base?
@@ -76,17 +64,10 @@ Ansible community-ee-minimal is a container image. It includes:
 ## To know about future releases
 
 Join the [Ansible Community Forum](https://forum.ansible.com) to follow along and participate
-in all the discussions and release related discussions and
-announcements. Feel free to share your thoughts, ideas and concerns
-there.
+in all the discussions and release related discussions and announcements. Feel free to share your
+thoughts, ideas and concerns there.
 
-Subscribe to the Bullhorn for all future release dates, announcements,
-and Ansible community contributor news at:
-
-[https://bit.ly/subscribe-bullhorn](https://bit.ly/subscribe-bullhorn)
-
-You can find all Bullhorn issues on the Community forum:
-https://forum.ansible.com/c/news/bullhorn/17
+Subscribe to the [Bullhorn](https://forum.ansible.com/c/news/bullhorn/17) for all future release dates, announcements, and Ansible community contributor news.
 
 On behalf of the Ansible community, thank you and happy automating!
 
@@ -115,4 +96,62 @@ Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee
 Get the details of both the images [here](<link to the forum post>).
 
 On behalf of the Ansible community, thank you and happy automating!
+
 ```
+
+
+## Bullhorn Announcement
+
+We’re happy to announce the release of the Ansible Community Execution Environment Minimal <version> (Latest) and Ansible Community Execution Environment Base <version> are here.
+
+### What's inside Ansible Community Execution Environment Base <version>?
+
+The image includes :
+
+    Base_image: fedora <version>
+
+    ansible-core: ansible-core <version> (latest version of ansible-core)
+
+    collections:  ansible.posix <version>, ansible.utils <version> & ansible.windows <version>.
+
+### sha256 sum value of the container image :
+
+### Install steps
+
+`podman pull ghcr.io/ansible-community/community-ee-base:latest`
+
+`podman pull ghcr.io/ansible-community/community-ee-base:<version>`
+
+
+## Ansible Community Excution Environment Minimal <version> (Latest)
+
+The image includes :
+
+    Base_image: fedora <version>
+
+    ansible-core: ansible-core <version> (latest version of ansible-core)
+
+### sha256 sum value of the container image :
+
+
+#### Install steps
+
+`podman pull ghcr.io/ansible-community/community-ee-minimal:latest`
+
+`podman pull ghcr.io/ansible-community/community-ee-minimal:version`
+
+Read the whole announcement [here](link to forum announcement).
+
+## To know about future releases
+
+Join the [Ansible Community Forum](https://forum.ansible.com/) to follow along and participate in all the discussions and release related discussions and announcements. Feel free to share your thoughts, ideas and concerns there.
+
+On behalf of the Ansible community, thank you and happy automating!
+
+Cheers,
+
+Ansible Community Team
+
+
+
+
