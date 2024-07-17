@@ -104,7 +104,7 @@ git push origin <ansible-core-version-base-ee-version>
 ```
 Compare and create the pull request.
 
-16.   Check the community-ee-base images [here](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base)  and get the sha256 sum.
+16.   Check the community-ee-base images in the [ansible-community repo in Github Container registry](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base)  and get the sha256 sum.
 
 
 
@@ -158,5 +158,5 @@ git push origin <ansible-core-version-minimal-ee-version>
 ```
 Compare and create the pull request.
 
-11.   Check the community-ee-minimal images [here](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal)  and get the sha256 sum.
+11.   Check the community-ee-minimal images in the [ansible-community repo in Github Container registry](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal)  and get the sha256 sum.
 
