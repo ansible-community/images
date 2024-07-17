@@ -1,6 +1,6 @@
 # Forum Announcement
 
-Release announcement to be done  in the  Ecosystem Release sub-category under the News & Announcements category.
+Release announcement to be done in the  Ecosystem Release sub-category under the News & Announcements category. Follow [forum link](https://forum.ansible.com/c/news/releases/18) to create the announcement post.
 
 ```
 Hello everyone,
@@ -64,8 +64,7 @@ Ansible community-ee-minimal is a container image. It includes:
 ## To know about future releases
 
 Join the [Ansible Community Forum](https://forum.ansible.com) to follow along and participate
-in all the discussions and release related discussions and announcements. Feel free to share your
-thoughts, ideas and concerns there.
+in all the discussions.
 
 Subscribe to the [Bullhorn](https://forum.ansible.com/c/news/bullhorn/17) for all future release dates, announcements, and Ansible community contributor news.
 
@@ -93,7 +92,7 @@ We’re happy to announce the release of the
 
 Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee-version> and Ansible Community Execution Environment Base <ansible-core-version-base-ee-version>!
 
-Get the details of both the images [here](<link to the forum post>).
+Get the details of both the images [in the forum post](<link to the forum post>).
 
 On behalf of the Ansible community, thank you and happy automating!
 
@@ -105,20 +104,7 @@ On behalf of the Ansible community, thank you and happy automating!
 
 We’re happy to announce the release of the Ansible Community Execution Environment Minimal <version> (Latest) and Ansible Community Execution Environment Base <version> are here.
 
-Read the whole announcement [here](link to forum announcement).
-
-
-### How to install community-ee-base?
-
-`podman pull ghcr.io/ansible-community/community-ee-base:latest`
-
-`podman pull ghcr.io/ansible-community/community-ee-base:<version>`
-
-### How to install community-ee-minimal?
-
-`podman pull ghcr.io/ansible-community/community-ee-minimal:latest`
-
-`podman pull ghcr.io/ansible-community/community-ee-minimal:version`
+Read the whole announcement [in the ansible forum](link to forum announcement).
 
 ## To know about future releases
 
@@ -129,7 +115,3 @@ On behalf of the Ansible community, thank you and happy automating!
 Cheers,
 
 Ansible Community Team
-
-
-
-
