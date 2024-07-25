@@ -23,10 +23,10 @@ Versioning would be the core tag + a patch number, e.g
 
 ## Prerequisites
 
-      - Join the [Release Management working group](https://forum.ansible.com/g/release-managers) and [Execution Environment group](https://forum.ansible.com/g/ExecutionEnvs).
-      - Understand [Ansible execution environments](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
-      - Read about the [eerelease.yml](/.github/workflows/eerelease.yml)  GitHub workflow.
-      - Show intention and book the date for the releasing of the EE.
+- Join the [Release Management working group](https://forum.ansible.com/g/release-managers) and [Execution Environment group](https://forum.ansible.com/g/ExecutionEnvs).
+- Understand [Ansible execution environments](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
+- Read about the [eerelease.yml](/.github/workflows/eerelease.yml)  GitHub workflow.
+- Show intention and book the date for the releasing of the EE.
 
 ## Announcement before the release
 
