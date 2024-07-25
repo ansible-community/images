@@ -40,10 +40,10 @@ Versioning would be the core tag + a patch number, e.g
 
 ### On the terminal
 
-      - Check the most recent [ansible-core version](https://pypi.org/project/ansible-core/)
-      - Verify ansible collection versions for ``ansible.posix``, ``ansible.utils`` and  ``ansible.windows`` for `deps` file of the Ansible community package version for the related release  in the [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data).
-      - Go to the images/execution-environments directory.
-      - Create the correct `git branch` (name it in the related version eg: 2.17.1-1)
+1. Check the most recent [ansible-core version](https://pypi.org/project/ansible-core/)
+2. Verify ansible collection versions for ``ansible.posix``, ``ansible.utils`` and  ``ansible.windows`` for `deps` file of the Ansible community package version for the related release  in the [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data).
+3. Go to the images/execution-environments directory.
+4. Create the correct `git branch` (name it in the related version eg: 2.17.1-1)
 
         ```
             cd images/execution-environments
@@ -53,7 +53,7 @@ Versioning would be the core tag + a patch number, e.g
 
         ```
 
-      - Update the ansible-core and collection versions in the  `/images/execution-environments/community-ee-base/execution-environment.yml` file.
+5. Update the ansible-core and collection versions in the  `/images/execution-environments/community-ee-base/execution-environment.yml` file.
       - Update the ansible-core version in the  `/images/execution-environments/community-ee-minimal/execution-environment.yml` file, commit the changes and create a PR.
 
         ```
@@ -63,19 +63,19 @@ Versioning would be the core tag + a patch number, e.g
             git commit -m "Updates ansible-core & collection versions for Base and Minimal"
             git push origin branch_name
         ```
-      - Once the PR is merged, it is the time to start with the github workflow.
+Once the PR is merged, it is the time to start with the github workflow.
 
 
 ### Triggering the release workflow
 
-      - Go to the [ansible-community/images](https://github.com/ansible-community/images) repo.
-      - Click on the ![`Actions`](action-workflow-block.png) tab to view the available workflows.
-      - Go to the `Release Ansible Execution Environment` workflow and then select ![`Run Workflow`](docs/community-ee/dropdown-workflow.png).
-      - Click on the Drop down Button and choose the type of the Execution Environment, (whether it is `community-ee-base` or `community-ee-minimal`)
-      - Write down the patch number of execution environment (to be appended to the ansible-core version) .
+1. Go to the [ansible-community/images](https://github.com/ansible-community/images) repo.
+2. Click on the ![`Actions`](action-workflow-block.png) tab to view the available workflows.
+3. Go to the `Release Ansible Execution Environment` workflow and then select ![`Run Workflow`](docs/community-ee/dropdown-workflow.png).
+4. Click on the Drop down Button and choose the type of the Execution Environment, (whether it is `community-ee-base` or `community-ee-minimal`)
+5. Write down the patch number of execution environment (to be appended to the ansible-core version) .
       This is typically 1.
-      -  Check on the button if this is `latest` release of  the particular execution environment
-      -  Click on the ![`Run workflow` button](docs/community-ee/workflow_block.png) to run the workflow
-      - After the successful run of the workflow, go on and check if the [image is published](https://github.com/orgs/ansible-community/packages/container) and get the sha256 sum of the published image (to be used in the announcement).
-      - Make the announcement in the #release-management and #community-working-group Matrix room, Forum, and Bullhorn according to the instructions in `docs/community-ee/community-ee-announcement.md`.
+6. Check on the button if this is `latest` release of  the particular execution environment
+7. Click on the ![`Run workflow` button](docs/community-ee/workflow_block.png) to run the workflow
+8. After the successful run of the workflow, go on and check if the [image is published](https://github.com/orgs/ansible-community/packages/container) and get the sha256 sum of the published image (to be used in the announcement).
+9. Make the announcement in the #release-management and #community-working-group Matrix room, Forum, and Bullhorn according to the instructions in `docs/community-ee/community-ee-announcement.md`.
 
