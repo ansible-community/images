@@ -1,162 +1,78 @@
-# Releasing the community-ee-* execution environments
+# Releasing community-ee-* execution environments
 
 ## Release Cadence
 
-The community EEs are to be built and published on the next day and/or the day after ansible-core is released.
+The community EEs are built and published on the day after `ansible-core` is released.
 
 ## EE tag versioning
 
-Versioning would be the core tag + a patch number, e.g
+The EE versioning convention is core tag plus patch number, for example:
 
     - EE with core `2.16.2` comes out -> `community-ee:2.16.2-1`
     - EE with core `2.16.3` comes out -> `community-ee:2.16.3-1`
-
 
 ## Dependencies
 
 - Podman/Docker
 
-##  Credentials
+## Credentials
 
-- Access to  https://github.com/ansible-community/images repo
+- Access to the https://github.com/ansible-community/images repository
 - Access to ghcr.io
 
+## Prerequisites
 
-## Build steps for Community-ee-base
+- Join the [Release Management working group](https://forum.ansible.com/g/release-managers) and [Execution Environment group](https://forum.ansible.com/g/ExecutionEnvs).
+- Understand [Ansible execution environments](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
+- Read about the [eerelease.yml](/.github/workflows/eerelease.yml)  GitHub workflow.
+- Show intention and book the date for the releasing of the EE.
 
-1. Go to the working directory.
+## Making the pre-release announcement
 
-`cd images/execution-environments/community-ee-base`
+Post this message in the channel before working on the release, using the correct release number.
 
-2. Create a new release branch
-
-`git checkout -b base-<ansible-core-version-base-ee-version>`
-
-3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and [ansible-<version>.deps](https://github.com/ansible-community/ansible-build-data/blob/main/9/ansible-9.0.1.deps) and edit accordingly.
-
-`vim execution-environments/community-ee-base/execution-environment.yml`
-
-
-4. List images in local storage
-
-`podman images`
-
-5. Delete the existing community-ee base and fedora images
-
-```
-podman rmi <podman_community-ee-base_IMAGE_ID>
-podman rmi <podman_community-ee-fedora_IMAGE_ID>
-```
-6. Create a virtual environment
-
-```
-python3 -m venv .venv
-source .venv/bin/activate
-```
-7. Install `ansible-builder` and `setuptools`
-
-```
-python3 -m pip install ansible-builder
-python3 -m pip install setuptools
+```markdown
+📯📯📯 I am working on the `Ansible Execution Environment Base and Minimal 2.x.y-1` Release. I will keep the room updated about the progress.📦️
 ```
 
-8. Pull the latest fedora image
+## Building the EEs
 
-`podman pull fedora:latest`
+### On the terminal
 
-9. Build the ansible community-ee-base podman image with ansible-builder. (versioning: 2.16.1-1)
+1. Check the most recent [ansible-core version](https://pypi.org/project/ansible-core/)
+2. Verify Ansible collection versions for ``ansible.posix``, ``ansible.utils`` and  ``ansible.windows`` for `deps` file of the Ansible community package version for the related release in the [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data).
+3. Change to the `images/execution-environments` directory.
+4. Create a `git branch` that has a name corresponding to the version, for example: `2.17.1-1`.
 
-`ansible-builder build --tag ghcr.io/ansible-community/community-ee-base:<ansible-core-version-base-ee-version>`
+    ```bash
+    cd images/execution-environments
+    git checkout main
+    git pull upstream main
+    git checkout -b coreversion-eeversion
+    ```
 
-10. Check if the image has been created or not and get the <image ID> of `community-ee-base`
+5. Update the `ansible-core` and collection versions in the  `/images/execution-environments/community-ee-base/execution-environment.yml` file.
+6. Update the `ansible-core` version in the `/images/execution-environments/community-ee-minimal/execution-environment.yml` file.
+7. Commit the changes and create a PR.
 
-`podman images`
+    ```bash
+    vim community-ee-base/execution-environment.yml
+    git add -u
+    git status
+    git commit -m "Updates ansible-core & collection versions for Base and Minimal"
+    git push origin branch_name
+    ```
 
-11. Build latest tag for the community-ee-base image
+After the PR is merged, it is the time to trigger the release workflow on GitHub.
 
-`podman tag <image id> ghcr.io/ansible-community/community-ee-base:latest`
+### Triggering the release workflow
 
-12. Create the Github token
-
-Go to Github UI and create Personal Token (classic).
-
-Select `write:packages` scope while creating the token.
-Copy the token from Github UI and then pass the token on the following command.
-
-
-13. Login to Github Registry
-
-`echo TOKEN | podman login ghcr.io -u USERNAME --password-stdin`
-
-14. Push both the images (general versioning and the latest) to Github Registry
-
-```
-podman push ghcr.io/ansible-community/community-ee-base:<ansible-core-version-base-ee-version>
-podman push ghcr.io/ansible-community/community-ee-base:latest
-```
-
-15. Commit and push the changes made in the `execution-environments/community-ee-base/execution-environment.yml` to the `https://github.com/ansible-community/images` repo.
-
-```
-git add execution-environments/community-ee-base/execution-environment.yml
-git commit
-git push origin <ansible-core-version-base-ee-version>
-```
-Compare and create the pull request.
-
-16.   Check the community-ee-base images [here](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base)  and get the sha256 sum.
-
-
-
-## Build steps for Community-ee-minimal
-
-1. Go to the working directory
-
-`cd images/execution-environments/community-ee-minimal`
-
-2. Create a new release branch
-
-`git checkout -b base-<ansible-core-version-minimal-ee-version>`
-
-3. Edit the `execution-environment.yml` file to the right `collection version` and `ansible-core version`. Get the correct [ansible-core](https://pypi.org/project/ansible-core/) version and edit accordingly.
-
-`vim execution-environments/community-ee-minimal/execution-environment.yml`
-
-
-4. List images in local storage
-
-`podman images`
-
-5. Delete the existing community-ee-minimal image
-
-`podman rmi <podman_community-ee-minimal_IMAGE_ID>`
-
-6. Build the ansible community-ee-minimal podman image with ansible-builder. (versioning: 2.16.1-1)
-
-`ansible-builder build --tag ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>`
-
-7. Check if the image has been created or not and get the <image ID> of `community-ee-minimal`
-
-`podman images`
-
-8. Build `latest` tag for the community-ee-minimal image
-
-`podman tag <image id> ghcr.io/ansible-community/community-ee-minimal:latest`
-
-9. Push both the images (general versioning and the latest) to Github Registry by using the Github Token created before
-
-```
-podman push ghcr.io/ansible-community/community-ee-minimal:<ansible-core-version-minimal-ee-version>
-podman push ghcr.io/ansible-community/community-ee-minimal:latest
-```
-10. Commit and push the changes made in the `execution-environments/community-ee-minimal/execution-environment.yml` to the `https://github.com/ansible-community/images` repo.
-
-```
-git add execution-environments/community-ee-minimal/execution-environment.yml
-git commit
-git push origin <ansible-core-version-minimal-ee-version>
-```
-Compare and create the pull request.
-
-11.   Check the community-ee-minimal images [here](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal)  and get the sha256 sum.
-
+1. Go to the [ansible-community/images](https://github.com/ansible-community/images) repository.
+2. Click the `Actions` tab to view the available workflows.
+3. Go to the `Release Ansible Execution Environment` workflow and then select `Run Workflow`.
+4. Click the drop-down button and choose the type of the Execution Environment, whether `community-ee-base` or `community-ee-minimal`.
+5. Provide the patch number of the execution environment that is appended to the `ansible-core` version, which is typically `1`.
+6. Select the button if this is `latest` release of the particular execution environment.
+7. Click the `Run workflow` to run the workflow.
+8. After the successful run of the workflow, check if the [image is published](https://github.com/orgs/ansible-community/packages/container) and get the sha256 sum of the published image for the release announcement.
+9. Announce the release in the #release-management and #community-working-group Matrix room, Forum, and Bullhorn according to the instructions in `docs/community-ee/community-ee-announcement.md`.
