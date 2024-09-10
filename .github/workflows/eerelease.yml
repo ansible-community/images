@@ -92,7 +92,7 @@ jobs:
       - name: Create the latest tag
         if: ${{ inputs.tag_as_latest }}
         run: |
-          podman tag "${IMAGE_ID}" ghcr.io/${{ env.IMAGE_NAME }}:latest
+          podman tag "${IMAGE_ID}" "ghcr.io/${IMAGE_NAME}:latest"
           podman images
 
       - name: Upload artifact EE to ghcr
