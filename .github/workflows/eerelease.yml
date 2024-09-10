@@ -72,11 +72,11 @@ jobs:
       - name: Build Community EE image
         working-directory: image/execution-environments/${{ inputs.ee-name }}
         run: |
-          ansible-builder build --tag "ghcr.io/${{ env.IMAGE_NAME }}:${EE_VERSION}"
+          ansible-builder build --tag "ghcr.io/${IMAGE_NAME}:${EE_VERSION}"
 
       - name: Find the id of the latest EE image
         run: |
-          echo "IMAGE_ID=$(podman images -q ${{ env.IMAGE_NAME }}:${EE_VERSION})">>$GITHUB_ENV
+          echo "IMAGE_ID=$(podman images -q "${IMAGE_NAME}:${EE_VERSION}")">>$GITHUB_ENV
 
       - name: Test the image with eercheck
         working-directory: eercheck
