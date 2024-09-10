@@ -26,6 +26,7 @@ on:
 
 env:
   EE_VERSION: ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
+  IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.ee-name }}
 
 jobs:
   build:
@@ -71,11 +72,11 @@ jobs:
       - name: Build Community EE image
         working-directory: image/execution-environments/${{ inputs.ee-name }}
         run: |
-          ansible-builder build --tag "ghcr.io/ansible-community/${{ inputs.ee-name }}:${EE_VERSION}"
+          ansible-builder build --tag "ghcr.io/${IMAGE_NAME}:${EE_VERSION}"
 
       - name: Find the id of the latest EE image
         run: |
-          echo "IMAGE_ID=$(podman images -q ${{ inputs.ee-name }}:${EE_VERSION})">>$GITHUB_ENV
+          echo "IMAGE_ID=$(podman images -q "${IMAGE_NAME}:${EE_VERSION}")">>$GITHUB_ENV
 
       - name: Test the image with eercheck
         working-directory: eercheck
@@ -91,29 +92,20 @@ jobs:
       - name: Create the latest tag
         if: ${{ inputs.tag_as_latest }}
         run: |
-          podman tag "${IMAGE_ID}" ghcr.io/ansible-community/${{ inputs.ee-name }}:latest
+          podman tag "${IMAGE_ID}" "ghcr.io/${IMAGE_NAME}:latest"
           podman images
-
-      - name: Login to the Github Container registry
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ghcr.io/${{ github.repository_owner }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact EE to ghcr
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ inputs.ee-name }}
-          tags: ${{ env.EE_VERSION }}
-          registry: ghcr.io/ansible-community
+          image: ${{ env.IMAGE_NAME }}
+          tags: >-
+            ${{ env.EE_VERSION }}
+            ${{
+              inputs.tag_as_latest
+              && 'latest'
+              || ''
+            }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check and upload the image latest tag
-        if: ${{ inputs.tag_as_latest}}
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ inputs.ee-name }}
-          tags: latest
-          registry: ghcr.io/${{ github.repository_owner }}
