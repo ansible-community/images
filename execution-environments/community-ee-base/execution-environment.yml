@@ -6,7 +6,7 @@ images:
     name: quay.io/fedora/fedora:latest
 dependencies:
   ansible_core:
-    package_pip: ansible-core==2.17.1
+    package_pip: ansible-core==2.17.4
   ansible_runner:
     package_pip: ansible-runner
   system:
@@ -19,4 +19,4 @@ dependencies:
     - name: ansible.utils
       version: 4.1.0
     - name: ansible.windows
-      version: 2.3.0
+      version: 2.5.0
