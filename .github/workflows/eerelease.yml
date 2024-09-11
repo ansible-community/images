@@ -98,7 +98,7 @@ jobs:
       - name: Upload artifact EE to ghcr
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ env.IMAGE_NAME }}
+          image: ${{ inputs.ee-name }}
           tags: >-
             ${{ env.EE_VERSION }}
             ${{
