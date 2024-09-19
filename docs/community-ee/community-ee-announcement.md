@@ -101,17 +101,7 @@ On behalf of the Ansible community, thank you and happy automating!
 
 ## Bullhorn Announcement
 
-
 We’re happy to announce the release of the Ansible Community Execution Environment Minimal <version> (Latest) and Ansible Community Execution Environment Base <version> are here.
 
 Read the whole announcement [in the ansible forum](link to forum announcement).
 
-## To know about future releases
-
-Join the [Ansible Community Forum](https://forum.ansible.com/) to follow along and participate in all the discussions and release related discussions and announcements. Feel free to share your thoughts, ideas and concerns there.
-
-On behalf of the Ansible community, thank you and happy automating!
-
-Cheers,
-
-Ansible Community Team
