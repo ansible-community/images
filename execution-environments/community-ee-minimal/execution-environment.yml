@@ -12,3 +12,7 @@ dependencies:
   system:
     - openssh-clients
     - sshpass
+
+additional_build_steps:
+  prepend_base:
+    - RUN dnf install -y python3 python3-pip
