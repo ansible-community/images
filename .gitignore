@@ -1,4 +1,4 @@
 execution-environments/*/context
 execution-environments/*/ansible-navigator.log
 execution-environments/*/*artifact*.json
-.idea/*
+/.idea/
