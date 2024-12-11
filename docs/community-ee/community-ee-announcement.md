@@ -9,6 +9,9 @@ We’re happy to announce the release of the
 
 Ansible Community Execution Environment Minimal <ansible-core-version-minimal-ee-version> and Ansible Community Execution Environment Base <ansible-core-version-base-ee-version>!
 
+## What are Execution Environments?
+
+Read the [Getting started with Execution Environments](https://docs.ansible.com/ansible/devel/getting_started_ee/index.html) guide to learn how to benefit from running Ansible automation in containers.
 
 ## What's inside community-ee-minimal <ansible-core-version-minimal-ee-version>?
 
