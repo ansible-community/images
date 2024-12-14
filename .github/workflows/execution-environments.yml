@@ -46,13 +46,17 @@ jobs:
           pip install ansible-core ansible-builder ansible-navigator
 
       - name: Build ${{ matrix.name }} image
+        env:
+          NAME: ${{ matrix.name }}
         run: |
-          ansible-builder build -v 3 -t test-ee:${{ matrix.name }}
+          ansible-builder build -v 3 -t "test-ee:${NAME}"
         working-directory: ./execution-environments/${{ matrix.name }}
 
       - name: Run basic tests with ${{ matrix.name }} image
+        env:
+          NAME: ${{ matrix.name }}
         run: |
           ansible-navigator -v --mode stdout --pull-policy never \
-            --execution-environment-image test-ee:${{ matrix.name }} \
+            --execution-environment-image "test-ee:${NAME}" \
             run tests.yml
         working-directory: ./execution-environments/${{ matrix.name }}
