@@ -44,6 +44,7 @@ jobs:
           repository: ansible-community/images
           ref: main
           path: image
+          persist-credentials: false
 
       - name: Check out eercheck repo for testing
         uses: actions/checkout@v4
@@ -51,6 +52,7 @@ jobs:
           repository: anweshadas/eercheck
           ref: main
           path: eercheck
+          persist-credentials: false
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
