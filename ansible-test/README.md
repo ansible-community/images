@@ -13,12 +13,12 @@ Some container images are provided and supported by ansible-test, such as the fo
 ansible-test integration --help
 # [...]
 target docker images and supported python version (choose one):
-  base (3.12, 3.8, 3.9, 3.10, 3.11)
-  default (3.12, 3.8, 3.9, 3.10, 3.11)
-  alpine319 (3.11)
-  fedora39 (3.12)
-  ubuntu2004 (3.8)
+  base (3.13, 3.8, 3.9, 3.10, 3.11, 3.12)
+  default (3.13, 3.8, 3.9, 3.10, 3.11, 3.12)
+  alpine320 (3.12)
+  fedora40 (3.12)
   ubuntu2204 (3.10)
+  ubuntu2404 (3.12)
   {image}  # python must be specified for custom images
 # [...]
 ```
