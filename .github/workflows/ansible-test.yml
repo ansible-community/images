@@ -32,7 +32,7 @@ jobs:
       matrix:
         include:
           - name: archlinux
-            python: '3.12'
+            python: '3.13'
             ansible-core-1: ansible-core
             ansible-core-2: devel
             test-with-podman: true
@@ -56,10 +56,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.12
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install dependencies
         env:

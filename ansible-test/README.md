@@ -13,12 +13,12 @@ Some container images are provided and supported by ansible-test, such as the fo
 ansible-test integration --help
 # [...]
 target docker images and supported python version (choose one):
-  base (3.12, 3.8, 3.9, 3.10, 3.11)
-  default (3.12, 3.8, 3.9, 3.10, 3.11)
-  alpine319 (3.11)
-  fedora39 (3.12)
-  ubuntu2004 (3.8)
+  base (3.13, 3.8, 3.9, 3.10, 3.11, 3.12)
+  default (3.13, 3.8, 3.9, 3.10, 3.11, 3.12)
+  alpine320 (3.12)
+  fedora40 (3.12)
   ubuntu2204 (3.10)
+  ubuntu2404 (3.12)
   {image}  # python must be specified for custom images
 # [...]
 ```
@@ -46,16 +46,16 @@ dnf -y install podman buildah
 pip install ansible-core --user
 git clone https://github.com/ansible-collections/community.general ansible_collections/community/general
 cd ansible_collections/community/general
-ansible-test integration --python 3.12 --docker localhost/test-image:archlinux ini_file
+ansible-test integration --python 3.13 --docker localhost/test-image:archlinux ini_file
 ```
 
 ## Available images
 
-| image             | py27 | py36 | py38 | py39 | py3.10 | py3.11 | py3.12 | Notes                                       |
-|-------------------|------|------|------|------|--------|--------|--------|---------------------------------------------|
-| [archlinux]       |      |      |      |      |        |        |   ✔️    |                                             |
-| [debian-bullseye] |      |      |      |  ✔️   |        |        |        | Based on [ubuntu2004 ansible-test image]    |
-| [debian-bookworm] |      |      |      |      |        |   ✔️    |        | Based on debian-bullseye ansible-test image |
+| image             | py27 | py36 | py38 | py39 | py3.10 | py3.11 | py3.12 | py3.13 | Notes                                       |
+|-------------------|------|------|------|------|--------|--------|--------|--------|---------------------------------------------|
+| [archlinux]       |      |      |      |      |        |        |        |   ✔️    |                                             |
+| [debian-bullseye] |      |      |      |  ✔️   |        |        |        |        | Based on [ubuntu2004 ansible-test image]    |
+| [debian-bookworm] |      |      |      |      |        |   ✔️    |        |        | Based on debian-bullseye ansible-test image |
 
 
 Note that these images from only work with ansible-test from ansible-core 2.14.0 or later.
