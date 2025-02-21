@@ -5,6 +5,7 @@ coreutils
 file
 gcc
 git
+glibc
 iproute
 libffi
 make

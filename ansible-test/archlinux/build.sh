@@ -7,6 +7,8 @@ SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
 DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 
 build=$(buildah from docker.io/library/archlinux:latest)
+
+buildah run "${build}" -- /bin/bash -c "sed -iE 's/^NoExtract.*locale.*$//g' /etc/pacman.conf"
 buildah run "${build}" -- /bin/bash -c "pacman -Syy && pacman-key --init && pacman -S archlinux-keyring --noconfirm && pacman -Su --noconfirm && pacman -S ${DEPENDENCIES} --noconfirm && pacman -Scc --noconfirm"
 
 # Disable PEP 668 marker
