@@ -6,7 +6,7 @@ images:
     name: quay.io/fedora/fedora:41
 dependencies:
   ansible_core:
-    package_pip: ansible-core==2.18.2
+    package_pip: ansible-core==2.18.3
   ansible_runner:
     package_pip: ansible-runner
   system:
