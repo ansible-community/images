@@ -33,6 +33,13 @@
       changed_when: false
       register: _ansible_version_pypi
 
+    - name: Installing less should be a no-op
+      become: true
+      ansible.builtin.package:  # noqa package-latest
+        name: less
+        state: latest
+      register: _installed_less
+
   tasks:
     - name: Validate image
       assert:
@@ -40,3 +47,4 @@
           - ansible_distribution == "Fedora"
           - ansible_distribution_release == ""
           - ansible_distribution_version | int >= 38
+          - _installed_less.changed == false
