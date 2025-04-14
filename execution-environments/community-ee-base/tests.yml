@@ -25,19 +25,26 @@
         ps fauxwww | grep -i ansible
       changed_when: false
 
-    - name: Retrieve the installed version of ansible-core
+    - name: Retrieve the installed version of ansible-core with pip
       ansible.builtin.shell: |
         set -o pipefail
-        pip show ansible-core | awk "/Version/ {print $2}"
+        pip show ansible-core | awk '/^Version/ {print $2}'
       changed_when: false
       register: _installed_ansible_core
 
-    - name: Retrieve the installed version of ansible with pip
+    - name: Retrieve the installed version of ansible-runner with pip
       ansible.builtin.shell: |
         set -o pipefail
-        pip show ansible | awk "/Version/ {print $2}"
+        pip show ansible-runner | awk '/^Version/ {print $2}'
       changed_when: false
-      register: _ansible_version_pypi
+      register: _installed_ansible_runner
+
+    - name: Retrieve the installed version of ansible
+      ansible.builtin.shell: |
+        set -o pipefail
+        ansible --version | awk '/core/ { gsub("]",""); print $3 }'
+      changed_when: false
+      register: _ansible_version
 
     - name: Installing less should be a no-op
       become: true
@@ -53,4 +60,6 @@
           - ansible_distribution == "Fedora"
           - ansible_distribution_release == ""
           - ansible_distribution_version | int >= 38
+          - _installed_ansible_core.stdout == _ansible_version.stdout
+          - _installed_ansible_runner.stdout is version('2.4.1', '>=')
           - _installed_less.changed == false
