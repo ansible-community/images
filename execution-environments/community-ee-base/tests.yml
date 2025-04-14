@@ -15,21 +15,27 @@
 
     - name: Install ps
       become: true
-      ansible.builtin.package:
+      ansible.builtin.package:  # noqa package-latest
         name: procps-ng
         state: latest
 
     - name: Print running Ansible processes
-      ansible.builtin.shell: ps fauxwww | grep -i ansible
+      ansible.builtin.shell: |
+        set -o pipefail
+        ps fauxwww | grep -i ansible
       changed_when: false
 
     - name: Retrieve the installed version of ansible-core
-      ansible.builtin.shell: pip show ansible-core | awk "/Version/ {print $2}"
+      ansible.builtin.shell: |
+        set -o pipefail
+        pip show ansible-core | awk "/Version/ {print $2}"
       changed_when: false
       register: _installed_ansible_core
 
     - name: Retrieve the installed version of ansible with pip
-      ansible.builtin.shell: pip show ansible | awk "/Version/ {print $2}"
+      ansible.builtin.shell: |
+        set -o pipefail
+        pip show ansible | awk "/Version/ {print $2}"
       changed_when: false
       register: _ansible_version_pypi
 
@@ -42,7 +48,7 @@
 
   tasks:
     - name: Validate image
-      assert:
+      ansible.builtin.assert:
         that:
           - ansible_distribution == "Fedora"
           - ansible_distribution_release == ""
