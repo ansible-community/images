@@ -12,6 +12,7 @@ dependencies:
   system:
     - openssh-clients
     - sshpass
+    - less
 
 additional_build_steps:
   prepend_base:
