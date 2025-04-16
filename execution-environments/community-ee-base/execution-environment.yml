@@ -12,6 +12,7 @@ dependencies:
   system:
     - openssh-clients
     - sshpass
+    - less
   galaxy:
     collections:
     - name: ansible.posix
