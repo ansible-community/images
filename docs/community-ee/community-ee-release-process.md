@@ -43,7 +43,7 @@ Open a new terminal window and then complete the following steps:
 ```
 5. Update the ansible-core and collection versions in the  `/images/execution-environments/community-ee-base/execution-environment.yml` file.
 6. Update the ansible-core version in the  `/images/execution-environments/community-ee-minimal/execution-environment.yml` file.
-7. `git add`,  `git commit` and `git push` the changes and create a PR.
+7. Open a PR with the changes.
 
 ```
 	git add -u
