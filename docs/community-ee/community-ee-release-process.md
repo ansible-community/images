@@ -33,7 +33,7 @@ Open a new terminal window and then complete the following steps:
 
 1. Check the ansible-core version [here](https://pypi.org/project/ansible-core/)
 2. Verify ansible collection versions for `ansible.posix`, `ansible.utils` and  `ansible.windows` for `deps` file of the ansible version for the related release  [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data).
-3. Go to the images/execution-environments directory.
+3. Change to the `images/execution-environments` directory.
 4. Create `git branch` (naming convention `ansible-core-ee_version` (name it in the related version eg: 2.17.1-1)).
 
 ```
