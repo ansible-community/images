@@ -29,7 +29,7 @@ The EE versioning convention is core tag plus patch number, for example:
 
 ## Build Steps
 
-On **Terminal**
+Open a new terminal window and then complete the following steps:
 
 1. Check the ansible-core version [here](https://pypi.org/project/ansible-core/)
 2. Verify ansible collection versions for `ansible.posix`, `ansible.utils` and  `ansible.windows` for `deps` file of the ansible version for the related release  [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data).
