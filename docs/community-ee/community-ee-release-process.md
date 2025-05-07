@@ -24,7 +24,7 @@ The EE versioning convention is core tag plus patch number, for example:
 - Understand [Ansible execution environments](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
 - Read about the [eerelease.yml](/.github/workflows/eerelease.yml)  GitHub workflow.
 - Show intention and book the date for the releasing of the EE.
--  Prepare the release announcments - both email templates and matrix communication draft ready.
+- Prepare the release announcement drafts for the emails and matrix communication.
 - Shadow the release manager before doing the actual release.
 
 ## Build Steps
