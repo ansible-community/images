@@ -2,7 +2,7 @@
 
 ## Release Cadence
 
-Ansible community Execution Environments(both Base and Minimal) are released the same week as the Ansible Community Package is released. For example: When `Ansible` 11.5.0 (with `ansible-core` 2.18.5) is released, both `Ansible Execution Environment Minimal and Base`  2.18.5-1 will also be released on that same week. Read about this more at https://docs.ansible.com/ansible/latest/getting_started_ee/index.html.
+Ansible community execution environments (EEs), both the base and minimal variants, are released the same week as the Ansible community package. For example, when `ansible` 11.5.0 with `ansible-core` 2.18.5 is released, the base and minimal EEs version 2.18.5-1 are released within the same week.
 
 ## EE tag versioning
 
