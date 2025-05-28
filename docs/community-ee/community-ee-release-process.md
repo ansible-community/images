@@ -11,12 +11,12 @@ The EE versioning convention is core tag plus patch number, for example:
     - EE with core `2.16.2` comes out -> `community-ee:2.16.2-1`
     - EE with core `2.16.3` comes out -> `community-ee:2.16.3-1`
 
-## Credentials
+## Credentials (for adding a new person as the Release Manager)
 
 - Access to the https://github.com/ansible-community/images repository.
 -  Join [Release Management working group Matrix room](https://app.element.io/?updated=1.11.38#/room/#release-management:ansible.com) and [Execution Envs group in Forum Group](https://forum.ansible.com/g/ExecutionEnvs).
-- Access to Ansible Release Management Group in Github. (ask in the aforementioned matrix room).
-- Access to the [eercheck](https://github.com/anweshadas/eercheck) repository.
+- Access to the Ansible Release Management Group in Github. (ask in the aforementioned matrix room).
+- Access to the [eercheck](https://https://github.com/ansible-community/eercheck) repository.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ Open a new terminal window and then complete the following steps:
 
 After you complete the build steps, do the following to validate the EE images:
 
-- Fork [eercheck repo](https://github.com/anweshadas/eercheck) for testing the versions of thw ansible-core and collections.
+- Fork [eercheck repo](https://github.com/ansible-community/eercheck) for testing the versions of thw ansible-core and collections.
 - Create the branch with `git branch <branchname>` (naming convention `ansible-core-ee_version` (name it in the related version eg: 2.17.1-1)).
 - Open the eerchek/vars.json file and edit the `ansible-core`, `fedora-image` and `ansible-collections` versions there (as mentioned above).
 - Assign @anweshadas to the PR.
