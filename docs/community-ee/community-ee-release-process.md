@@ -15,7 +15,7 @@ The EE versioning convention is core tag plus patch number, for example:
 
 - Access to the https://github.com/ansible-community/images repository.
 - Join [Release Management working group Matrix room](https://app.element.io/?updated=1.11.38#/room/#release-management:ansible.com) and [Execution Envs group in Forum Group](https://forum.ansible.com/g/ExecutionEnvs).
-- Access to the Ansible Release Management Group in Github. (ask in the aforementioned matrix room.)
+- Access to the Ansible Release Management Group in Github. (Ask in the aforementioned matrix room.)
 - Access to the [eercheck](https://https://github.com/anweshadas/eercheck) repository.
 
 ## Prerequisites
@@ -28,7 +28,7 @@ The EE versioning convention is core tag plus patch number, for example:
 +   `ansible.posix 1.6.2`
 +   `ansible.utils 5.1.2`
 +   `ansible.windows 2.8.0`
-+ [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data) repo.(Look into the `deps` file).
++ [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data) repo.(Look into the `deps` file.)
 - Read about the [eerelease.yml](/.github/workflows/eerelease.yml) GitHub workflow.
 - Show intention and book the date for the releasing of the EE.
 - Prepare the release announcement drafts for the emails and matrix communication.
