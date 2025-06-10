@@ -64,7 +64,7 @@ After you complete the build steps, do the following to validate the EE images:
 - Click on the `Actions` to open the `Workflows`.
 - Click on  the `Release Ansible Excuetion Environment`  and click on the `Run Workflow` Dropdown Button.
 - Click on the Drop down Button and choose the type of the Execution Environment, (whether it is `community-ee-base` and `community-ee-minimal`)
-- Write down the version of execution environment (to be appended to the ansible-core version) .
+- Write down the version of execution environment (to be appended to the ansible-core version).
 - Click on the button if this is the `latest` release of  the particular execution environment.
 - Click on the `Run workflow` button to run the workflow for `community-ee-base` or `community-ee-minimal` as the case may be.
 - After the successful run of the workflow, check if the image is published in [here](https://github.com/orgs/ansible-community/packages/container) and get the SHA256 sum of the published image (to be used in the announcement).
