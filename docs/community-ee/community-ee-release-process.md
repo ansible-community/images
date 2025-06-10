@@ -60,7 +60,7 @@ After you complete the build steps, do the following to validate the EE images:
 
 ## Run the Workflow
 
-- Once both the abovementioned PRs are merged go to your browser and open  [ansible-community/images](https://github.com/ansible-community/images) repo .
+- Once both the abovementioned PRs are merged go to your browser and open  [ansible-community/images](https://github.com/ansible-community/images) repo.
 - Click on the `Actions` to open the `Workflows`.
 - Click on  the `Release Ansible Excuetion Environment`  and click on the `Run Workflow` Dropdown Button.
 - Click on the Drop down Button and choose the type of the Execution Environment, (whether it is `community-ee-base` and `community-ee-minimal`)
