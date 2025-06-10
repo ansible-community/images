@@ -14,7 +14,7 @@ The EE versioning convention is core tag plus patch number, for example:
 ## Credentials (for adding a new person as the Release Manager)
 
 - Access to the https://github.com/ansible-community/images repository.
-- Join [Release Management working group Matrix room](https://app.element.io/?updated=1.11.38#/room/#release-management:ansible.com) and [Execution Envs group in Forum Group](https://forum.ansible.com/g/ExecutionEnvs).
+- Join the [Release Management working group Matrix room](https://app.element.io/?updated=1.11.38#/room/#release-management:ansible.com) and [Execution Envs group in Forum Group](https://forum.ansible.com/g/ExecutionEnvs).
 - Access to the Ansible Release Management Group in Github. (Ask in the aforementioned matrix room.)
 - Access to the [eercheck](https://https://github.com/anweshadas/eercheck) repository.
 
