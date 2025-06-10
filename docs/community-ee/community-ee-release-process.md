@@ -43,7 +43,7 @@ Open a new terminal window and then complete the following steps:
 - Go to the images/execution-environments directory.
 - Create `git branch` (naming convention `ansible-core-ee_version` (name it in the related version eg: 2.17.1-1)).
 - Update the ansible-core and collection versions in the  `/images/execution-environments/community-ee-base/execution-environment.yml` file.
-- Update the ansible-core version in the  `/images/execution-environments/community-ee-minimal/execution-environment.yml` file.
+- Update the ansible-core version in the `/images/execution-environments/community-ee-minimal/execution-environment.yml` file.
 - Push the changes with the following commit messages: `git commit -m "Updates ansible-core & collection versions for Base and Minimal"`
 - Add 'release management team'  as reviewers of your pull request.
 - Wait for the PR to get merged.
