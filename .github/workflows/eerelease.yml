@@ -49,7 +49,7 @@ jobs:
       - name: Check out eercheck repo for testing
         uses: actions/checkout@v4
         with:
-          repository: anweshadas/eercheck
+          repository: ansible-community/eercheck
           ref: main
           path: eercheck
           persist-credentials: false
