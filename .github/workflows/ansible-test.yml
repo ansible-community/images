@@ -49,6 +49,12 @@ jobs:
             ansible-core-2: devel
             test-with-podman: true
             test-with-docker: true
+          - name: debian-13-trixie
+            python: '3.13'
+            ansible-core-1: ansible-core
+            ansible-core-2: devel
+            test-with-podman: true
+            test-with-docker: true
 
     steps:
       - name: Check out repository
