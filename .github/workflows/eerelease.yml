@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Check out images
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ansible-community/images
           ref: main
@@ -47,7 +47,7 @@ jobs:
           persist-credentials: false
 
       - name: Check out eercheck repo for testing
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ansible-community/eercheck
           ref: main
