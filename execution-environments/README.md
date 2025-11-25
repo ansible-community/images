@@ -7,7 +7,7 @@ They are meant to include the Ansible collections, packages and dependencies you
 
 They can be used by [AWX](https://github.com/ansible/awx), [Automation Controller](https://docs.ansible.com/automation-controller/latest/html/administration/index.html) (previously known as Tower) and [ansible-navigator](https://github.com/ansible/ansible-navigator).
 
-They can be built using [ansible-builder](https://github.com/ansible/ansible-builder/) with either [docker or podman](https://ansible-builder.readthedocs.io/en/latest/usage/#container-runtime) using [execution environment definitions](https://ansible-builder.readthedocs.io/en/latest/definition/) provided by this repository.
+They can be built using [ansible-builder](https://github.com/ansible/ansible-builder/) with either [docker or podman](https://docs.ansible.com/projects/builder/en/latest/usage/#container-runtime) using [execution environment definitions](https://docs.ansible.com/projects/builder/en/latest/definition/) provided by this repository.
 
 ## Important ⚠️
 
