@@ -2,7 +2,7 @@
 
 ## About ansible-test
 
-ansible-test provides ways to test ansible itself as well as ansible-core and ansible collections with [unit tests](https://docs.ansible.com/ansible/latest/dev_guide/testing_units.html#testing-units), [sanity tests](https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html#testing-sanity) and [integration tests](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html#testing-integration).
+ansible-test provides ways to test ansible itself as well as ansible-core and ansible collections with [unit tests](https://docs.ansible.com/projects/ansible/latest/dev_guide/testing_units.html#testing-units), [sanity tests](https://docs.ansible.com/projects/ansible/latest/dev_guide/testing_sanity.html#testing-sanity) and [integration tests](https://docs.ansible.com/projects/ansible/latest/dev_guide/testing_integration.html#testing-integration).
 
 Since integration tests can result in changes to a system (such as installing packages or changing files and configuration), it may be preferred to run them inside a container image to avoid making unnecessary changes to the host on which the tests are run.
 Container images also happen to be useful and convenient for quickly testing different operating systems and versions of python.
