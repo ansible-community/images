@@ -11,7 +11,7 @@ on:
           - community-ee-minimal
       ansible-core-version:
         description: >-
-          Ansible-core version. Example: 2.17.0
+          Ansible-core version. Example: 2.20.0
         required: true
       ee-version:
         description: >-
@@ -54,10 +54,10 @@ jobs:
           path: eercheck
           persist-credentials: false
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.14
         uses: actions/setup-python@v6
         with:
-          python-version: 3.11
+          python-version: 3.14
 
       - name: Install dependencies
         run: |
