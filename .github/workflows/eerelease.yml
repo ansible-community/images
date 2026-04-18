@@ -80,6 +80,24 @@ jobs:
         run: |
           echo "IMAGE_ID=$(podman images -q "${IMAGE_NAME}:${EE_VERSION}")">>$GITHUB_ENV
 
+      - name: Verify that the image version matches the Ansible Core version
+        run: |
+          expect="$ANSIBLE_CORE_VERSION"
+
+          actual="$(podman container \
+                           run \
+                           --rm \
+                           "$IMAGE_ID" \
+                           ansible --version |
+                    grep --fixed-strings 'ansible [core ')"
+          actual="${actual##*core }"
+          actual="${actual%%]*}"
+
+          echo "expect=$expect, actual=$actual"
+          [[ "$expect" == "$actual" ]]
+        env:
+          ANSIBLE_CORE_VERSION: ${{ inputs.ansible-core-version }}
+
       - name: Test the image with eercheck
         working-directory: eercheck
         run: |
