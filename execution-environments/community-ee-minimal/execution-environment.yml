@@ -3,10 +3,10 @@
 version: 3
 images:
   base_image:
-    name: quay.io/fedora/fedora:43
+    name: quay.io/fedora/fedora:44
 dependencies:
   ansible_core:
-    package_pip: ansible-core==2.20.4
+    package_pip: ansible-core==2.20.5
   ansible_runner:
     package_pip: ansible-runner
   system:
