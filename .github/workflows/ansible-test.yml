@@ -152,10 +152,9 @@ jobs:
 
       - name: Publish container image as ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ matrix.name }}
         if: github.event_name != 'pull_request'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY }}
-          image: ${{ env.CONTAINER_IMAGE_NAME }}
-          tags: ${{ matrix.name }}
-          username: ${{ secrets.quay_write_user }}
-          password: ${{ secrets.quay_write_pass }}
+        env:
+          NAME: ${{ matrix.name }}
+          USERNAME: ${{ secrets.quay_write_user }}
+          PASSWORD: ${{ secrets.quay_write_pass }}
+        run: >-
+          podman push "${CONTAINER_REGISTRY}/${CONTAINER_IMAGE_NAME}:${NAME}" --tls-verify=true --creds="${USERNAME}:${PASSWORD}"
