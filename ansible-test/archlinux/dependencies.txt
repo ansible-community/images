@@ -14,8 +14,10 @@ openssh
 python
 python-cffi
 python-cryptography
+python-jinja
 python-lxml
 python-pip
+python-resolvelib
 python-setuptools
 python-wheel
 rubygems
