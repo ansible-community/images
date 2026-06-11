@@ -17,6 +17,7 @@ python3-Jinja2
 python3-packaging
 python3-pip
 python3-PyYAML
+python3-resolvelib
 python3-selinux
 python3-setuptools
 python3-virtualenv
