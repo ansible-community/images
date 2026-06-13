@@ -57,9 +57,9 @@
     - name: Validate image
       ansible.builtin.assert:
         that:
-          - ansible_distribution == "Fedora"
-          - ansible_distribution_release == ""
-          - ansible_distribution_version | int >= 38
+          - ansible_facts.distribution == "Fedora"
+          - ansible_facts.distribution_release == ""
+          - ansible_facts.distribution_version | int >= 38
           - _installed_ansible_core.stdout == _ansible_version.stdout
           - _installed_ansible_runner.stdout is version('2.4.1', '>=')
           - _installed_less.changed == false
