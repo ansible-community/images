@@ -28,6 +28,8 @@ env:
   EE_VERSION: ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
   IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.ee-name }}
 
+permissions: {}
+
 jobs:
   build:
     name: Build Execution Environment ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
