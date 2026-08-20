@@ -23,6 +23,10 @@ env:
   CONTAINER_REGISTRY: quay.io
   CONTAINER_IMAGE_NAME: ansible-community/test-image
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     name: 'Build ansible-test images (${{ matrix.name }} with Python ${{ matrix.python }})'
