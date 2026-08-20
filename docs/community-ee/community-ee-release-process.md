@@ -52,7 +52,7 @@ Open a new terminal window and then complete the following steps:
 
 After you complete the build steps, do the following to validate the EE images:
 
-- Fork [eercheck repo](https://github.com/anweshadas/eercheck) for testing the versions of the ansible-core and collections.
+- Fork [eercheck repo](https://github.com/ansible-community/eercheck) for testing the versions of the ansible-core and collections.
 - Create the branch with `git branch <branchname>` (naming convention `ansible-core-ee_version` (name it in the related version eg: 2.17.1-1)).
 - Open the eerchek/vars.json file and edit the `ansible-core`, `fedora-image` and `ansible-collections` versions there (as mentioned above).
 - Assign @anweshadas to the PR.
