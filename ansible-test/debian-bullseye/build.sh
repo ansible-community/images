@@ -7,6 +7,8 @@ SCRIPT_DIR=$(cd `dirname $0` && pwd -P)
 DEPENDENCIES="$(cat ${SCRIPT_DIR}/dependencies.txt | tr '\n' ' ')"
 
 build=$(buildah from docker.io/library/debian:bullseye)
+buildah run "${build}" -- /bin/bash -c "sed -i /etc/apt/sources.list -e 's/deb\\.debian\\.org\\/debian /archive.debian.org\\/debian /g'"
+buildah run "${build}" -- /bin/bash -c "sed -i /etc/apt/sources.list -e '/deb\\.debian\\.org\\/debian/d'"
 buildah run "${build}" -- /bin/bash -c "apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --no-install-recommends && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${DEPENDENCIES} && apt-get clean && rm -rf /var/lib/apt/lists/*"
 
 # Extra python dependencies
