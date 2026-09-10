@@ -54,7 +54,6 @@ ansible-test integration --python 3.14 --docker localhost/test-image:archlinux i
 | image                 | py27 | py36 | py38 | py39 | py3.10 | py3.11 | py3.12 | py3.13 | py3.14 | Notes                                       |
 |-----------------------|------|------|------|------|--------|--------|--------|--------|--------|---------------------------------------------|
 | [archlinux]           |      |      |      |      |        |        |        |        |   ✔️    |                                             |
-| [debian-bullseye]     |      |      |      |  ✔️   |        |        |        |        |        | Based on [ubuntu2004 ansible-test image]    |
 | [debian-bookworm]     |      |      |      |      |        |   ✔️    |        |        |        | Based on debian-bullseye ansible-test image |
 | [debian-13-trixie]    |      |      |      |      |        |        |        |   ✔️    |        | Based on debian-bookworm ansible-test image |
 | [opensuse-tumbleweed] |      |      |      |      |        |        |        |   ✔️    |        | Based on [opensuse ansible-test image]      |
@@ -63,7 +62,6 @@ ansible-test integration --python 3.14 --docker localhost/test-image:archlinux i
 Note that these images from only work with ansible-test from ansible-core 2.14.0 or later.
 
 [archlinux]: https://quay.io/ansible-community/test-image:archlinux
-[debian-bullseye]: https://quay.io/ansible-community/test-image:debian-bullseye
 [debian-bookworm]: https://quay.io/ansible-community/test-image:debian-bookworm
 [debian-13-trixie]: https://quay.io/ansible-community/test-image:debian-13-trixie
 [opensuse-tumbleweed]: https://quay.io/ansible-community/test-image:opensuse-tumbleweed

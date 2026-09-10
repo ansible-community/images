@@ -41,12 +41,6 @@ jobs:
             ansible-core-2: devel
             test-with-podman: true
             test-with-docker: true
-          - name: debian-bullseye
-            python: '3.9'
-            ansible-core-1: ansible-core
-            ansible-core-2: devel
-            test-with-podman: true
-            test-with-docker: true
           - name: debian-bookworm
             python: '3.11'
             ansible-core-1: ansible-core
