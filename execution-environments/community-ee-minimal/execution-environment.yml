@@ -9,11 +9,4 @@ dependencies:
     package_pip: ansible-core==2.21.3
   ansible_runner:
     package_pip: ansible-runner
-  system:
-    - openssh-clients
-    - sshpass
-    - less
-
-additional_build_steps:
-  prepend_base:
-    - RUN dnf install -y python3 python3-pip python3-libdnf5
+  system: bindep.txt
