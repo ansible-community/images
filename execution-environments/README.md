@@ -36,6 +36,32 @@ ansible-navigator -v --pull-policy never \
     run tests.yml
 ```
 
+## Running the test suite
+
+The `tests/` directory is a [uv](https://docs.astral.sh/uv/) project that builds
+each execution environment with
+[`ansible-builder`](https://github.com/ansible/ansible-builder/) and verifies the
+resulting image with [`pytest-container`](https://github.com/dcermak/pytest_container/).
+The tests read the expected Fedora release, ansible-core version, system packages
+(`bindep.txt`) and galaxy collections (`requirements.yml`) from each EE's
+definitions.
+
+```bash
+cd tests
+uv sync
+uv run pytest -v
+```
+
+Lint and formatting are enforced with [ruff](https://docs.astral.sh/ruff/):
+
+```bash
+uv run ruff format --check .
+uv run ruff check .
+```
+
+A working `podman` (or `docker`) is required. The first run pulls the Fedora base
+image and installs collections, so it is slow.
+
 ## Available images
 
 - [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal): ansible-core with no collections
