@@ -1,0 +1,40 @@
+[project]
+name = "execution-environments-tests"
+version = "0.0.0"
+description = "pytest suite for the Ansible community Execution Environments"
+requires-python = ">=3.12"
+dependencies = [
+    "ansible-builder",
+    "pytest",
+    "pytest-container",
+    "pytest-testinfra",
+    "PyYAML",
+]
+
+[dependency-groups]
+dev = ["ruff"]
+
+[tool.uv]
+# The suite is not an installable package; uv only manages the environment.
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "D", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["conftest"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+markers = ["build: builds an Execution Environment image with ansible-builder"]
