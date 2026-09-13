@@ -153,7 +153,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     """
     if "ee_name" in metafunc.fixturenames:
         names = list(getattr(metafunc.module, "EE_IMAGES", ALL_EE_IMAGES))
-        metafunc.parametrize("ee_name", names, ids=names)
+        metafunc.parametrize("ee_name", names, ids=names, indirect=True)
 
 
 @pytest.fixture(scope="session")
