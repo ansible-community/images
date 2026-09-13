@@ -25,7 +25,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 EE_ROOT = REPO_ROOT / "execution-environments"
 EE_DEFINITION = "execution-environment.yml"
 
-#: EEs under test. A test module can narrow this by defining ``EE_IMAGES``.
+# System packages and galaxy collections are always declared in these files.
+BINDEP_FILE = "bindep.txt"
+REQUIREMENTS_FILE = "requirements.yml"
+
+# EEs under test. A test module can narrow this by defining ``EE_IMAGES``.
 ALL_EE_IMAGES = ("community-ee-base", "community-ee-minimal")
 
 
@@ -39,7 +43,8 @@ class EESpec:
         fedora_version: Fedora major release derived from the base image tag.
         ansible_core_version: Pinned ansible-core version from the definition.
         system_packages: Package names listed in the EE's ``bindep.txt``.
-        collections: Galaxy collections from ``requirements.yml`` (or inline).
+        collections: Galaxy collections from the EE's ``requirements.yml``, if it
+            declares any.
     """
 
     name: str
@@ -71,6 +76,10 @@ def _parse_bindep(path: Path) -> list[str]:
 def _parse_ee(name: str) -> EESpec:
     """Parse an EE's definition files into an :class:`EESpec`.
 
+    System packages are always read from ``bindep.txt`` and galaxy collections
+    from ``requirements.yml`` if that file exists, following the layout every EE
+    in this repository uses.
+
     Args:
         name: Directory name of the execution environment.
 
@@ -100,29 +109,18 @@ def _parse_ee(name: str) -> EESpec:
             f"{name}: ansible_core.package_pip {core_pip!r} is not pinned with '=='"
         )
 
-    system = dependencies.get("system")
-    if system is None:
-        packages: list[str] = []
-    elif isinstance(system, str):
-        packages = _parse_bindep(ee_dir / system)
-    else:
-        packages = list(system)
-
-    galaxy = dependencies.get("galaxy")
-    if galaxy is None:
-        collections: list[dict] = []
-    elif isinstance(galaxy, str):
-        requirements = yaml.safe_load((ee_dir / galaxy).read_text(encoding="utf-8"))
-        collections = list(requirements.get("collections", []))
-    else:
-        collections = list(galaxy.get("collections", []))
+    requirements = ee_dir / REQUIREMENTS_FILE
+    collections: list[dict] = []
+    if requirements.is_file():
+        manifest = yaml.safe_load(requirements.read_text(encoding="utf-8"))
+        collections = list(manifest.get("collections", []))
 
     return EESpec(
         name=name,
         directory=ee_dir,
         fedora_version=int(release),
         ansible_core_version=core_version,
-        system_packages=packages,
+        system_packages=_parse_bindep(ee_dir / BINDEP_FILE),
         collections=collections,
     )
 

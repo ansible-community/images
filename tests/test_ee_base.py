@@ -6,7 +6,7 @@ from pytest_container.container import ContainerData
 
 from conftest import EESpec
 
-#: Restrict this module to the base EE only.
+# Restrict this module to the base EE only.
 EE_IMAGES = ["community-ee-base"]
 
 
