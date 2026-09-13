@@ -15,7 +15,7 @@
 
     - name: Install ps
       become: true
-      ansible.builtin.package:  # noqa package-latest
+      ansible.builtin.package: # noqa package-latest
         name: procps-ng
         state: latest
 
@@ -48,7 +48,7 @@
 
     - name: Installing less should be a no-op
       become: true
-      ansible.builtin.package:  # noqa package-latest
+      ansible.builtin.package: # noqa package-latest
         name: less
         state: latest
       register: _installed_less

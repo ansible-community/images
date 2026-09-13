@@ -1,0 +1,217 @@
+---
+name: automatic PR for new release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ee-name:
+        description: EE name for getting the latest EE version
+        required: true
+        type: choice
+        options:
+          - community-ee-base
+          - community-ee-minimal
+        default: community-ee-base
+      ansible-core-version:
+        description: >-
+          Ansible-core version. Example: 2.20.0
+        default: latest
+  # Run daily (at 08:00 UTC)
+  schedule:
+    - cron: "0 8 * * *"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-{{ inputs.ansible-core-version }}
+  cancel-in-progress: true
+permissions: {}
+
+jobs:
+  build:
+    name: Update Execution Environment dependencies
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # create/delete branche needed
+      pull-requests: write # create PR
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Check out ansible-build-data
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository_owner }}/ansible-build-data
+          ref: main
+          path: ansible-build-data
+          persist-credentials: false
+
+      - name: Determine Ansible Community version for ansible core (${{inputs.ansible-core-version}}) and its deps file
+        working-directory: ansible-build-data
+        run: |
+          ANSIBLE_CORE_VERSION=${INPUTS_ANSIBLE_CORE_VERSION}
+          if [[ "-${INPUTS_ANSIBLE_CORE_VERSION}" = '-latest' ]]; then
+            ANSIBLE_CORE_VERSION=$(curl -sSf "https://pypi.org/pypi/ansible-core/json" | jq -r '.info.version')
+          fi
+
+          # Each deps file created with a version of ansible-build-data has an ansible-core version
+          ## Versions are tracked as alpha, beta, etc and written in the deps filename.
+          ## Get the mos recent deps file using the selected ansible-core version.
+          DEPS_FILE=$( find ./ -type f -name ansible-\*\.deps \
+            -exec grep -E -l "^_ansible_core_version: ${ANSIBLE_CORE_VERSION}\$" {} \; \
+          	| while read -r line; do
+              ver=$(echo "$line" | sed -n 's/.*ansible-\([0-9.]\+[a-z0-9]*\)\.deps/\1/p')
+              tver=$(echo "$ver" \
+                  | sed 's/a\([0-9][0-9]*\)/~alpha\1/g' \
+                  | sed 's/b\([0-9][0-9]*\)/~beta\1/g'  \
+                  | sed 's/rc\([0-9][0-9]*\)/~rc\1/g')
+              echo "$tver $line"
+          done | sort -V | sed 's/^[^ ]* //' | tail -n 1)
+
+          ## Get the version using from the file name
+          ANSIBLE_COMMUNITY_VERSION=$(echo "${DEPS_FILE}" | sed -n 's/.*ansible-\([0-9.]\+[a-z0-9]*\)\.deps/\1/p')
+
+          echo "ANSIBLE_CORE_VERSION=$ANSIBLE_CORE_VERSION" >> "$GITHUB_ENV"
+          echo "DEPS_FILE=${DEPS_FILE}" >> "$GITHUB_ENV"
+          echo "ANSIBLE_COMMUNITY_VERSION=${ANSIBLE_COMMUNITY_VERSION}" >> "$GITHUB_ENV"
+        env:
+          INPUTS_ANSIBLE_CORE_VERSION: ${{inputs.ansible-core-version}}
+        shell: bash
+
+      - name: Update ansible-core and collection versions in all EE Files
+        run: |
+          COLLECTIONS=''
+          touch collections_changed
+          git ls-files -- execution-environments/ | grep -E 'execution-environment\.ya?ml$' | while read -r file; do
+            echo "Found ${file} file"
+            yq '.dependencies.galaxy.collections[].name' "${file}" | while read -r coll; do
+              cver=$( grep -E -h "^$coll:" ansible-build-data/${DEPS_FILE} | tail -1 | awk '{print $2}' )
+              [[ "-${cver}" != "-" ]] && \
+              yq eval -i --indent 2 \
+                ".dependencies.galaxy.collections[] |= select(.name == \"${coll}\") .version = \"${cver}\"" \
+                "${file}" && \
+              echo "- ${coll}: \`${cver}\`" >> collections_changed || \
+              (
+                echo "### ⚠️ Collection ${coll} not found" | tee -a "$GITHUB_STEP_SUMMARY"
+                echo "ansible-build-data/${DEPS_FILE} does not have a collection named $coll" \
+                  | tee -a "$GITHUB_STEP_SUMMARY"
+                exit 33
+              )
+            done
+            if [[ $(yq eval '.dependencies.ansible_core.package_pip' "$file" 2>/dev/null) == ansible-core=* ]]; then
+              yq eval -i --indent 2 \
+              ".dependencies.ansible_core.package_pip = \"ansible-core==${ANSIBLE_CORE_VERSION}\"" \
+               "${file}"
+            else
+              echo "### ⚠️ lack of ansible-core for ${file}" | tee -a "$GITHUB_STEP_SUMMARY"
+              echo "The ${file} does not declare an ansible-core package" | tee -a "$GITHUB_STEP_SUMMARY"
+              echo "(no valid 'dependencies.ansible_core.package_pip' \`ansible-core key\`)" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          COLLECTIONS=$(cat collections_changed | sort -u)
+
+          echo "COLLECTIONS<<EOF" >> $GITHUB_ENV
+          echo "$COLLECTIONS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "EES=$(git diff --name-only -- execution-environments/ | \
+            awk -F '/' '{ print $2 }' | \
+            sort -u | \
+            awk '{printf "%s%s", sep, $0; sep=", "} END {print ""}' \
+          )" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Define variables for ${{ env.ANSIBLE_CORE_VERSION }}
+        env:
+          IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.ee-name }}
+        run: |
+          sudo apt install podman --yes
+          set -x
+          EE_VERSION="$( \
+            podman search --format '{{.Tag}}' \
+              --list-tags ghcr.io/${IMAGE_NAME} | \
+            grep -- "${ANSIBLE_CORE_VERSION}-" | \
+            awk -F'-' '{ if (NF > 1 && $2 ~ /^[0-9]+$/) { print $2 + 1; found=1 } } END { if (!found) print 1 }' \
+            || true \
+          )"
+
+          echo "EE_VERSION=${EE_VERSION}" >> "$GITHUB_ENV"
+
+          echo "ANSIBLE_BRANCH_NAME=ansible-core-${ANSIBLE_CORE_VERSION}-${EE_VERSION}_${ANSIBLE_COMMUNITY_VERSION}" >> "$GITHUB_ENV"
+
+          CI_COMMIT_MESSAGE="${ANSIBLE_CORE_VERSION}-${EE_VERSION}: Update ansible-core and collection versions for ${EES} from ${ANSIBLE_COMMUNITY_VERSION}"
+          CI_PR_TITTLE="chore: update ansible-core and collection versions for ${EES} from ${ANSIBLE_COMMUNITY_VERSION} (${ANSIBLE_CORE_VERSION}-${EE_VERSION})"
+
+          if [[ "-${COLLECTIONS}" = "-" ]]; then
+            CI_COMMIT_MESSAGE="${ANSIBLE_CORE_VERSION}-${EE_VERSION}: Update ansible-core version for ${EES} from ${ANSIBLE_COMMUNITY_VERSION}"
+            CI_PR_TITTLE="chore: update ansible-core for ${EES} from ${ANSIBLE_COMMUNITY_VERSION} (${ANSIBLE_CORE_VERSION}-${EE_VERSION})"
+          fi
+
+          echo "CI_COMMIT_MESSAGE=${CI_COMMIT_MESSAGE}" >> "$GITHUB_ENV"
+          echo "CI_PR_TITTLE=${CI_PR_TITTLE}" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Checking out to a new branch
+        run: |
+          git checkout -b "${ANSIBLE_BRANCH_NAME}"
+        shell: bash
+
+      - name: Setting the user details
+        run: |
+          git config --global user.name "Github Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        shell: bash
+
+      - name: Commit and push the changes to github
+        id: commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if there are any changes in execution-environments/
+          if git diff --quiet -- execution-environments/; then
+            echo "ℹ️ No changes detected – skipping commit and PR creation" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+          else
+            git add execution-environments/**
+            git commit -m "${CI_COMMIT_MESSAGE}"
+            git branch
+            git push origin -f "${ANSIBLE_BRANCH_NAME}"
+            echo "ℹ️ Changes committed and pushed to branch ${ANSIBLE_BRANCH_NAME}" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
+
+      - name: Create PR
+        id: create-pr
+        if: steps.commit.outputs.changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          ASSIGNEE: 'release management team'
+        run: |
+          body="./pr-body"
+          echo -e "This PR updates\n\n- ansible-core: \`${ANSIBLE_CORE_VERSION}\`\n\n" >> "${body}"
+
+          if [[ "-" != "-${COLLECTIONS}" ]]; then
+            echo -e "the following collections:\n\n${COLLECTIONS}\n\n" >> "${body}"
+          fi
+
+          echo "Triggered by [workflow run](https://github.com/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID})." >> "${body}"
+          echo "Source from [ansible-build-data](https://github.com/ansible-community/ansible-build-data) version ${ANSIBLE_COMMUNITY_VERSION} " >> "${body}"
+
+          # Create PR and capture the URL
+          PR_URL=$(gh pr create \
+            --base main \
+            --head "${ANSIBLE_BRANCH_NAME}" \
+            --title "${CI_PR_TITTLE}" \
+            --body-file "${body}" \
+            --assignee "${ASSIGNEE}" \
+            2>&1) || PR_CREATED=$?
+
+          if [ -z "${PR_URL}" ] || [ "${PR_CREATED}" -ne 0 ]; then
+            echo "Branch ${ANSIBLE_BRANCH_NAME} already exists and was updated" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ PR creation failed or PR already exists for the branch" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ PR created: ${PR_URL}" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
