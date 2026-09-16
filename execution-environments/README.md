@@ -47,7 +47,7 @@ The tests read the expected Fedora release, ansible-core version, system package
 definitions.
 
 ```bash
-cd tests
+cd execution-environments/tests
 uv sync
 uv run pytest -v
 ```

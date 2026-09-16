@@ -12,7 +12,7 @@ from conftest import EESpec
 EE_IMAGES = ["community-ee-base"]
 
 
-def test_declared_collections_are_installed(
+def test_declared_collections_installed(
     ee_container: ContainerData, ee_spec: EESpec
 ) -> None:
     """Assert each collection from ``requirements.yml`` is installed and pinned.

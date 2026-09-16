@@ -6,8 +6,10 @@ track the definitions instead of hard-coding versions.
 
 from __future__ import annotations
 
+import json
 import re
 
+import pytest
 from pytest_container.container import ContainerData
 
 from conftest import EESpec
@@ -63,6 +65,20 @@ def test_ansible_runner_installed(ee_container: ContainerData) -> None:
         ee_container: Running container under test.
     """
     ee_container.connection.run_expect([0], "pip show ansible-runner")
+
+
+@pytest.mark.parametrize("ee_name", ["community-ee-minimal"], indirect=True)
+def test_no_collections_installed(ee_container: ContainerData, ee_spec: EESpec) -> None:
+    """Assert community-ee-minimal contains no galaxy collections."""
+    result = ee_container.connection.run_expect(
+        [0], "ansible-galaxy collection list --format json"
+    )
+    installed = {
+        name
+        for collections in json.loads(result.stdout).values()
+        for name in collections
+    }
+    assert not installed, f"minimal EE contains collections: {sorted(installed)}"
 
 
 def test_bindep_packages_installed(

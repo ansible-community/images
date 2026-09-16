@@ -21,8 +21,7 @@ from pytest_container.container import (
     EntrypointSelection,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-EE_ROOT = REPO_ROOT / "execution-environments"
+EE_ROOT = Path(__file__).resolve().parents[1]
 EE_DEFINITION = "execution-environment.yml"
 
 # System packages and galaxy collections are always declared in these files.
@@ -150,6 +149,12 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
         metafunc: The pytest metafunc for the collecting test module.
     """
     if "ee_name" in metafunc.fixturenames:
+        for marker in metafunc.definition.iter_markers("parametrize"):
+            argnames = marker.args[0]
+            if isinstance(argnames, str):
+                argnames = argnames.split(",")
+            if "ee_name" in argnames:
+                return
         names = list(getattr(metafunc.module, "EE_IMAGES", ALL_EE_IMAGES))
         metafunc.parametrize("ee_name", names, ids=names, indirect=True)
 

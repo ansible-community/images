@@ -37,4 +37,3 @@ quote-style = "double"
 [tool.pytest.ini_options]
 testpaths = ["."]
 addopts = ["-ra", "--strict-config", "--strict-markers"]
-markers = ["build: builds an Execution Environment image with ansible-builder"]
