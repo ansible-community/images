@@ -38,7 +38,7 @@ ansible-navigator -v --pull-policy never \
 
 ## Running the test suite
 
-The `tests/` directory is a [uv](https://docs.astral.sh/uv/) project that builds
+The `execution-environments/tests/` directory is a [uv](https://docs.astral.sh/uv/) project that builds
 each execution environment with
 [`ansible-builder`](https://github.com/ansible/ansible-builder/) and verifies the
 resulting image with [`pytest-container`](https://github.com/dcermak/pytest_container/).
