@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import json
-
 from pytest_container.container import ContainerData
 
-from conftest import EESpec
+from conftest import EESpec, installed_collections
 
 # Restrict this module to the base EE only.
 EE_IMAGES = ["community-ee-base"]
@@ -22,17 +20,8 @@ def test_declared_collections_installed(
         ee_spec: Parsed definition of the EE under test.
     """
     assert ee_spec.collections, "base EE declares no galaxy collections"
-    raw = ee_container.connection.run_expect(
-        [0], "ansible-galaxy collection list --format json"
-    ).stdout
-
-    # Output is {"/install/path": {"ns.name": {"version": "x.y.z"}, ...}, ...}
-    by_path: dict[str, dict[str, dict[str, str]]] = json.loads(raw)
-    installed: dict[str, str] = {
-        name: meta["version"]
-        for path_collections in by_path.values()
-        for name, meta in path_collections.items()
-    }
+    installed = installed_collections(ee_container)
+    expected = {collection["name"] for collection in ee_spec.collections}
 
     for collection in ee_spec.collections:
         name = collection["name"]
@@ -42,3 +31,6 @@ def test_declared_collections_installed(
             assert installed[name] == version, (
                 f"{name}: expected {version}, got {installed[name]}"
             )
+
+    unexpected = set(installed) - expected
+    assert not unexpected, f"unexpected collections installed: {sorted(unexpected)}"

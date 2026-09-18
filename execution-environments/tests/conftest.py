@@ -7,6 +7,7 @@ with the values parsed from its definition files: ``execution-environment.yml``,
 
 from __future__ import annotations
 
+import json
 import subprocess
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -52,6 +53,26 @@ class EESpec:
     ansible_core_version: str
     system_packages: list[str]
     collections: list[dict]
+
+
+def installed_collections(container: ContainerData) -> dict[str, str]:
+    """Return the installed Ansible Galaxy collections and their versions.
+
+    Args:
+        container: Running container under test.
+
+    Returns:
+        Mapping of collection names to installed versions.
+    """
+    raw = container.connection.run_expect(
+        [0], "ansible-galaxy collection list --format json"
+    ).stdout
+    by_path: dict[str, dict[str, dict[str, str]]] = json.loads(raw)
+    return {
+        name: metadata["version"]
+        for path_collections in by_path.values()
+        for name, metadata in path_collections.items()
+    }
 
 
 def _parse_bindep(path: Path) -> list[str]:
@@ -207,6 +228,7 @@ def ee_container(
     container = Container(
         url=f"containers-storage:{tag}",
         entry_point=EntrypointSelection.BASH,
+        extra_environment_variables={"HOME": "/runner"},
     )
     with ContainerLauncher.from_pytestconfig(
         container=container,

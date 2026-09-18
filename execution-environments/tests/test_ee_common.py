@@ -6,13 +6,12 @@ track the definitions instead of hard-coding versions.
 
 from __future__ import annotations
 
-import json
 import re
 
 import pytest
 from pytest_container.container import ContainerData
 
-from conftest import EESpec
+from conftest import EESpec, installed_collections
 
 
 def test_fedora_release_matches_definition(
@@ -70,14 +69,7 @@ def test_ansible_runner_installed(ee_container: ContainerData) -> None:
 @pytest.mark.parametrize("ee_name", ["community-ee-minimal"], indirect=True)
 def test_no_collections_installed(ee_container: ContainerData, ee_spec: EESpec) -> None:
     """Assert community-ee-minimal contains no galaxy collections."""
-    result = ee_container.connection.run_expect(
-        [0], "ansible-galaxy collection list --format json"
-    )
-    installed = {
-        name
-        for collections in json.loads(result.stdout).values()
-        for name in collections
-    }
+    installed = installed_collections(ee_container)
     assert not installed, f"minimal EE contains collections: {sorted(installed)}"
 
 
