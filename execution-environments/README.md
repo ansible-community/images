@@ -58,10 +58,10 @@ uv run ruff format --check .
 uv run ruff check .
 ```
 
-A working `docker` runtime is required. Set `CONTAINER_RUNTIME=docker` when
-running the tests because the test container plugin defaults to Podman when it
-is available. The first run pulls the Fedora base image and installs collections,
-so it is slow.
+A working `podman` or `docker` runtime is required. The test container plugin
+defaults to Podman when it is available. To explicitly use Docker instead, set
+`CONTAINER_RUNTIME=docker` when running the tests. The first run pulls the Fedora
+base image and installs collections, so it is slow.
 
 To test one already-built image, select the matching EE and pass its local image
 reference:
