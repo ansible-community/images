@@ -1,8 +1,8 @@
 """Fixtures for the Execution Environment pytest suite.
 
-Builds each EE with ``ansible-builder`` and yields a running container together
-with the values parsed from its definition files: ``execution-environment.yml``,
-``requirements.yml`` and ``bindep.txt``.
+Builds each EE with ``ansible-builder`` or uses a supplied image reference, then
+yields a running container together with the values parsed from its definition
+files: ``execution-environment.yml``, ``requirements.yml`` and ``bindep.txt``.
 """
 
 from __future__ import annotations
@@ -163,6 +163,33 @@ def _build_ee(spec: EESpec) -> str:
     return tag
 
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register options for selecting an EE and an already-built image."""
+    group = parser.getgroup("execution-environment tests")
+    group.addoption(
+        "--ee-name",
+        action="append",
+        choices=ALL_EE_IMAGES,
+        default=None,
+        metavar="NAME",
+        help="test only the named execution environment; may be repeated",
+    )
+    group.addoption(
+        "--image-ref",
+        default=None,
+        metavar="IMAGE",
+        help="test an already-built local image instead of building an EE",
+    )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Validate options used for testing a pre-built image."""
+    image_ref = config.getoption("--image-ref")
+    ee_names = config.getoption("--ee-name") or []
+    if image_ref and len(ee_names) != 1:
+        raise pytest.UsageError("--image-ref requires exactly one --ee-name")
+
+
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     """Parametrize ``ee_name`` over ``EE_IMAGES``, defaulting to all EEs.
 
@@ -170,6 +197,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
         metafunc: The pytest metafunc for the collecting test module.
     """
     if "ee_name" in metafunc.fixturenames:
+        ee_names = metafunc.config.getoption("--ee-name")
         for marker in metafunc.definition.iter_markers("parametrize"):
             argnames = marker.args[0]
             if isinstance(argnames, str):
@@ -177,7 +205,34 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
             if "ee_name" in argnames:
                 return
         names = list(getattr(metafunc.module, "EE_IMAGES", ALL_EE_IMAGES))
+        if ee_names:
+            names = [name for name in names if name in ee_names]
         metafunc.parametrize("ee_name", names, ids=names, indirect=True)
+
+
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Remove tests for EEs excluded by ``--ee-name``."""
+    ee_names = set(config.getoption("--ee-name") or [])
+    if not ee_names:
+        return
+
+    selected: list[pytest.Item] = []
+    deselected: list[pytest.Item] = []
+    for item in items:
+        module_ee_names = set(getattr(item.module, "EE_IMAGES", ()))
+        callspec = getattr(item, "callspec", None)
+        item_ee_name = getattr(callspec, "params", {}).get("ee_name")
+        if (module_ee_names and not module_ee_names & ee_names) or (
+            item_ee_name is not None and item_ee_name not in ee_names
+        ):
+            deselected.append(item)
+        else:
+            selected.append(item)
+
+    items[:] = selected
+    config.hook.pytest_deselected(items=deselected)
 
 
 @pytest.fixture(scope="session")
@@ -212,7 +267,7 @@ def ee_container(
     container_runtime,
     pytestconfig: pytest.Config,
 ) -> Iterator[ContainerData]:
-    """Build the EE image, launch it, and yield its container data.
+    """Build or select an EE image, launch it, and yield its container data.
 
     Build and launch live in the same fixture so the ordering is guaranteed.
 
@@ -224,7 +279,15 @@ def ee_container(
     Yields:
         The launched container and its testinfra connection.
     """
-    tag = _build_ee(ee_spec)
+    image_ref = pytestconfig.getoption("--image-ref")
+    if image_ref:
+        subprocess.run(
+            [container_runtime.runner_binary, "image", "inspect", image_ref],
+            check=True,
+        )
+        tag = image_ref
+    else:
+        tag = _build_ee(ee_spec)
     container = Container(
         url=f"containers-storage:{tag}",
         entry_point=EntrypointSelection.BASH,

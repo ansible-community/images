@@ -48,8 +48,7 @@ definitions.
 
 ```bash
 cd execution-environments/tests
-uv sync
-uv run pytest -v
+CONTAINER_RUNTIME=docker uv run pytest -v
 ```
 
 Lint and formatting are enforced with [ruff](https://docs.astral.sh/ruff/):
@@ -59,8 +58,19 @@ uv run ruff format --check .
 uv run ruff check .
 ```
 
-A working `podman` (or `docker`) is required. The first run pulls the Fedora base
-image and installs collections, so it is slow.
+A working `docker` runtime is required. Set `CONTAINER_RUNTIME=docker` when
+running the tests because the test container plugin defaults to Podman when it
+is available. The first run pulls the Fedora base image and installs collections,
+so it is slow.
+
+To test one already-built image, select the matching EE and pass its local image
+reference:
+
+```bash
+CONTAINER_RUNTIME=docker uv run pytest -v \
+  --ee-name community-ee-base \
+  --image-ref localhost/community-ee-base:pytest
+```
 
 ## Available images
 
