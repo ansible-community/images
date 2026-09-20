@@ -9,19 +9,12 @@ dependencies:
     package_pip: ansible-core==2.21.3
   ansible_runner:
     package_pip: ansible-runner
-  system:
-    - openssh-clients
-    - sshpass
-    - less
-  galaxy:
-    collections:
-    - name: ansible.posix
-      version: 2.2.2
-    - name: ansible.utils
-      version: 6.1.0
-    - name: ansible.windows
-      version: 3.7.0
+  system: bindep.txt
+  galaxy: requirements.yml
 
+# The Fedora base image ships no Python interpreter, but ansible-builder's base
+# stage runs `python3 -m ensurepip` before the bindep packages are installed.
+# This bootstraps the interpreter; the image's dependencies live in bindep.txt.
 additional_build_steps:
   prepend_base:
-    - RUN dnf install -y python3 python3-pip python3-libdnf5
+    - RUN dnf install -y python3

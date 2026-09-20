@@ -36,6 +36,42 @@ ansible-navigator -v --pull-policy never \
     run tests.yml
 ```
 
+## Running the test suite
+
+The `execution-environments/tests/` directory is a [uv](https://docs.astral.sh/uv/) project that builds
+each execution environment with
+[`ansible-builder`](https://github.com/ansible/ansible-builder/) and verifies the
+resulting image with [`pytest-container`](https://github.com/dcermak/pytest_container/).
+The tests read the expected Fedora release, ansible-core version, system packages
+(`bindep.txt`) and galaxy collections (`requirements.yml`) from each EE's
+definitions.
+
+```bash
+cd execution-environments/tests
+CONTAINER_RUNTIME=docker uv run pytest -v
+```
+
+Lint and formatting are enforced with [ruff](https://docs.astral.sh/ruff/):
+
+```bash
+uv run ruff format --check .
+uv run ruff check .
+```
+
+A working `podman` or `docker` runtime is required. The test container plugin
+defaults to Podman when it is available. To explicitly use Docker instead, set
+`CONTAINER_RUNTIME=docker` when running the tests. The first run pulls the Fedora
+base image and installs collections, so it is slow.
+
+To test one already-built image, select the matching EE and pass its local image
+reference:
+
+```bash
+CONTAINER_RUNTIME=docker uv run pytest -v \
+  --ee-name community-ee-base \
+  --image-ref localhost/community-ee-base:pytest
+```
+
 ## Available images
 
 - [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal): ansible-core with no collections

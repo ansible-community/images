@@ -1,0 +1,5 @@
+openssh-clients
+sshpass
+less
+python3-pip
+python3-libdnf5

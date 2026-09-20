@@ -2,3 +2,11 @@ execution-environments/*/context
 execution-environments/*/ansible-navigator.log
 execution-environments/*/*artifact*.json
 /.idea/
+
+/tests/.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Hermes agent workspace (plans, scratch)
+/.hermes/

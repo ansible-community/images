@@ -1,0 +1,302 @@
+"""Fixtures for the Execution Environment pytest suite.
+
+Builds each EE with ``ansible-builder`` or uses a supplied image reference, then
+yields a running container together with the values parsed from its definition
+files: ``execution-environment.yml``, ``requirements.yml`` and ``bindep.txt``.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+from collections.abc import Iterator
+from dataclasses import dataclass
+from pathlib import Path
+
+import pytest
+import yaml
+from pytest_container.container import (
+    Container,
+    ContainerData,
+    ContainerLauncher,
+    EntrypointSelection,
+)
+
+EE_ROOT = Path(__file__).resolve().parents[1]
+EE_DEFINITION = "execution-environment.yml"
+
+# System packages and galaxy collections are always declared in these files.
+BINDEP_FILE = "bindep.txt"
+REQUIREMENTS_FILE = "requirements.yml"
+
+# EEs under test. A test module can narrow this by defining ``EE_IMAGES``.
+ALL_EE_IMAGES = ("community-ee-base", "community-ee-minimal")
+
+
+@dataclass(frozen=True)
+class EESpec:
+    """Values parsed from an EE's definition files.
+
+    Attributes:
+        name: Directory name of the execution environment.
+        directory: Absolute path to the EE directory.
+        fedora_version: Fedora major release derived from the base image tag.
+        ansible_core_version: Pinned ansible-core version from the definition.
+        system_packages: Package names listed in the EE's ``bindep.txt``.
+        collections: Galaxy collections from the EE's ``requirements.yml``, if it
+            declares any.
+    """
+
+    name: str
+    directory: Path
+    fedora_version: int
+    ansible_core_version: str
+    system_packages: list[str]
+    collections: list[dict]
+
+
+def installed_collections(container: ContainerData) -> dict[str, str]:
+    """Return the installed Ansible Galaxy collections and their versions.
+
+    Args:
+        container: Running container under test.
+
+    Returns:
+        Mapping of collection names to installed versions.
+    """
+    raw = container.connection.run_expect(
+        [0], "ansible-galaxy collection list --format json"
+    ).stdout
+    by_path: dict[str, dict[str, dict[str, str]]] = json.loads(raw)
+    return {
+        name: metadata["version"]
+        for path_collections in by_path.values()
+        for name, metadata in path_collections.items()
+    }
+
+
+def _parse_bindep(path: Path) -> list[str]:
+    """Return the package names declared in a bindep file.
+
+    Args:
+        path: Path to the ``bindep.txt`` file.
+
+    Returns:
+        The package names, with comments and ``[profile]`` headers removed.
+    """
+    packages: list[str] = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line or line.startswith("["):
+            continue
+        packages.append(line.split()[0])
+    return packages
+
+
+def _parse_ee(name: str) -> EESpec:
+    """Parse an EE's definition files into an :class:`EESpec`.
+
+    System packages are always read from ``bindep.txt`` and galaxy collections
+    from ``requirements.yml`` if that file exists, following the layout every EE
+    in this repository uses.
+
+    Args:
+        name: Directory name of the execution environment.
+
+    Returns:
+        The parsed specification.
+
+    Raises:
+        ValueError: If the base image tag is not a numeric Fedora release or the
+            ansible-core requirement is not pinned with ``==``.
+    """
+    ee_dir = EE_ROOT / name
+    data = yaml.safe_load((ee_dir / EE_DEFINITION).read_text(encoding="utf-8"))
+
+    base_image = data["images"]["base_image"]["name"]
+    release = base_image.rsplit(":", 1)[-1]
+    if not release.isdigit():
+        raise ValueError(
+            f"{name}: base image {base_image!r} does not pin a numeric Fedora "
+            "release; the suite cannot derive the expected version."
+        )
+
+    dependencies = data["dependencies"]
+    core_pip = dependencies["ansible_core"]["package_pip"]
+    _, _, core_version = core_pip.partition("==")
+    if not core_version:
+        raise ValueError(
+            f"{name}: ansible_core.package_pip {core_pip!r} is not pinned with '=='"
+        )
+
+    requirements = ee_dir / REQUIREMENTS_FILE
+    collections: list[dict] = []
+    if requirements.is_file():
+        manifest = yaml.safe_load(requirements.read_text(encoding="utf-8"))
+        collections = list(manifest.get("collections", []))
+
+    return EESpec(
+        name=name,
+        directory=ee_dir,
+        fedora_version=int(release),
+        ansible_core_version=core_version,
+        system_packages=_parse_bindep(ee_dir / BINDEP_FILE),
+        collections=collections,
+    )
+
+
+def _build_ee(spec: EESpec) -> str:
+    """Build the EE with ansible-builder and return its local image reference.
+
+    Args:
+        spec: Specification of the execution environment to build.
+
+    Returns:
+        The locally tagged image reference, e.g. ``localhost/name:pytest``.
+    """
+    tag = f"localhost/{spec.name}:pytest"
+    subprocess.run(
+        ["ansible-builder", "build", "-v", "3", "--tag", tag],
+        cwd=spec.directory,
+        check=True,
+    )
+    return tag
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register options for selecting an EE and an already-built image."""
+    group = parser.getgroup("execution-environment tests")
+    group.addoption(
+        "--ee-name",
+        action="append",
+        choices=ALL_EE_IMAGES,
+        default=None,
+        metavar="NAME",
+        help="test only the named execution environment; may be repeated",
+    )
+    group.addoption(
+        "--image-ref",
+        default=None,
+        metavar="IMAGE",
+        help="test an already-built local image instead of building an EE",
+    )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Validate options used for testing a pre-built image."""
+    image_ref = config.getoption("--image-ref")
+    ee_names = config.getoption("--ee-name") or []
+    if image_ref and len(ee_names) != 1:
+        raise pytest.UsageError("--image-ref requires exactly one --ee-name")
+
+
+def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
+    """Parametrize ``ee_name`` over ``EE_IMAGES``, defaulting to all EEs.
+
+    Args:
+        metafunc: The pytest metafunc for the collecting test module.
+    """
+    if "ee_name" in metafunc.fixturenames:
+        ee_names = metafunc.config.getoption("--ee-name")
+        for marker in metafunc.definition.iter_markers("parametrize"):
+            argnames = marker.args[0]
+            if isinstance(argnames, str):
+                argnames = argnames.split(",")
+            if "ee_name" in argnames:
+                return
+        names = list(getattr(metafunc.module, "EE_IMAGES", ALL_EE_IMAGES))
+        if ee_names:
+            names = [name for name in names if name in ee_names]
+        metafunc.parametrize("ee_name", names, ids=names, indirect=True)
+
+
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Remove tests for EEs excluded by ``--ee-name``."""
+    ee_names = set(config.getoption("--ee-name") or [])
+    if not ee_names:
+        return
+
+    selected: list[pytest.Item] = []
+    deselected: list[pytest.Item] = []
+    for item in items:
+        module_ee_names = set(getattr(item.module, "EE_IMAGES", ()))
+        callspec = getattr(item, "callspec", None)
+        item_ee_name = getattr(callspec, "params", {}).get("ee_name")
+        if (module_ee_names and not module_ee_names & ee_names) or (
+            item_ee_name is not None and item_ee_name not in ee_names
+        ):
+            deselected.append(item)
+        else:
+            selected.append(item)
+
+    items[:] = selected
+    config.hook.pytest_deselected(items=deselected)
+
+
+@pytest.fixture(scope="session")
+def ee_name(request: pytest.FixtureRequest) -> str:
+    """Return the name of the EE under test.
+
+    Args:
+        request: Pytest request carrying the parametrized ``ee_name`` value.
+
+    Returns:
+        The EE directory name.
+    """
+    return request.param
+
+
+@pytest.fixture(scope="session")
+def ee_spec(ee_name: str) -> EESpec:
+    """Return the parsed definition of the EE under test.
+
+    Args:
+        ee_name: Name of the EE under test.
+
+    Returns:
+        The parsed specification.
+    """
+    return _parse_ee(ee_name)
+
+
+@pytest.fixture(scope="session")
+def ee_container(
+    ee_spec: EESpec,
+    container_runtime,
+    pytestconfig: pytest.Config,
+) -> Iterator[ContainerData]:
+    """Build or select an EE image, launch it, and yield its container data.
+
+    Build and launch live in the same fixture so the ordering is guaranteed.
+
+    Args:
+        ee_spec: Specification of the execution environment to build.
+        container_runtime: Container runtime selected by pytest-container.
+        pytestconfig: Pytest config used to resolve build/run arguments.
+
+    Yields:
+        The launched container and its testinfra connection.
+    """
+    image_ref = pytestconfig.getoption("--image-ref")
+    if image_ref:
+        subprocess.run(
+            [container_runtime.runner_binary, "image", "inspect", image_ref],
+            check=True,
+        )
+        tag = image_ref
+    else:
+        tag = _build_ee(ee_spec)
+    container = Container(
+        url=f"containers-storage:{tag}",
+        entry_point=EntrypointSelection.BASH,
+        extra_environment_variables={"HOME": "/runner"},
+    )
+    with ContainerLauncher.from_pytestconfig(
+        container=container,
+        container_runtime=container_runtime,
+        pytestconfig=pytestconfig,
+    ) as launcher:
+        launcher.launch_container()
+        yield launcher.container_data
