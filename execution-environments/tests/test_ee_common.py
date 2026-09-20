@@ -42,10 +42,10 @@ def test_ansible_cli_reports_pinned_core_version(
     assert match.group(1) == ee_spec.ansible_core_version
 
 
-def test_pip_ansible_core_matches_definition(
+def test_pip_ansible_core_matches_explicit_requirement(
     ee_container: ContainerData, ee_spec: EESpec
 ) -> None:
-    """Assert the pip-installed ansible-core version matches the definition.
+    """Assert the pip-installed ansible-core version matches its explicit pin.
 
     Args:
         ee_container: Running container under test.
@@ -57,13 +57,19 @@ def test_pip_ansible_core_matches_definition(
     assert result.stdout.strip() == ee_spec.ansible_core_version
 
 
-def test_ansible_runner_installed(ee_container: ContainerData) -> None:
-    """Assert ansible-runner is installed in the image.
+def test_pip_ansible_runner_matches_explicit_requirement(
+    ee_container: ContainerData, ee_spec: EESpec
+) -> None:
+    """Assert the pip-installed ansible-runner version matches its explicit pin.
 
     Args:
         ee_container: Running container under test.
+        ee_spec: Parsed definition of the EE under test.
     """
-    ee_container.connection.run_expect([0], "pip show ansible-runner")
+    result = ee_container.connection.run_expect(
+        [0], "pip show ansible-runner | awk '/^Version/ {print $2}'"
+    )
+    assert result.stdout.strip() == ee_spec.ansible_runner_version
 
 
 @pytest.mark.parametrize("ee_name", ["community-ee-minimal"], indirect=True)

@@ -2,7 +2,8 @@
 
 Builds each EE with ``ansible-builder`` or uses a supplied image reference, then
 yields a running container together with the values parsed from its definition
-files: ``execution-environment.yml``, ``requirements.yml`` and ``bindep.txt``.
+files: ``execution-environment.yml``, ``requirements.yml``, ``bindep.txt`` and
+``requirements-explicit.in``.
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ EE_DEFINITION = "execution-environment.yml"
 # System packages and galaxy collections are always declared in these files.
 BINDEP_FILE = "bindep.txt"
 REQUIREMENTS_FILE = "requirements.yml"
+EXPLICIT_REQUIREMENTS_FILE = "requirements-explicit.in"
 
 # EEs under test. A test module can narrow this by defining ``EE_IMAGES``.
 ALL_EE_IMAGES = ("community-ee-base", "community-ee-minimal")
@@ -41,7 +43,10 @@ class EESpec:
         name: Directory name of the execution environment.
         directory: Absolute path to the EE directory.
         fedora_version: Fedora major release derived from the base image tag.
-        ansible_core_version: Pinned ansible-core version from the definition.
+        ansible_core_version: Pinned ansible-core version from the explicit
+            requirements.
+        ansible_runner_version: Pinned ansible-runner version from the explicit
+            requirements.
         system_packages: Package names listed in the EE's ``bindep.txt``.
         collections: Galaxy collections from the EE's ``requirements.yml``, if it
             declares any.
@@ -51,6 +56,7 @@ class EESpec:
     directory: Path
     fedora_version: int
     ansible_core_version: str
+    ansible_runner_version: str
     system_packages: list[str]
     collections: list[dict]
 
@@ -93,12 +99,37 @@ def _parse_bindep(path: Path) -> list[str]:
     return packages
 
 
+def _parse_pinned_requirement(path: Path, package: str) -> str:
+    """Return an exact package version from a requirements input file.
+
+    Args:
+        path: Requirements input file to parse.
+        package: Normalized package name to find.
+
+    Returns:
+        The version following ``==``.
+
+    Raises:
+        ValueError: If the package does not have exactly one exact pin.
+    """
+    prefix = f"{package}=="
+    versions = [
+        line.removeprefix(prefix).strip()
+        for raw_line in path.read_text(encoding="utf-8").splitlines()
+        if (line := raw_line.split("#", 1)[0].strip()).startswith(prefix)
+    ]
+    if len(versions) != 1 or not versions[0]:
+        raise ValueError(f"{path}: {package} must have exactly one '==' pin")
+    return versions[0]
+
+
 def _parse_ee(name: str) -> EESpec:
     """Parse an EE's definition files into an :class:`EESpec`.
 
-    System packages are always read from ``bindep.txt`` and galaxy collections
-    from ``requirements.yml`` if that file exists, following the layout every EE
-    in this repository uses.
+    System packages are read from ``bindep.txt``, direct Python package versions
+    from ``requirements-explicit.in`` and galaxy collections from
+    ``requirements.yml`` if that file exists, following the layout every EE in
+    this repository uses.
 
     Args:
         name: Directory name of the execution environment.
@@ -107,8 +138,8 @@ def _parse_ee(name: str) -> EESpec:
         The parsed specification.
 
     Raises:
-        ValueError: If the base image tag is not a numeric Fedora release or the
-            ansible-core requirement is not pinned with ``==``.
+        ValueError: If the base image tag is not a numeric Fedora release or a
+            required package is not pinned with ``==``.
     """
     ee_dir = EE_ROOT / name
     data = yaml.safe_load((ee_dir / EE_DEFINITION).read_text(encoding="utf-8"))
@@ -121,13 +152,9 @@ def _parse_ee(name: str) -> EESpec:
             "release; the suite cannot derive the expected version."
         )
 
-    dependencies = data["dependencies"]
-    core_pip = dependencies["ansible_core"]["package_pip"]
-    _, _, core_version = core_pip.partition("==")
-    if not core_version:
-        raise ValueError(
-            f"{name}: ansible_core.package_pip {core_pip!r} is not pinned with '=='"
-        )
+    explicit_requirements = ee_dir / EXPLICIT_REQUIREMENTS_FILE
+    core_version = _parse_pinned_requirement(explicit_requirements, "ansible-core")
+    runner_version = _parse_pinned_requirement(explicit_requirements, "ansible-runner")
 
     requirements = ee_dir / REQUIREMENTS_FILE
     collections: list[dict] = []
@@ -140,6 +167,7 @@ def _parse_ee(name: str) -> EESpec:
         directory=ee_dir,
         fedora_version=int(release),
         ansible_core_version=core_version,
+        ansible_runner_version=runner_version,
         system_packages=_parse_bindep(ee_dir / BINDEP_FILE),
         collections=collections,
     )
