@@ -1,0 +1,7 @@
+# Additional Python requirements to install in the execution environment.
+#
+# This file is maintained manually. Add entries for packages that are not
+# provided by collection dependency metadata.
+
+ansible-core==2.21.3
+ansible-runner==2.4.3

@@ -1,16 +1,19 @@
 ---
-
 version: 3
 images:
   base_image:
     name: quay.io/fedora/fedora:44
 dependencies:
   ansible_core:
-    package_pip: ansible-core==2.21.3
+    package_pip: ansible-core
   ansible_runner:
     package_pip: ansible-runner
   system: bindep.txt
   galaxy: requirements.yml
+  python: requirements.txt
+  exclude:
+    python:
+      - ~.*
 
 # The Fedora base image ships no Python interpreter, but ansible-builder's base
 # stage runs `python3 -m ensurepip` before the bindep packages are installed.

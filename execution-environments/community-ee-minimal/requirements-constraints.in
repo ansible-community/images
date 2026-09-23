@@ -1,0 +1,4 @@
+# Additional constraints for Python dependency resolution.
+#
+# This file is maintained manually. Add entries when a Python dependency
+# needs an additional version constraint.

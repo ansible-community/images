@@ -1,0 +1,9 @@
+# Generated from requirements.yml by ../scripts/generate_python_requirements.py.
+#
+# Do not edit manually.
+
+jsonschema  # from collection ansible.utils
+netaddr>=0.10.1  # from collection ansible.utils
+textfsm  # from collection ansible.utils
+ttp  # from collection ansible.utils
+xmltodict  # from collection ansible.utils

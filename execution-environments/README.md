@@ -36,15 +36,46 @@ ansible-navigator -v --pull-policy never \
     run tests.yml
 ```
 
+## Generating locked Python dependencies
+
+Each EE installs Python packages from its generated `requirements.txt`. Locking direct
+and transitive versions improves supply chain security by making the exact dependency
+set reviewable and traceable in Git.
+
+The shared [generator](./scripts/generate_python_requirements.py) and its dedicated
+`uv` project live in `execution-environments/scripts/`. Run the generator from the
+repository root after changing a collection, an explicit Python requirement, or a
+constraint:
+
+```bash
+uv run --project execution-environments/scripts \
+  execution-environments/scripts/generate_python_requirements.py \
+  execution-environments/community-ee-base
+
+uv run --project execution-environments/scripts \
+  execution-environments/scripts/generate_python_requirements.py \
+  execution-environments/community-ee-minimal
+```
+
+The files have separate ownership and purposes:
+
+| File                          | Ownership           | Purpose                                                                                                                                            |
+| ----------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requirements.yml`            | Maintained manually | Declares Galaxy collections. The generator installs them under `/tmp` and uses `ansible-builder introspect` to discover their Python dependencies. |
+| `requirements.in`             | Generated           | Contains Python requirements discovered from collection metadata. Do not edit it.                                                                  |
+| `requirements-explicit.in`    | Maintained manually | Adds packages that the EE must install independently of collection metadata.                                                                       |
+| `requirements-constraints.in` | Maintained manually | Restricts package versions without adding packages.                                                                                                |
+| `requirements.txt`            | Generated           | Contains the dependency lock resolved by `uv pip compile`. Do not edit it.                                                                         |
+
 ## Running the test suite
 
 The `execution-environments/tests/` directory is a [uv](https://docs.astral.sh/uv/) project that builds
 each execution environment with
 [`ansible-builder`](https://github.com/ansible/ansible-builder/) and verifies the
 resulting image with [`pytest-container`](https://github.com/dcermak/pytest_container/).
-The tests read the expected Fedora release, ansible-core version, system packages
-(`bindep.txt`) and galaxy collections (`requirements.yml`) from each EE's
-definitions.
+The tests read the expected Fedora release, explicitly pinned Python package
+versions (`requirements-explicit.in`), system packages (`bindep.txt`) and galaxy
+collections (`requirements.yml`) from each EE's definitions.
 
 ```bash
 cd execution-environments/tests
