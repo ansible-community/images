@@ -62,7 +62,7 @@ def test_mismatched_ansible_core_pin_is_rejected(tmp_path: Path) -> None:
 
     assert result.returncode != 0
     assert "release tag uses ansible-core 2.21.3" in result.stderr
-    assert "requirements.in pins 2.21.4" in result.stderr
+    assert f"{requirements} pins 2.21.4" in result.stderr
 
 
 def test_duplicate_ansible_core_pins_are_rejected(tmp_path: Path) -> None:
@@ -77,3 +77,26 @@ def test_duplicate_ansible_core_pins_are_rejected(tmp_path: Path) -> None:
 
     assert result.returncode != 0
     assert "must have exactly one '==' pin" in result.stderr
+
+
+@pytest.mark.parametrize("contents", ["", "ansible-core==\n"])
+def test_missing_ansible_core_pin_is_rejected(tmp_path: Path, contents: str) -> None:
+    """A missing or empty ansible-core pin must fail release validation."""
+    requirements = tmp_path / "requirements.in"
+    requirements.write_text(contents, encoding="utf-8")
+
+    result = _validate("2.21.3-1", requirements)
+
+    assert result.returncode != 0
+    assert "must have exactly one '==' pin" in result.stderr
+
+
+def test_mismatch_in_a_later_requirements_file_is_rejected(tmp_path: Path) -> None:
+    """Validation must inspect every supplied Execution Environment."""
+    matching = _write_requirements(tmp_path / "matching.in", "2.21.3")
+    mismatching = _write_requirements(tmp_path / "mismatching.in", "2.21.4")
+
+    result = _validate("2.21.3-1", matching, mismatching)
+
+    assert result.returncode != 0
+    assert f"{mismatching} pins 2.21.4" in result.stderr

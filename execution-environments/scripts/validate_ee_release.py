@@ -75,7 +75,7 @@ def validate_release(tag: str, requirements_paths: list[Path]) -> None:
         if pinned_core != release_core:
             raise ValueError(
                 f"release tag uses ansible-core {release_core}, but "
-                f"{requirements_path.name} pins {pinned_core}"
+                f"{requirements_path} pins {pinned_core}"
             )
 
 
