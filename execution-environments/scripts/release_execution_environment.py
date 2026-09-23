@@ -10,7 +10,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-RELEASE_TAG = re.compile(r"^(?P<ansible_core>\d+\.\d+\.\d+)-(?P<ee_revision>\d+)$")
+RELEASE_TAG = re.compile(
+    r"^(?P<ansible_core>[0-9]+\.[0-9]+\.[0-9]+)-(?P<ee_revision>[0-9]+)$"
+)
 
 
 def _ansible_core_from_tag(tag: str) -> str:

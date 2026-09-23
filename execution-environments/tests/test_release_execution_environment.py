@@ -36,6 +36,7 @@ def _run_helper(
         ("2.21-1", "false"),
         ("2.21.3", "false"),
         ("2.21.3-1-rc1", "false"),
+        ("2.21.3-１", "false"),
     ],
 )
 def test_check_tag_reports_release_tag_eligibility(tag: str, expected: str) -> None:
