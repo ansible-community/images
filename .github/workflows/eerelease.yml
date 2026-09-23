@@ -31,7 +31,7 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          uv run --no-project python execution-environments/scripts/release_execution_environment.py check-tag "${RELEASE_TAG}"
+          uv run --no-project python execution-environments/scripts/release_execution_environment.py validate-tag "${RELEASE_TAG}"
 
   build:
     name: Build and publish ${{ matrix.name }}

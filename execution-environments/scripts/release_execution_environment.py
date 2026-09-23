@@ -91,10 +91,10 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    check_tag = subparsers.add_parser(
-        "check-tag", help="report whether a tag is an EE release tag"
+    validate_tag = subparsers.add_parser(
+        "validate-tag", help="validate that a tag is an EE release tag"
     )
-    check_tag.add_argument("release_tag")
+    validate_tag.add_argument("release_tag")
 
     publish_parser = subparsers.add_parser(
         "publish", help="build, test, tag, and publish one EE"
@@ -112,7 +112,7 @@ def main() -> int:
     """Run the requested release operation."""
     args = _parse_args()
     try:
-        if args.command == "check-tag":
+        if args.command == "validate-tag":
             _ansible_core_from_tag(args.release_tag)
         else:
             publish(

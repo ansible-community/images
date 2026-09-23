@@ -31,9 +31,9 @@ def _run_helper(
     "tag",
     ["2.21.3-1", "10.0.12-27"],
 )
-def test_check_tag_accepts_a_valid_release_tag(tag: str) -> None:
+def test_validate_tag_accepts_a_valid_release_tag(tag: str) -> None:
     """A valid tag must allow the release workflow to continue."""
-    result = _run_helper("check-tag", tag)
+    result = _run_helper("validate-tag", tag)
 
     assert result.returncode == 0, result.stderr
 
@@ -42,9 +42,9 @@ def test_check_tag_accepts_a_valid_release_tag(tag: str) -> None:
     "tag",
     ["v2.21.3-1", "2.21-1", "2.21.3", "2.21.3-1-rc1", "2.21.3-１"],
 )
-def test_check_tag_rejects_an_invalid_release_tag(tag: str) -> None:
+def test_validate_tag_rejects_an_invalid_release_tag(tag: str) -> None:
     """A malformed tag must fail the release workflow before its build matrix."""
-    result = _run_helper("check-tag", tag)
+    result = _run_helper("validate-tag", tag)
 
     assert result.returncode != 0
     assert "must match <major>.<minor>.<patch>-<revision>" in result.stderr
