@@ -1,4 +1,4 @@
-name: execution environment images
+name: Build and Smoke Test Ansible Community Execution Environments
 
 on:
   push:
@@ -15,14 +15,14 @@ on:
       - execution-environments/**
   # Run once per week (Monday at 08:00 UTC)
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: 'Build EE image: ${{ matrix.name }}'
+    name: Build ${{ matrix.name }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,12 +33,12 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up uv and Python 3.14
-        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           activate-environment: true
           no-project: true
@@ -46,22 +46,20 @@ jobs:
           version: "0.12.9"
 
       - name: Install dependencies
-        run: |
-          sudo apt-get install podman
-          uv pip install ansible-core ansible-builder
+        run: uv pip install ansible-core ansible-builder
 
-      - name: Install smoke test dependency
-        if: github.event_name == 'pull_request'
-        run: uv pip install ansible-navigator
-
-      - name: Build ${{ matrix.name }} image
+      - name: Build ${{ matrix.name }}
         env:
           NAME: ${{ matrix.name }}
         run: |
           ansible-builder build -v 3 -t "test-ee:${NAME}"
         working-directory: ./execution-environments/${{ matrix.name }}
 
-      - name: Run basic tests with ${{ matrix.name }} image
+      - name: Install smoke test dependency
+        if: github.event_name == 'pull_request'
+        run: uv pip install ansible-navigator
+
+      - name: Run smoke test for ${{ matrix.name }}
         if: github.event_name == 'pull_request'
         env:
           NAME: ${{ matrix.name }}
