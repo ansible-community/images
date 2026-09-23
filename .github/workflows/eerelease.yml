@@ -1,133 +1,84 @@
-name: Release Ansible Execution Environment
-on:
-  workflow_dispatch:
-    inputs:
-      ee-name:
-        description: 'EE name'
-        required: true
-        type: choice
-        options:
-          - community-ee-base
-          - community-ee-minimal
-      ansible-core-version:
-        description: >-
-          Ansible-core version. Example: 2.20.0
-        required: true
-      ee-version:
-        description: >-
-          EE Release Version, to be appended to the ansible-core version. Example: 1
-        required: true
-      tag_as_latest:
-        description: >-
-          Whether to tag the image as latest.
-        type: boolean
-        required: false
-        default: false
+name: Release Ansible Execution Environments
 
-env:
-  EE_VERSION: ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
-  IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.ee-name }}
+on:
+  release:
+    types:
+      - published
 
 permissions: {}
 
 jobs:
-  build:
-    name: Build Execution Environment ${{ inputs.ansible-core-version }}-${{ inputs.ee-version }}
+  validate-release:
+    name: Validate release tag
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
-      contents: write
-      packages: write
+      contents: read
+    outputs:
+      eligible: ${{ steps.check-tag.outputs.eligible }}
 
     steps:
-      - name: Check out images
+      - name: Check out the release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: ansible-community/images
-          ref: main
-          path: image
           persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
 
-      - name: Check out eercheck repo for testing
+      - name: Check the release tag
+        id: check-tag
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          eligible="$(python3 execution-environments/scripts/release_execution_environment.py check-tag "${RELEASE_TAG}")"
+          echo "eligible=${eligible}" >> "${GITHUB_OUTPUT}"
+
+  build:
+    name: Build and publish ${{ matrix.name }}
+    if: needs.validate-release.outputs.eligible == 'true'
+    needs: validate-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+          - community-ee-base
+          - community-ee-minimal
+
+    steps:
+      - name: Check out the release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          repository: ansible-community/eercheck
-          ref: main
-          path: eercheck
           persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Python 3.14
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: 3.14
+          python-version: "3.14"
 
       - name: Install dependencies
         run: |
-          python3 -m pip install ansible-builder
-          python3 -m pip install setuptools
-          sudo apt install podman --yes
-          pwd
-          ls -l
+          python3 -m pip install uv
+          sudo apt-get update
+          sudo apt-get install --yes podman
 
-      - name: Pull the latest fedora image
-        run: |
-          podman pull quay.io/fedora/fedora:latest
-
-      - name: Build Community EE image
-        working-directory: image/execution-environments/${{ inputs.ee-name }}
-        run: |
-          ansible-builder build --tag "ghcr.io/${IMAGE_NAME}:${EE_VERSION}"
-
-      - name: Find the id of the latest EE image
-        run: |
-          echo "IMAGE_ID=$(podman images -q "${IMAGE_NAME}:${EE_VERSION}")">>$GITHUB_ENV
-
-      - name: Verify that the image version matches the Ansible Core version
-        run: |
-          expect="${ANSIBLE_CORE_VERSION}"
-
-          actual="$(podman container \
-                           run \
-                           --rm \
-                           "${IMAGE_ID}" \
-                           ansible --version |
-                    grep --fixed-strings 'ansible [core ')"
-          actual="${actual##*core }"
-          actual="${actual%%]*}"
-
-          echo "expect=${expect}, actual=${actual}"
-          [[ "${expect}" == "${actual}" ]]
+      - name: Log in to GHCR
         env:
-          ANSIBLE_CORE_VERSION: ${{ inputs.ansible-core-version }}
-
-      - name: Test the image with eercheck
-        working-directory: eercheck
-        run: |
-          pwd
-          ls -l
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python -m pip install -r requirements.txt
-          sudo systemctl start podman.socket
-          ./containertest.py "${IMAGE_ID}"
-
-      - name: Create the latest tag
-        if: ${{ inputs.tag_as_latest }}
-        run: |
-          podman tag "${IMAGE_ID}" "ghcr.io/${IMAGE_NAME}:latest"
-          podman images
-
-      - name: Upload artifact EE to ghcr
-        env:
-          USERNAME: ${{ github.actor }}
           PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: |-
-          podman push "${IMAGE_ID}" "ghcr.io/${IMAGE_NAME}:${EE_VERSION}" --tls-verify=true --creds="${USERNAME}:${PASSWORD}"
-
-      - name: Upload artifact EE to ghcr as latest
-        if: ${{ inputs.tag_as_latest }}
-        env:
           USERNAME: ${{ github.actor }}
-          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: >-
-          podman push "${IMAGE_ID}" "ghcr.io/${IMAGE_NAME}:latest" --tls-verify=true --creds="${USERNAME}:${PASSWORD}"
+        run: |
+          printf '%s' "${PASSWORD}" | podman login ghcr.io --username "${USERNAME}" --password-stdin
+
+      - name: Build, test, and publish the image
+        env:
+          EE_NAME: ${{ matrix.name }}
+          IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked --project execution-environments/tests \
+            python execution-environments/scripts/release_execution_environment.py publish \
+            --ee-name "${EE_NAME}" \
+            --release-tag "${RELEASE_TAG}" \
+            --image-name "${IMAGE_NAME}"

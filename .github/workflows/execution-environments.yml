@@ -13,7 +13,6 @@ on:
     paths:
       - .github/workflows/execution-environments.yml
       - execution-environments/**
-  workflow_dispatch:
   # Run once per week (Monday at 08:00 UTC)
   schedule:
     - cron: '0 8 * * 1'
@@ -46,7 +45,11 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install podman
-          pip install ansible-core ansible-builder ansible-navigator
+          pip install ansible-core ansible-builder
+
+      - name: Install smoke test dependency
+        if: github.event_name == 'pull_request'
+        run: pip install ansible-navigator
 
       - name: Build ${{ matrix.name }} image
         env:
@@ -56,6 +59,7 @@ jobs:
         working-directory: ./execution-environments/${{ matrix.name }}
 
       - name: Run basic tests with ${{ matrix.name }} image
+        if: github.event_name == 'pull_request'
         env:
           NAME: ${{ matrix.name }}
         run: |
