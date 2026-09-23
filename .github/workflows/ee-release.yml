@@ -27,11 +27,14 @@ jobs:
           python-version: "3.14"
           version: "0.12.9"
 
-      - name: Check the release tag
+      - name: Validate the release
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          uv run --no-project execution-environments/scripts/release_execution_environment.py validate-tag "${RELEASE_TAG}"
+          uv run --no-project execution-environments/scripts/validate_ee_release.py \
+            "${RELEASE_TAG}" \
+            execution-environments/community-ee-base/requirements-explicit.in \
+            execution-environments/community-ee-minimal/requirements-explicit.in
 
   build:
     name: Build and publish ${{ matrix.name }}
@@ -60,8 +63,27 @@ jobs:
           version: "0.12.9"
           python-version: "3.14"
 
-      - name: Install Podman
-        run: sudo apt-get install --yes podman
+      - name: Build ${{ matrix.name }}
+        env:
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked --project ../tests \
+            ansible-builder build -v 3 \
+            --container-runtime podman \
+            --tag "${EE_NAME}:${RELEASE_TAG}" "${EE_NAME}:latest"
+        working-directory: execution-environments/${{ matrix.name }}
+
+      - name: Test ${{ matrix.name }}
+        env:
+          CONTAINER_RUNTIME: podman
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked --project execution-environments/tests \
+            pytest -v \
+            --ee-name "${EE_NAME}" \
+            --image-ref "${EE_NAME}:${RELEASE_TAG}"
 
       - name: Log in to GHCR
         uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2.0
@@ -70,14 +92,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build, test, and publish the image
-        env:
-          EE_NAME: ${{ matrix.name }}
-          IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          uv run --locked --project execution-environments/tests \
-            execution-environments/scripts/release_execution_environment.py publish \
-            --ee-name "${EE_NAME}" \
-            --release-tag "${RELEASE_TAG}" \
-            --image-name "${IMAGE_NAME}"
+      - name: Push ${{ matrix.name }}
+        uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 # v3.0.0
+        with:
+          image: ${{ matrix.name }}
+          tags: |
+            ${{ github.event.release.tag_name }}
+            latest
+          registry: ghcr.io/${{ github.repository_owner }}
