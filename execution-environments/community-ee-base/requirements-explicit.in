@@ -5,3 +5,4 @@
 
 ansible-core==2.21.3
 ansible-runner==2.4.3
+pywinrm==0.5.0
