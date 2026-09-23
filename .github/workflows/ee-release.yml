@@ -60,15 +60,15 @@ jobs:
           version: "0.12.9"
           python-version: "3.14"
 
-      - name: Install dependencies
+      - name: Install Podman
         run: sudo apt-get install --yes podman
 
       - name: Log in to GHCR
-        env:
-          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ github.actor }}
-        run: |
-          printf '%s' "${PASSWORD}" | podman login ghcr.io --username "${USERNAME}" --password-stdin
+        uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build, test, and publish the image
         env:
