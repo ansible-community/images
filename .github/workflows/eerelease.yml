@@ -23,12 +23,18 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event.release.tag_name }}
 
+      - name: Set up uv and Python 3.14
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+        with:
+          python-version: "3.14"
+          version: "0.12.9"
+
       - name: Check the release tag
         id: check-tag
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          eligible="$(python3 execution-environments/scripts/release_execution_environment.py check-tag "${RELEASE_TAG}")"
+          eligible="$(uv run --no-project python execution-environments/scripts/release_execution_environment.py check-tag "${RELEASE_TAG}")"
           echo "eligible=${eligible}" >> "${GITHUB_OUTPUT}"
 
   build:
@@ -60,9 +66,7 @@ jobs:
           python-version: "3.14"
 
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes podman
+        run: sudo apt-get install --yes podman
 
       - name: Log in to GHCR
         env:
