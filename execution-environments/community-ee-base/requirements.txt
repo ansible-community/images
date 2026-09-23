@@ -8,10 +8,19 @@ attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
+certifi==2026.7.22
+    # via requests
 cffi==2.1.1
     # via cryptography
+charset-normalizer==3.5.1
+    # via requests
 cryptography==50.0.1
-    # via ansible-core
+    # via
+    #   ansible-core
+    #   pyspnego
+    #   requests-ntlm
+idna==3.20
+    # via requests
 jinja2==3.1.6
     # via ansible-core
 jsonschema==4.26.0
@@ -34,8 +43,12 @@ ptyprocess==0.7.0
     # via pexpect
 pycparser==3.0
     # via cffi
+pyspnego==0.12.2
+    # via requests-ntlm
 python-daemon==3.1.2
     # via ansible-runner
+pywinrm==0.5.0
+    # via -r requirements-explicit.in
 pyyaml==6.0.3
     # via
     #   ansible-core
@@ -44,6 +57,12 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
+requests==2.34.2
+    # via
+    #   pywinrm
+    #   requests-ntlm
+requests-ntlm==1.3.0
+    # via pywinrm
 resolvelib==1.2.1
     # via ansible-core
 rpds-py==2026.6.3
@@ -54,5 +73,9 @@ textfsm==2.1.0
     # via -r requirements.in
 ttp==0.10.1
     # via -r requirements.in
+urllib3==2.8.0
+    # via requests
 xmltodict==1.0.4
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   pywinrm
