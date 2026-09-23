@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build, test, tag, and publish an Execution Environment image."""
+"""Build, test, tag, and publish an execution environment image."""
 
 from __future__ import annotations
 
@@ -16,7 +16,17 @@ RELEASE_TAG = re.compile(
 
 
 def _ansible_core_from_tag(tag: str) -> str:
-    """Return the ansible-core component of an EE release tag."""
+    """Return the ansible-core component of an EE release tag.
+
+    Args:
+        tag: Release tag in ``<major>.<minor>.<patch>-<revision>`` format.
+
+    Returns:
+        The ``<major>.<minor>.<patch>`` ansible-core version.
+
+    Raises:
+        ValueError: If the tag does not use the required format.
+    """
     match = RELEASE_TAG.fullmatch(tag)
     if match is None:
         raise ValueError(
@@ -26,7 +36,18 @@ def _ansible_core_from_tag(tag: str) -> str:
 
 
 def _pinned_ansible_core(requirements_path: Path) -> str:
-    """Read the single exact ansible-core pin from a requirements input file."""
+    """Read the single exact ansible-core pin from a requirements input file.
+
+    Args:
+        requirements_path: Path to an EE's ``requirements-explicit.in`` file.
+
+    Returns:
+        The exactly pinned ansible-core version.
+
+    Raises:
+        OSError: If the requirements file cannot be read.
+        ValueError: If the file does not contain exactly one ansible-core pin.
+    """
     prefix = "ansible-core=="
     versions = [
         line.removeprefix(prefix).strip()
@@ -41,14 +62,38 @@ def _pinned_ansible_core(requirements_path: Path) -> str:
 
 
 def _run(command: list[str], *, cwd: Path, env: dict[str, str] | None = None) -> None:
-    """Run one release command and stop immediately if it fails."""
+    """Run one release command and stop immediately if it fails.
+
+    Args:
+        command: Command and arguments to execute.
+        cwd: Directory in which to execute the command.
+        env: Environment variables for the command, or ``None`` to inherit them.
+
+    Raises:
+        OSError: If the command cannot be executed.
+        subprocess.CalledProcessError: If the command exits unsuccessfully.
+    """
     subprocess.run(command, cwd=cwd, env=env, check=True)
 
 
 def publish(
     *, repository_root: Path, ee_name: str, release_tag: str, image_name: str
 ) -> None:
-    """Build, test, tag, and push one Execution Environment release."""
+    """Build, test, tag, and push one Execution Environment release.
+
+    Args:
+        repository_root: Root of the checked-out images repository.
+        ee_name: Directory name of the Execution Environment to publish.
+        release_tag: EE release tag used for the versioned image.
+        image_name: Fully qualified image name without a tag.
+
+    Raises:
+        OSError: If an input file or release command cannot be accessed.
+        ValueError: If the release tag is invalid or disagrees with the pinned
+            ansible-core version.
+        subprocess.CalledProcessError: If building, testing, tagging, or pushing
+            the image fails.
+    """
     ansible_core = _ansible_core_from_tag(release_tag)
     ee_directory = repository_root / "execution-environments" / ee_name
     requirements_path = ee_directory / "requirements-explicit.in"
@@ -87,7 +132,11 @@ def publish(
 
 
 def _parse_args() -> argparse.Namespace:
-    """Parse command-line arguments."""
+    """Parse command-line arguments.
+
+    Returns:
+        The parsed command and its arguments.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -109,7 +158,11 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    """Run the requested release operation."""
+    """Run the requested release operation.
+
+    Returns:
+        Zero on success or one when validation or a release command fails.
+    """
     args = _parse_args()
     try:
         if args.command == "validate-tag":
