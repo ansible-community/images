@@ -10,3 +10,4 @@ __pycache__/
 
 # Hermes agent workspace (plans, scratch)
 /.hermes/
+/.worktrees/
