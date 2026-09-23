@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      eligible: ${{ steps.check-tag.outputs.eligible }}
 
     steps:
       - name: Check out the release
@@ -30,16 +28,13 @@ jobs:
           version: "0.12.9"
 
       - name: Check the release tag
-        id: check-tag
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          eligible="$(uv run --no-project python execution-environments/scripts/release_execution_environment.py check-tag "${RELEASE_TAG}")"
-          echo "eligible=${eligible}" >> "${GITHUB_OUTPUT}"
+          uv run --no-project python execution-environments/scripts/release_execution_environment.py check-tag "${RELEASE_TAG}"
 
   build:
     name: Build and publish ${{ matrix.name }}
-    if: needs.validate-release.outputs.eligible == 'true'
     needs: validate-release
     runs-on: ubuntu-latest
     permissions:

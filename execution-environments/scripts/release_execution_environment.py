@@ -111,17 +111,16 @@ def _parse_args() -> argparse.Namespace:
 def main() -> int:
     """Run the requested release operation."""
     args = _parse_args()
-    if args.command == "check-tag":
-        print(str(RELEASE_TAG.fullmatch(args.release_tag) is not None).lower())
-        return 0
-
     try:
-        publish(
-            repository_root=args.repository_root.resolve(),
-            ee_name=args.ee_name,
-            release_tag=args.release_tag,
-            image_name=args.image_name,
-        )
+        if args.command == "check-tag":
+            _ansible_core_from_tag(args.release_tag)
+        else:
+            publish(
+                repository_root=args.repository_root.resolve(),
+                ee_name=args.ee_name,
+                release_tag=args.release_tag,
+                image_name=args.image_name,
+            )
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1

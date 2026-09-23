@@ -28,23 +28,26 @@ def _run_helper(
 
 
 @pytest.mark.parametrize(
-    ("tag", "expected"),
-    [
-        ("2.21.3-1", "true"),
-        ("10.0.12-27", "true"),
-        ("v2.21.3-1", "false"),
-        ("2.21-1", "false"),
-        ("2.21.3", "false"),
-        ("2.21.3-1-rc1", "false"),
-        ("2.21.3-１", "false"),
-    ],
+    "tag",
+    ["2.21.3-1", "10.0.12-27"],
 )
-def test_check_tag_reports_release_tag_eligibility(tag: str, expected: str) -> None:
-    """A malformed tag must not start an expensive release matrix."""
+def test_check_tag_accepts_a_valid_release_tag(tag: str) -> None:
+    """A valid tag must allow the release workflow to continue."""
     result = _run_helper("check-tag", tag)
 
     assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == expected
+
+
+@pytest.mark.parametrize(
+    "tag",
+    ["v2.21.3-1", "2.21-1", "2.21.3", "2.21.3-1-rc1", "2.21.3-１"],
+)
+def test_check_tag_rejects_an_invalid_release_tag(tag: str) -> None:
+    """A malformed tag must fail the release workflow before its build matrix."""
+    result = _run_helper("check-tag", tag)
+
+    assert result.returncode != 0
+    assert "must match <major>.<minor>.<patch>-<revision>" in result.stderr
 
 
 def _write_fake_command(bin_dir: Path, name: str, log_path: Path) -> None:
