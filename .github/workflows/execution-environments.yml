@@ -4,15 +4,15 @@ on:
   push:
     branches:
       - main
-    paths:
+    paths: &execution_environment_paths
       - .github/workflows/execution-environments.yml
       - execution-environments/**
+      - pyproject.toml
+      - uv.lock
   pull_request:
     branches:
       - main
-    paths:
-      - .github/workflows/execution-environments.yml
-      - execution-environments/**
+    paths: *execution_environment_paths
   # Run once per week (Monday at 08:00 UTC)
   schedule:
     - cron: "0 8 * * 1"
