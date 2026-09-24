@@ -72,7 +72,7 @@ jobs:
           EE_NAME: ${{ matrix.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          uv run --locked --group test \
+          uv run --locked --only-group build \
             ansible-builder build -v 3 \
             --container-runtime podman \
             --tag "${EE_NAME}:${RELEASE_TAG}" "${EE_NAME}:latest"
