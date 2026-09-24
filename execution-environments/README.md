@@ -42,17 +42,17 @@ Each EE installs Python packages from its generated `requirements.txt`. Locking 
 and transitive versions improves supply chain security by making the exact dependency
 set reviewable and traceable in Git.
 
-The shared [generator](./scripts/generate_python_requirements.py) and its dedicated
-`uv` project live in `execution-environments/scripts/`. Run the generator from the
+The shared [generator](./scripts/generate_python_requirements.py) uses the `scripts`
+dependency group in the repository's root `uv` project. Run the generator from the
 repository root after changing a collection, an explicit Python requirement, or a
 constraint:
 
 ```bash
-uv run --project execution-environments/scripts \
+uv run --group scripts \
   execution-environments/scripts/generate_python_requirements.py \
   execution-environments/community-ee-base
 
-uv run --project execution-environments/scripts \
+uv run --group scripts \
   execution-environments/scripts/generate_python_requirements.py \
   execution-environments/community-ee-minimal
 ```
@@ -69,8 +69,8 @@ The files have separate ownership and purposes:
 
 ## Running the test suite
 
-The `execution-environments/tests/` directory is a [uv](https://docs.astral.sh/uv/) project that builds
-each execution environment with
+The repository's root [uv](https://docs.astral.sh/uv/) project provides a `test`
+dependency group that builds each execution environment with
 [`ansible-builder`](https://github.com/ansible/ansible-builder/) and verifies the
 resulting image with [`pytest-container`](https://github.com/dcermak/pytest_container/).
 The tests read the expected Fedora release, explicitly pinned Python package
@@ -78,15 +78,14 @@ versions (`requirements-explicit.in`), system packages (`bindep.txt`) and galaxy
 collections (`requirements.yml`) from each EE's definitions.
 
 ```bash
-cd execution-environments/tests
-CONTAINER_RUNTIME=docker uv run pytest -v
+CONTAINER_RUNTIME=docker uv run --group test pytest -v
 ```
 
 Lint and formatting are enforced with [ruff](https://docs.astral.sh/ruff/):
 
 ```bash
-uv run ruff format --check .
-uv run ruff check .
+uv run --group dev ruff format --check .
+uv run --group dev ruff check .
 ```
 
 A working `podman` or `docker` runtime is required. The test container plugin
@@ -98,7 +97,7 @@ To test one already-built image, select the matching EE and pass its local image
 reference:
 
 ```bash
-CONTAINER_RUNTIME=docker uv run pytest -v \
+CONTAINER_RUNTIME=docker uv run --group test pytest -v \
   --ee-name community-ee-base \
   --image-ref localhost/community-ee-base:pytest
 ```

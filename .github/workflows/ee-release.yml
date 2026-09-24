@@ -34,7 +34,8 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          uv run --no-project execution-environments/scripts/validate_ee_release.py \
+          uv run --locked --group scripts \
+            execution-environments/scripts/validate_ee_release.py \
             "${RELEASE_TAG}" \
             execution-environments/community-ee-base/requirements-explicit.in \
             execution-environments/community-ee-minimal/requirements-explicit.in
@@ -71,7 +72,7 @@ jobs:
           EE_NAME: ${{ matrix.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          uv run --locked --project ../tests \
+          uv run --locked --group test \
             ansible-builder build -v 3 \
             --container-runtime podman \
             --tag "${EE_NAME}:${RELEASE_TAG}" "${EE_NAME}:latest"
@@ -83,7 +84,7 @@ jobs:
           EE_NAME: ${{ matrix.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          uv run --locked --project execution-environments/tests \
+          uv run --locked --group test \
             pytest -v \
             --ee-name "${EE_NAME}" \
             --image-ref "${EE_NAME}:${RELEASE_TAG}"
