@@ -69,3 +69,37 @@ CONTAINER_RUNTIME=docker uv run --group test pytest -v \
   --ee-name community-ee-base \
   --image-ref localhost/community-ee-base:pytest
 ```
+
+## Running the smoke tests
+
+The [smoke test workflow](../../.github/workflows/execution-environments.yml)
+builds and tests both execution environments. It runs for pull requests and pushes
+to `main` that change the workflow, the `execution-environments` directory, or the
+root `pyproject.toml` or `uv.lock` files. It also runs every Monday at 08:00 UTC.
+
+For each EE, the workflow:
+
+1. Builds an image named `test-ee:<ee-name>` with the locked `build` dependency group.
+2. Runs [`community-ee-base/tests.yml`](../../execution-environments/community-ee-base/tests.yml)
+   for Base and [`community-ee-minimal/tests.yml`](../../execution-environments/community-ee-minimal/tests.yml)
+   for Minimal with `ansible-navigator` from the locked `smoke-test` dependency group.
+
+To run the same checks locally, build and test each EE from its directory:
+
+```bash
+cd execution-environments/community-ee-base
+uv run --locked --only-group build \
+  ansible-builder build -v 3 -t test-ee:community-ee-base
+uv run --locked --only-group smoke-test \
+  ansible-navigator -v --mode stdout --pull-policy never \
+    --execution-environment-image test-ee:community-ee-base \
+    run tests.yml
+
+cd ../community-ee-minimal
+uv run --locked --only-group build \
+  ansible-builder build -v 3 -t test-ee:community-ee-minimal
+uv run --locked --only-group smoke-test \
+  ansible-navigator -v --mode stdout --pull-policy never \
+    --execution-environment-image test-ee:community-ee-minimal \
+    run tests.yml
+```
