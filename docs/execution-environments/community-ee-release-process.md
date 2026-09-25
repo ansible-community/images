@@ -78,7 +78,7 @@ The workflow then:
 1. Checks out the release tag.
 2. Validates the tag against the `ansible-core` pins in both execution environments.
 3. Builds `community-ee-base` and `community-ee-minimal` with `ansible-builder` and Podman.
-4. Tests each image with the repository's pytest suite.
+4. Tests each image with the repository's [pytest suite](../../execution-environments/tests).
 5. Publishes each image to `ghcr.io/ansible-community` with the release tag and `latest` tags.
 
 ## Verify the release
