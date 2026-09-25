@@ -1,4 +1,4 @@
-# Maintaining Execution Environments
+# Maintaining Ansible Community Execution Environment Images
 
 This document covers the repository maintenance and test workflow for the execution
 environments. For instructions on building and using the images, see the
