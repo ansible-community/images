@@ -42,7 +42,7 @@ Before starting a release:
 - Confirm the target `ansible-core` version and execution environment revision as described in [Release tag](#release-tag).
 - Confirm that both explicit requirements files use the target `ansible-core` pin as described in [Release tag](#release-tag).
 - Prepare any required changes to the execution environment inputs in [Prepare the execution environments](#prepare-the-execution-environments), and merge them.
-- Draft the release announcement using [`community-ee-announcement.md`](./community-ee-announcement.md).
+- Draft the release announcement using [`announcement.md`](./announcement.md).
 
 ## Prepare the execution environments
 
@@ -95,7 +95,7 @@ The workflow will not build or publish images until the tag matches both pins.
 
 ## Communicate the release
 
-Update the [community execution environment announcement](./community-ee-announcement.md)
+Update the [community execution environment announcement](./announcement.md)
 with the release tag, image digests, and package links.
 
 Publish the announcement in the Forum. Share the Forum link in the
