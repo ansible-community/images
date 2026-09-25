@@ -2,10 +2,10 @@
 
 ## Available images
 
-| Image | Description |
-| --- | --- |
-| [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) | ansible-core with no collections |
-| [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base) | ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows` |
+| Image                                                                                                             | Description                                                                        |
+| ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) | ansible-core with no collections                                                   |
+| [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base)       | ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows` |
 
 ## About Execution Environments
 
