@@ -1,5 +1,12 @@
 # Ansible Community Execution Environment Images
 
+## Available images
+
+| Image | Description |
+| --- | --- |
+| [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) | ansible-core with no collections |
+| [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base) | ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows` |
+
 ## About Execution Environments
 
 Execution environments (EE) are container images from which your Ansible commands and playbooks run from.
@@ -37,8 +44,3 @@ ansible-navigator -v --pull-policy never \
 
 Repository maintenance and test instructions are documented in
 [`docs/execution-environments/README.md`](../docs/execution-environments/README.md).
-
-## Available images
-
-- [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal): ansible-core with no collections
-- [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base): ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows`
