@@ -1,29 +1,28 @@
-name: execution environment images
+name: Build and Smoke Test Execution Environments
 
 on:
   push:
     branches:
       - main
-    paths:
+    paths: &execution_environment_paths
       - .github/workflows/execution-environments.yml
       - execution-environments/**
+      - pyproject.toml
+      - uv.lock
   pull_request:
     branches:
       - main
-    paths:
-      - .github/workflows/execution-environments.yml
-      - execution-environments/**
-  workflow_dispatch:
+    paths: *execution_environment_paths
   # Run once per week (Monday at 08:00 UTC)
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: 'Build EE image: ${{ matrix.name }}'
+    name: Build ${{ matrix.name }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -34,32 +33,30 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.14
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+      - name: Set up uv and Python 3.14
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.14"
+          version: "0.12.9"
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get install podman
-          pip install ansible-core ansible-builder ansible-navigator
-
-      - name: Build ${{ matrix.name }} image
+      - name: Build ${{ matrix.name }}
         env:
           NAME: ${{ matrix.name }}
         run: |
-          ansible-builder build -v 3 -t "test-ee:${NAME}"
+          uv run --locked --only-group build \
+            ansible-builder build -v 3 -t "test-ee:${NAME}"
         working-directory: ./execution-environments/${{ matrix.name }}
 
-      - name: Run basic tests with ${{ matrix.name }} image
+      - name: Run smoke test for ${{ matrix.name }}
         env:
           NAME: ${{ matrix.name }}
         run: |
-          ansible-navigator -v --mode stdout --pull-policy never \
-            --execution-environment-image "test-ee:${NAME}" \
-            run tests.yml
+          uv run --locked --only-group smoke-test \
+            ansible-navigator -v --mode stdout --pull-policy never \
+              --execution-environment-image "test-ee:${NAME}" \
+              run tests.yml
         working-directory: ./execution-environments/${{ matrix.name }}

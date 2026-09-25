@@ -1,9 +1,23 @@
 [project]
-name = "execution-environments-tests"
+name = "ansible-community-images"
 version = "0.0.0"
-description = "pytest suite for the Ansible community Execution Environments"
+description = "Ansible Community Images"
 requires-python = ">=3.12"
-dependencies = [
+dependencies = []
+
+[dependency-groups]
+build = ["ansible-builder"]
+dev = ["ruff"]
+scripts = [
+    "ansible-builder",
+    "ansible-core",
+    "PyYAML",
+]
+smoke-test = [
+    "ansible-core",
+    "ansible-navigator",
+]
+test = [
     "ansible-builder",
     "pytest",
     "pytest-container",
@@ -11,11 +25,8 @@ dependencies = [
     "PyYAML",
 ]
 
-[dependency-groups]
-dev = ["ruff"]
-
 [tool.uv]
-# The suite is not an installable package; uv only manages the environment.
+# The repository is not an installable package; uv only manages its environments.
 package = false
 
 [tool.ruff]
@@ -35,5 +46,5 @@ known-first-party = ["conftest"]
 quote-style = "double"
 
 [tool.pytest.ini_options]
-testpaths = ["."]
+testpaths = ["execution-environments/tests"]
 addopts = ["-ra", "--strict-config", "--strict-markers"]

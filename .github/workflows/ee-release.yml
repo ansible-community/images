@@ -1,0 +1,106 @@
+name: Release Execution Environments
+
+on:
+  release:
+    types:
+      - published
+
+permissions: {}
+
+jobs:
+  validate-release:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      commit: ${{ steps.checkout.outputs.commit }}
+
+    steps:
+      - name: Check out the release
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up uv and Python 3.14
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.14"
+          version: "0.12.9"
+
+      - name: Validate the release
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked --group scripts \
+            execution-environments/scripts/validate_ee_release.py \
+            "${RELEASE_TAG}" \
+            execution-environments/community-ee-base/requirements-explicit.in \
+            execution-environments/community-ee-minimal/requirements-explicit.in
+
+  build:
+    name: Build and publish ${{ matrix.name }}
+    needs: validate-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+          - community-ee-base
+          - community-ee-minimal
+
+    steps:
+      - name: Check out the release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.validate-release.outputs.commit }}
+
+      - name: Set up uv and Python 3.14
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.9"
+          python-version: "3.14"
+
+      - name: Build ${{ matrix.name }}
+        env:
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked --only-group build \
+            ansible-builder build -v 3 \
+            --container-runtime podman \
+            --tag "${EE_NAME}:${RELEASE_TAG}" "${EE_NAME}:latest"
+        working-directory: execution-environments/${{ matrix.name }}
+
+      - name: Test ${{ matrix.name }}
+        env:
+          CONTAINER_RUNTIME: podman
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked --group test \
+            pytest -v \
+            --ee-name "${EE_NAME}" \
+            --image-ref "${EE_NAME}:${RELEASE_TAG}"
+
+      - name: Log in to GHCR
+        uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push ${{ matrix.name }}
+        uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 # v3.0.0
+        with:
+          image: ${{ matrix.name }}
+          tags: |
+            ${{ github.event.release.tag_name }}
+            latest
+          registry: ghcr.io/${{ github.repository_owner }}
