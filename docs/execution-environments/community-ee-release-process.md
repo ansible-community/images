@@ -1,8 +1,8 @@
-# Releasing community execution environments
+# Releasing Ansible Community Execution Environment Images
 
 ## Release cadence
 
-The Base and Minimal execution environments follow the Ansible community package
+The [`community-ee-base`](../../execution-environments/community-ee-base) and [`community-ee-minimal`](../../execution-environments/community-ee-minimal) execution environments follow the Ansible community package
 release cadence. Prepare the image changes first. Publish the execution environment
 release only after those changes have merged to the repository.
 
@@ -34,7 +34,7 @@ Release managers need:
 
 - Permission to create releases in the [images repository](https://github.com/ansible-community/images).
 - Membership in the [Release Management working group](https://forum.ansible.com/g/release-managers).
-- Membership in the [Execution Environment group](https://forum.ansible.com/g/ExecutionEnvs).
+- Membership in the [Ansible Forum Execution Environments Crew](https://forum.ansible.com/g/ExecutionEnvs).
 - Access to the [Ansible execution environment documentation](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
 
 Before starting a release:
