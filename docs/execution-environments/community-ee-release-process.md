@@ -1,76 +1,102 @@
-# Releasing community-ee-* execution environments
+# Releasing community execution environments
 
-## Release Cadence
+## Release cadence
 
-Ansible community Execution Environments (both Base and Minimal) are released the same week as the Ansible Community Package is released. For example: When Ansible 11.5.0 (with `ansible-core` 2.18.5) is released, both Ansible Execution Environment Minimal and Base 2.18.5-1 will also be released on that same week. Read about this more at https://docs.ansible.com/projects/ansible/latest/getting_started_ee/index.html.
+The Base and Minimal execution environments follow the Ansible community package
+release cadence. Prepare the image changes first. Publish the execution environment
+release only after those changes have merged to the repository.
 
-## EE tag versioning
+## Release tag
 
-The EE versioning convention is core tag plus patch number, for example:
+Use this format for the GitHub Release tag:
 
-    - EE with core `2.16.2` comes out -> `community-ee:2.16.2-1`
-    - EE with core `2.16.3` comes out -> `community-ee:2.16.3-1`
+```text
+<ansible-core-version>-<execution-environment-revision>
+```
 
-## Credentials (for adding a new person as the Release Manager)
+For example, `2.21.3-1` uses `2.21.3` as the `ansible-core` version and `1` as
+the execution environment revision.
 
-- Access to the https://github.com/ansible-community/images repository.
-- Join the [Release Management working group Matrix room](https://app.element.io/?updated=1.11.38#/room/#release-management:ansible.com) and [Execution Envs group in Forum Group](https://forum.ansible.com/g/ExecutionEnvs).
-- Access to the Ansible Release Management Group in Github. (Ask in the aforementioned matrix room.)
-- Access to the [eercheck](https://https://github.com/anweshadas/eercheck) repository.
+The version before the hyphen must match the exact `ansible-core==...` pin in both
+of these files:
 
-## Prerequisites
+- [`community-ee-base/requirements-explicit.in`](../../execution-environments/community-ee-base/requirements-explicit.in)
+- [`community-ee-minimal/requirements-explicit.in`](../../execution-environments/community-ee-minimal/requirements-explicit.in)
 
-- Join the [Release Management working group](https://forum.ansible.com/g/release-managers) and [Execution Environment group](https://forum.ansible.com/g/ExecutionEnvs).
-- Understand [Ansible execution environments](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
-- Find out ansible-core version [here](https://pypi.org/project/ansible-core/) and ansible [here](https://pypi.org/project/ansible/), i.e `ansible.major.minor` version.
-- Verify ansible collection versions for `ansible.posix`, `ansible.utils` and  `ansible.windows` for the `ansible.major.minor` version.
-+   For eg: `ansible-11.5.0.yaml` file
-+   `ansible.posix 1.6.2`
-+   `ansible.utils 5.1.2`
-+   `ansible.windows 2.8.0`
-+ [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data) repo.(Look into the `deps` file.)
-- Read about the [eerelease.yml](/.github/workflows/eerelease.yml) GitHub workflow.
-- Show intention and book the date for the releasing of the EE.
-- Prepare the release announcement drafts for the emails and matrix communication.
-- Shadow the release manager before doing the actual release.
+The `execution-environment.yml` files name the `ansible-core` package but do not
+contain its version. The explicit requirements files provide the version that
+[`validate_ee_release.py`](../../execution-environments/scripts/validate_ee_release.py)
+checks against the release tag.
 
-## Build Steps
+## Access and prerequisites
 
-Open a new terminal window and then complete the following steps:
+Release managers need:
 
-- Check the ansible-core version [here](https://pypi.org/project/ansible-core/)
-- Verify ansible collection versions for `ansible.posix`, `ansible.utils` and  `ansible.windows` for `deps` file of the ansible version for the related release  [ansible-build-data repo](https://github.com/ansible-community/ansible-build-data).
-- Go to the images/execution-environments directory.
-- Create `git branch` (naming convention `ansible-core-ee_version` (name it in the related version eg: 2.17.1-1)).
-- Update the ansible-core and collection versions in the `/images/execution-environments/community-ee-base/execution-environment.yml` file.
-- Update the ansible-core version in the `/images/execution-environments/community-ee-minimal/execution-environment.yml` file.
-- Push the changes with the following commit messages: `git commit -m "Updates ansible-core & collection versions for Base and Minimal"`
-- Add 'release management team'  as reviewers of your pull request.
-- Wait for the PR to get merged.
+- Permission to create releases in the [images repository](https://github.com/ansible-community/images).
+- Membership in the [Release Management working group](https://forum.ansible.com/g/release-managers).
+- Membership in the [Execution Environment group](https://forum.ansible.com/g/ExecutionEnvs).
+- Access to the [Ansible execution environment documentation](https://forum.ansible.com/t/execution-environments-getting-started-guide-community-ee-images-availability/1341).
 
-## Updating the EER check repository
+Before starting a release:
 
-After you complete the build steps, do the following to validate the EE images:
+- Confirm the target `ansible-core` version and execution environment revision.
+- Confirm that both explicit requirements files use the target `ansible-core` pin.
+- Prepare any required changes to the execution environment inputs and merge them.
+- Draft the release announcement using [`community-ee-announcement.md`](./community-ee-announcement.md).
 
-- Fork [eercheck repo](https://github.com/ansible-community/eercheck) for testing the versions of the ansible-core and collections.
-- Create the branch with `git branch <branchname>` (naming convention `ansible-core-ee_version` (name it in the related version eg: 2.17.1-1)).
-- Open the eerchek/vars.json file and edit the `ansible-core`, `fedora-image` and `ansible-collections` versions there (as mentioned above).
-- Assign @anweshadas to the PR.
-- Wait for the PR to get merged.
+## Prepare the execution environments
 
-## Run the Workflow
+Update the files that define the images. Use the [execution environment maintenance
+guide](./README.md) for dependency locking, builds, and tests.
 
-- Once both the abovementioned PRs are merged go to your browser and open  [ansible-community/images](https://github.com/ansible-community/images) repo.
-- Click on the `Actions` to open the `Workflows`.
-- Click on  the `Release Ansible Excuetion Environment`  and click on the `Run Workflow` Dropdown Button.
-- Click on the Drop down Button and choose the type of the Execution Environment, (whether it is `community-ee-base` and `community-ee-minimal`)
-- Write down the version of execution environment (to be appended to the ansible-core version).
-- Click on the button if this is the `latest` release of  the particular execution environment.
-- Click on the `Run workflow` button to run the workflow for `community-ee-base` or `community-ee-minimal` as the case may be.
-- After the successful run of the workflow, check if the image is published in [here](https://github.com/orgs/ansible-community/packages/container) and get the SHA256 sum of the published image (to be used in the announcement).
+The main inputs are:
+
+- `execution-environment.yml` controls the base image and `ansible-builder` build configuration.
+- `requirements.yml` declares Galaxy collections. The Base image has this file; the Minimal image does not.
+- `requirements-explicit.in` pins packages that the image must install directly, including `ansible-core`.
+- `requirements-constraints.in` adds version constraints without adding packages.
+
+After changing these inputs, regenerate the derived Python requirement files and run
+the build and test commands in the maintenance guide. Open a pull request, add the
+Release Management team as reviewers, and wait for the pull request to merge before
+creating the GitHub Release.
+
+## Publish the release
+
+Create and publish a GitHub Release for the merged commit in the
+[images repository](https://github.com/ansible-community/images). Use the release tag
+format described above. Publishing the release triggers
+[`ee-release.yml`](../../.github/workflows/ee-release.yml).
+
+The workflow then:
+
+1. Checks out the release tag.
+2. Validates the tag against the `ansible-core` pins in both execution environments.
+3. Builds `community-ee-base` and `community-ee-minimal` with `ansible-builder` and Podman.
+4. Tests each image with the repository's pytest suite.
+5. Publishes each image to `ghcr.io/ansible-community` with the release tag and `latest` tags.
+
+Do not start this workflow from the Actions page. Do not choose an EE, revision, or
+`latest` option in a workflow form. The published GitHub Release supplies the tag,
+and the workflow processes both images.
+
+## Verify the release
+
+After publishing the release:
+
+- Confirm that the release workflow completes successfully.
+- Check the [community-ee-base package](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base) and [community-ee-minimal package](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) in GHCR.
+- Confirm that both the release tag and `latest` point to the published images.
+- Record each image digest for the release announcement.
+
+If tag validation fails, check the tag and both `requirements-explicit.in` files.
+The workflow will not build or publish images until the tag matches both pins.
 
 ## Communicate the release
 
-- For announcement in Forum follow the "./annoucement.md" template.
-- Make the announcement in the #release-management and #community-working-group Matrix room, Forum and the Bullhorn.
-- For the Release Management room and Community working group room in matrix and the Bullhorn just share the link to the forum post.
+Update the [community execution environment announcement](./community-ee-announcement.md)
+with the release tag, image digests, and package links.
+
+Publish the announcement in the Forum. Share the Forum link in the
+`#release-management` and `#community-working-group` Matrix rooms and in the
+Bullhorn.
