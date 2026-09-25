@@ -9,15 +9,12 @@ They can be used by [AWX](https://github.com/ansible/awx), [Automation Controlle
 
 They can be built using [ansible-builder](https://github.com/ansible/ansible-builder/) with either [docker or podman](https://docs.ansible.com/projects/builder/en/latest/usage/#container-runtime) using [execution environment definitions](https://docs.ansible.com/projects/builder/en/latest/definition/) provided by this repository.
 
-## Important ⚠️
+> [!WARNING]
+> Images provided by this repository are tailored for development, testing and CI purposes.
+> **They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
+> Do not use these images for production!
 
-Images provided by this repository are tailored for development, testing and CI purposes.
-**They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
-Do not use these images for production!
-
-You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own images tailored to your needs.
-
-Thank you!
+You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own Execution Environment tailored to your needs.
 
 ## Building and using images from this repository
 
