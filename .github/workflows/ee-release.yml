@@ -1,4 +1,4 @@
-name: Release Ansible Community Execution Environments
+name: Release Execution Environments
 
 on:
   release:

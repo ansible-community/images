@@ -1,4 +1,4 @@
-name: Build and Smoke Test Ansible Community Execution Environments
+name: Build and Smoke Test Execution Environments
 
 on:
   push:
