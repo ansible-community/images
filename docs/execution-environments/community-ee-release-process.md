@@ -39,9 +39,9 @@ Release managers need:
 
 Before starting a release:
 
-- Confirm the target `ansible-core` version and execution environment revision.
-- Confirm that both explicit requirements files use the target `ansible-core` pin.
-- Prepare any required changes to the execution environment inputs and merge them.
+- Confirm the target `ansible-core` version and execution environment revision as described in [Release tag](#release-tag).
+- Confirm that both explicit requirements files use the target `ansible-core` pin as described in [Release tag](#release-tag).
+- Prepare any required changes to the execution environment inputs in [Prepare the execution environments](#prepare-the-execution-environments), and merge them.
 - Draft the release announcement using [`community-ee-announcement.md`](./community-ee-announcement.md).
 
 ## Prepare the execution environments
@@ -49,17 +49,22 @@ Before starting a release:
 Update the files that define the images. Use the [execution environment maintenance
 guide](./README.md) for dependency locking, builds, and tests.
 
+For a release that only updates `ansible-core`, update the two
+`requirements-explicit.in` files. Change the other image inputs only when the image
+contents need to change.
+
 The main inputs are:
 
 - `execution-environment.yml` controls the base image and `ansible-builder` build configuration.
-- `requirements.yml` declares Galaxy collections. The Base image has this file; the Minimal image does not.
+- `requirements.yml` declares Galaxy collections. The `community-ee-base` image has this file; `community-ee-minimal` image does not.
 - `requirements-explicit.in` pins packages that the image must install directly, including `ansible-core`.
 - `requirements-constraints.in` adds version constraints without adding packages.
 
-After changing these inputs, regenerate the derived Python requirement files and run
-the build and test commands in the maintenance guide. Open a pull request, add the
-Release Management team as reviewers, and wait for the pull request to merge before
-creating the GitHub Release.
+After changing these inputs, regenerate the derived Python requirement files using
+[Generating locked Python dependencies](./README.md#generating-locked-python-dependencies),
+then run the build and test commands in the maintenance guide. Open a pull request,
+add the Release Management team as reviewers, and wait for the pull request to merge
+before creating the GitHub Release.
 
 ## Publish the release
 
@@ -75,10 +80,6 @@ The workflow then:
 3. Builds `community-ee-base` and `community-ee-minimal` with `ansible-builder` and Podman.
 4. Tests each image with the repository's pytest suite.
 5. Publishes each image to `ghcr.io/ansible-community` with the release tag and `latest` tags.
-
-Do not start this workflow from the Actions page. Do not choose an EE, revision, or
-`latest` option in a workflow form. The published GitHub Release supplies the tag,
-and the workflow processes both images.
 
 ## Verify the release
 
