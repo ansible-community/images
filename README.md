@@ -1,6 +1,6 @@
-# Ansible Community Images
+# Ansible Community Exectuion Environment Images
 
-Container image definitions meant for [ansible-test](https://www.ansible.com/blog/introduction-to-ansible-test) and [Execution Environments](https://www.ansible.com/blog/whats-new-in-ansible-automation-platform-2-automation-execution-environments).
+Container image definitions meant for [Execution Environments](https://www.ansible.com/blog/whats-new-in-ansible-automation-platform-2-automation-execution-environments).
 
 ⚠️ **Please note that this repository is very much a proof of concept and a work in progress at this time.** ⚠️
 

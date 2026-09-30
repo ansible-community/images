@@ -1,4 +1,0 @@
-coverage==7.13.5
-resolvelib==1.2.0
-# include ara for optional test and CI reporting
-ara
