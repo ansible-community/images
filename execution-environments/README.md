@@ -1,5 +1,12 @@
 # Ansible Community Execution Environment Images
 
+## Available images
+
+| Image                                                                                                             | Description                                                                        |
+| ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) | ansible-core with no collections                                                   |
+| [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base)       | ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows` |
+
 ## About Execution Environments
 
 Execution environments (EE) are container images from which your Ansible commands and playbooks run from.
@@ -9,15 +16,12 @@ They can be used by [AWX](https://github.com/ansible/awx), [Automation Controlle
 
 They can be built using [ansible-builder](https://github.com/ansible/ansible-builder/) with either [docker or podman](https://docs.ansible.com/projects/builder/en/latest/usage/#container-runtime) using [execution environment definitions](https://docs.ansible.com/projects/builder/en/latest/definition/) provided by this repository.
 
-## Important ⚠️
+> [!WARNING]
+> Images provided by this repository are tailored for development, testing and CI purposes.
+> **They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
+> Do not use these images for production!
 
-Images provided by this repository are tailored for development, testing and CI purposes.
-**They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
-Do not use these images for production!
-
-You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own images tailored to your needs.
-
-Thank you!
+You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own Execution Environment tailored to your needs.
 
 ## Building and using images from this repository
 
@@ -36,73 +40,7 @@ ansible-navigator -v --pull-policy never \
     run tests.yml
 ```
 
-## Generating locked Python dependencies
+## Maintainers
 
-Each EE installs Python packages from its generated `requirements.txt`. Locking direct
-and transitive versions improves supply chain security by making the exact dependency
-set reviewable and traceable in Git.
-
-The shared [generator](./scripts/generate_python_requirements.py) uses the `scripts`
-dependency group in the repository's root `uv` project. Run the generator from the
-repository root after changing a collection, an explicit Python requirement, or a
-constraint:
-
-```bash
-uv run --group scripts \
-  execution-environments/scripts/generate_python_requirements.py \
-  execution-environments/community-ee-base
-
-uv run --group scripts \
-  execution-environments/scripts/generate_python_requirements.py \
-  execution-environments/community-ee-minimal
-```
-
-The files have separate ownership and purposes:
-
-| File                          | Ownership           | Purpose                                                                                                                                            |
-| ----------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `requirements.yml`            | Maintained manually | Declares Galaxy collections. The generator installs them under `/tmp` and uses `ansible-builder introspect` to discover their Python dependencies. |
-| `requirements.in`             | Generated           | Contains Python requirements discovered from collection metadata. Do not edit it.                                                                  |
-| `requirements-explicit.in`    | Maintained manually | Adds packages that the EE must install independently of collection metadata.                                                                       |
-| `requirements-constraints.in` | Maintained manually | Restricts package versions without adding packages.                                                                                                |
-| `requirements.txt`            | Generated           | Contains the dependency lock resolved by `uv pip compile`. Do not edit it.                                                                         |
-
-## Running the test suite
-
-The repository's root [uv](https://docs.astral.sh/uv/) project provides a `test`
-dependency group that builds each execution environment with
-[`ansible-builder`](https://github.com/ansible/ansible-builder/) and verifies the
-resulting image with [`pytest-container`](https://github.com/dcermak/pytest_container/).
-The tests read the expected Fedora release, explicitly pinned Python package
-versions (`requirements-explicit.in`), system packages (`bindep.txt`) and galaxy
-collections (`requirements.yml`) from each EE's definitions.
-
-```bash
-CONTAINER_RUNTIME=docker uv run --group test pytest -v
-```
-
-Lint and formatting are enforced with [ruff](https://docs.astral.sh/ruff/):
-
-```bash
-uv run --group dev ruff format --check .
-uv run --group dev ruff check .
-```
-
-A working `podman` or `docker` runtime is required. The test container plugin
-defaults to Podman when it is available. To explicitly use Docker instead, set
-`CONTAINER_RUNTIME=docker` when running the tests. The first run pulls the Fedora
-base image and installs collections, so it is slow.
-
-To test one already-built image, select the matching EE and pass its local image
-reference:
-
-```bash
-CONTAINER_RUNTIME=docker uv run --group test pytest -v \
-  --ee-name community-ee-base \
-  --image-ref localhost/community-ee-base:pytest
-```
-
-## Available images
-
-- [community-ee-minimal](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal): ansible-core with no collections
-- [community-ee-base](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base): ansible-core together with `ansible.posix`, `ansible.utils`, and `ansible.windows`
+Repository maintenance and test instructions are documented in
+[`docs/execution-environments/README.md`](../docs/execution-environments/README.md).

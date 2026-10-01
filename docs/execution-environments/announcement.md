@@ -106,4 +106,3 @@ On behalf of the Ansible community, thank you and happy automating!
 We’re happy to announce the release of the Ansible Community Execution Environment Minimal image <version> (Latest) and Ansible Community Execution Environment Base image <version>.
 
 Read the whole announcement [in the ansible forum](link to forum announcement).
-
