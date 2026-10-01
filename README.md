@@ -3,11 +3,11 @@
 Container image definitions meant for [Execution Environments](https://www.ansible.com/blog/whats-new-in-ansible-automation-platform-2-automation-execution-environments).
 
 > [!WARNING]
-> Images provided by this repository are tailored for development, testing and CI purposes.
+> Execution environment images provided by this repository are tailored for development, testing and CI purposes.
 > **They are maintained by the community and are not supported by Red Hat**: they can and will break or run out of maintenance.
 > Do not use these images for production!
 
-You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own `ansible-test` image or Execution Environment tailored to your needs.
+You are encouraged to use (or fork) the examples provided here in order to learn how to build and customize your own Execution Environment tailored to your needs.
 
 ## Contributing
 
