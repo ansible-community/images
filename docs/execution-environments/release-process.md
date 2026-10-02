@@ -42,7 +42,6 @@ Before starting a release:
 - Confirm the target `ansible-core` version and execution environment revision as described in [Release tag](#release-tag).
 - Confirm that both explicit requirements files use the target `ansible-core` pin as described in [Release tag](#release-tag).
 - Prepare any required changes to the execution environment inputs in [Prepare the execution environments](#prepare-the-execution-environments), and merge them.
-- Draft the release announcement using [`announcement.md`](./announcement.md).
 
 ## Prepare the execution environments
 
@@ -80,6 +79,8 @@ The workflow then:
 3. Builds `community-ee-base` and `community-ee-minimal` with `ansible-builder` and Podman.
 4. Tests each image with the repository's [pytest suite](../../execution-environments/tests).
 5. Publishes each image to `ghcr.io/ansible-community` with the release tag and `latest` tags.
+6. Generates copy-ready Forum and Matrix announcement Markdown from the tagged
+   source and published image digests.
 
 ## Verify the release
 
@@ -88,16 +89,14 @@ After publishing the release:
 - Confirm that the release workflow completes successfully.
 - Check the [community-ee-base package](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base) and [community-ee-minimal package](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) in GHCR.
 - Confirm that both the release tag and `latest` point to the published images.
-- Record each image digest for the release announcement.
+- Verify the image digests in the generated workflow summary against the packages
+  in GHCR.
 
 If tag validation fails, check the tag and both `requirements-explicit.in` files.
 The workflow will not build or publish images until the tag matches both pins.
 
 ## Communicate the release
 
-Update the [community execution environment announcement](./announcement.md)
-with the release tag, image digests, and package links.
-
-Publish the announcement in the Forum. Share the Forum link in the
-`#release-management` and `#community-working-group` Matrix rooms and in the
-Bullhorn.
+Follow the [release announcement instructions](./announcement.md). Publish the
+generated Forum announcement, add its URL to the generated Matrix message, and
+share the Matrix message in the listed rooms.
