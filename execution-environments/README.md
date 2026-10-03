@@ -40,6 +40,19 @@ ansible-navigator -v --pull-policy never \
     run tests.yml
 ```
 
+## Verifying released image SBOMs
+
+Released images include SPDX JSON SBOM attestations. Use `gh attestation verify`
+with the immutable digest of the image you want to verify. For example:
+
+```bash
+IMAGE_DIGEST="$(skopeo inspect --format '{{.Digest}}' \
+    docker://ghcr.io/ansible-community/community-ee-base:latest)"
+gh attestation verify \
+    "oci://ghcr.io/ansible-community/community-ee-base@${IMAGE_DIGEST}" \
+    --repo ansible-community/images
+```
+
 ## Maintainers
 
 Repository maintenance and test instructions are documented in
