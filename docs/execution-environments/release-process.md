@@ -79,7 +79,16 @@ The workflow then:
 2. Validates the tag against the `ansible-core` pins in both execution environments.
 3. Builds `community-ee-base` and `community-ee-minimal` with `ansible-builder` and Podman.
 4. Tests each image with the repository's [pytest suite](../../execution-environments/tests).
-5. Publishes each image to `ghcr.io/ansible-community` with the release tag and `latest` tags.
+5. Generates an SPDX JSON SBOM for each locally built image with
+   [`anchore/sbom-action`](https://github.com/anchore/sbom-action), writing it to the
+   workflow workspace as `<image-name>.spdx.json`.
+6. Publishes each image to `ghcr.io/ansible-community` with the release tag and `latest` tags.
+7. Uses the immutable digest output from the push action for each published image.
+8. Creates an SBOM attestation for each image with `actions/attest`, using the
+   published image name and digest as the subject and the generated SPDX JSON as
+   the SBOM predicate. The attestation is persisted in GitHub and pushed to the
+   container registry.
+9. Verifies each image attestation with `gh attestation verify`.
 
 ## Verify the release
 
@@ -88,6 +97,9 @@ After publishing the release:
 - Confirm that the release workflow completes successfully.
 - Check the [community-ee-base package](https://github.com/orgs/ansible-community/packages/container/package/community-ee-base) and [community-ee-minimal package](https://github.com/orgs/ansible-community/packages/container/package/community-ee-minimal) in GHCR.
 - Confirm that both the release tag and `latest` point to the published images.
+- Confirm that each image has a verifiable SPDX JSON SBOM attestation. See
+  [Verifying released image SBOMs](../../execution-environments/README.md#verifying-released-image-sboms)
+  for the `gh attestation verify` command.
 - Record each image digest for the release announcement.
 
 If tag validation fails, check the tag and both `requirements-explicit.in` files.
