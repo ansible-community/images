@@ -47,6 +47,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +92,19 @@ jobs:
             --ee-name "${EE_NAME}" \
             --image-ref "${EE_NAME}:${RELEASE_TAG}"
 
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/v1.54.0/install.sh \
+            | sh -s -- -b /usr/local/bin v1.54.0
+
+      - name: Generate SPDX SBOM for ${{ matrix.name }}
+        env:
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          syft "${EE_NAME}:${RELEASE_TAG}" \
+            -o "spdx-json=${EE_NAME}.spdx.json"
+
       - name: Log in to GHCR
         uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2.0
         with:
@@ -104,3 +120,33 @@ jobs:
             ${{ github.event.release.tag_name }}
             latest
           registry: ghcr.io/${{ github.repository_owner }}
+
+      - name: Get published image digest
+        id: digest
+        env:
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IMAGE_DIGEST="$(skopeo inspect \
+            --creds "${GITHUB_ACTOR}:${GH_TOKEN}" \
+            --format '{{.Digest}}' \
+            "docker://ghcr.io/ansible-community/${EE_NAME}:${RELEASE_TAG}")"
+          echo "image_digest=${IMAGE_DIGEST}" >> "${GITHUB_OUTPUT}"
+
+      - name: Attest SBOM for ${{ matrix.name }}
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ghcr.io/ansible-community/${{ matrix.name }}
+          subject-digest: ${{ steps.digest.outputs.image_digest }}
+          sbom-path: ${{ matrix.name }}.spdx.json
+          push-to-registry: true
+
+      - name: Verify image attestation
+        env:
+          EE_NAME: ${{ matrix.name }}
+          IMAGE_DIGEST: ${{ steps.digest.outputs.image_digest }}
+        run: |
+          gh attestation verify \
+            "oci://ghcr.io/ansible-community/${EE_NAME}@${IMAGE_DIGEST}" \
+            --repo ansible-community/images
