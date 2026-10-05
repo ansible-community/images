@@ -142,3 +142,42 @@ jobs:
           gh attestation verify \
             "oci://ghcr.io/ansible-community/${EE_NAME}@${IMAGE_DIGEST}" \
             --repo ansible-community/images
+
+  announcement:
+    name: Generate release announcements
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out the release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up uv and Python 3.14
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.14"
+          version: "0.12.9"
+
+      - name: Add announcements to workflow summary
+        env:
+          REGISTRY_NAMESPACE: ${{ github.repository_owner }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          minimal_digest=$(skopeo inspect --format '{{.Digest}}' \
+            "docker://ghcr.io/${REGISTRY_NAMESPACE}/community-ee-minimal:${RELEASE_TAG}")
+          base_digest=$(skopeo inspect --format '{{.Digest}}' \
+            "docker://ghcr.io/${REGISTRY_NAMESPACE}/community-ee-base:${RELEASE_TAG}")
+
+          uv run --locked --group scripts \
+            execution-environments/scripts/generate_release_announcements.py \
+            "${RELEASE_TAG}" \
+            "${REGISTRY_NAMESPACE}" \
+            execution-environments \
+            --digest "community-ee-minimal=${minimal_digest}" \
+            --digest "community-ee-base=${base_digest}" \
+            >> "${GITHUB_STEP_SUMMARY}"
