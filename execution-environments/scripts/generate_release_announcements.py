@@ -234,7 +234,7 @@ def _forum_announcement(
             "",
             "On behalf of the Ansible community, thank you and happy automating!",
             "",
-            "Cheers,  ",
+            "Cheers,",
             "Ansible Community Team",
             "",
         ]
