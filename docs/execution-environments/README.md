@@ -30,7 +30,7 @@ The files have separate ownership and purposes:
 | File                          | Ownership           | Purpose                                                                                                                                            |
 | ----------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `requirements.yml`            | Maintained manually | Declares Galaxy collections. The generator installs them under `/tmp` and uses `ansible-builder introspect` to discover their Python dependencies. |
-| `requirements.in`             | Generated           | Contains Python requirements discovered from collection metadata. Do not edit it.                                                                  |
+| `requirements-implicit.in`    | Generated           | Contains Python requirements discovered from collection metadata. Do not edit it.                                                                  |
 | `requirements-explicit.in`    | Maintained manually | Adds packages that the EE must install independently of collection metadata.                                                                       |
 | `requirements-constraints.in` | Maintained manually | Restricts package versions without adding packages.                                                                                                |
 | `requirements.txt`            | Generated           | Contains the dependency lock resolved by `uv pip compile`. Do not edit it.                                                                         |

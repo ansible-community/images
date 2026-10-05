@@ -29,7 +29,7 @@ def render_requirements(requirements: list[str]) -> str:
         requirements: Requirement expressions emitted by Ansible Builder.
 
     Returns:
-        Generated ``requirements.in`` content ending in a newline.
+        Generated ``requirements-implicit.in`` content ending in a newline.
     """
     ordered = sorted(requirements, key=str.casefold)
     if not ordered:
@@ -155,10 +155,11 @@ def compile_requirements(ee_directory: Path) -> None:
             "uv",
             "pip",
             "compile",
-            "requirements.in",
+            "requirements-implicit.in",
             "requirements-explicit.in",
             "--constraints",
             "requirements-constraints.in",
+            "--generate-hashes",
             "--output-file",
             "requirements.txt",
             "--python-version",
@@ -209,7 +210,7 @@ def generate_requirements(ee_directory: Path) -> None:
                 requirements_path, Path(temporary_directory)
             )
 
-    (ee_directory / "requirements.in").write_text(
+    (ee_directory / "requirements-implicit.in").write_text(
         render_requirements(python_requirements), encoding="utf-8"
     )
     compile_requirements(ee_directory)
