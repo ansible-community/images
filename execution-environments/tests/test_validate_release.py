@@ -46,7 +46,7 @@ def test_matching_release_and_ansible_core_pins_are_valid(tmp_path: Path) -> Non
 )
 def test_invalid_release_tag_is_rejected(tmp_path: Path, tag: str) -> None:
     """Malformed release tags must fail before image builds start."""
-    requirements = _write_requirements(tmp_path / "requirements.in", "2.21.3")
+    requirements = _write_requirements(tmp_path / "requirements-implicit.in", "2.21.3")
 
     result = _validate(tag, requirements)
 
@@ -56,7 +56,7 @@ def test_invalid_release_tag_is_rejected(tmp_path: Path, tag: str) -> None:
 
 def test_mismatched_ansible_core_pin_is_rejected(tmp_path: Path) -> None:
     """An image must not be published under a different core version."""
-    requirements = _write_requirements(tmp_path / "requirements.in", "2.21.4")
+    requirements = _write_requirements(tmp_path / "requirements-implicit.in", "2.21.4")
 
     result = _validate("2.21.3-1", requirements)
 
@@ -67,7 +67,7 @@ def test_mismatched_ansible_core_pin_is_rejected(tmp_path: Path) -> None:
 
 def test_duplicate_ansible_core_pins_are_rejected(tmp_path: Path) -> None:
     """Ambiguous ansible-core requirements must fail release validation."""
-    requirements = tmp_path / "requirements.in"
+    requirements = tmp_path / "requirements-implicit.in"
     requirements.write_text(
         "ansible-core==2.21.3\nansible-core==2.21.3\n",
         encoding="utf-8",
@@ -82,7 +82,7 @@ def test_duplicate_ansible_core_pins_are_rejected(tmp_path: Path) -> None:
 @pytest.mark.parametrize("contents", ["", "ansible-core==\n"])
 def test_missing_ansible_core_pin_is_rejected(tmp_path: Path, contents: str) -> None:
     """A missing or empty ansible-core pin must fail release validation."""
-    requirements = tmp_path / "requirements.in"
+    requirements = tmp_path / "requirements-implicit.in"
     requirements.write_text(contents, encoding="utf-8")
 
     result = _validate("2.21.3-1", requirements)
