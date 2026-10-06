@@ -5,6 +5,7 @@ on:
     types:
       - published
 
+# Deny all permissions by default; each job grants only what its steps require.
 permissions: {}
 
 jobs:
@@ -12,6 +13,7 @@ jobs:
     name: Validate release tag
     runs-on: ubuntu-latest
     permissions:
+      # Read the repository so checkout and release validation can access the source files.
       contents: read
     outputs:
       commit: ${{ steps.checkout.outputs.commit }}
@@ -45,8 +47,16 @@ jobs:
     needs: validate-release
     runs-on: ubuntu-latest
     permissions:
+      # Read the repository so checkout can access the release source.
       contents: read
+      # Push the built execution environment images to GHCR.
       packages: write
+      # Mint the OIDC token required to obtain a Sigstore signing certificate.
+      id-token: write
+      # Persist the generated SBOM attestation in GitHub's attestations API.
+      attestations: write
+      # Create the artifact metadata storage record for the attested image.
+      artifact-metadata: write
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +99,17 @@ jobs:
             --ee-name "${EE_NAME}" \
             --image-ref "${EE_NAME}:${RELEASE_TAG}"
 
+      - name: Generate SPDX SBOM for ${{ matrix.name }}
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: ${{ matrix.name }}:${{ github.event.release.tag_name }}
+          format: spdx-json
+          output-file: ${{ matrix.name }}.spdx.json
+          # Keep this pinned alongside anchore/sbom-action@v0.24.3; update both together.
+          syft-version: v1.54.0
+          upload-artifact: false
+          upload-release-assets: false
+
       - name: Log in to GHCR
         uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2.0
         with:
@@ -97,6 +118,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push ${{ matrix.name }}
+        id: push
         uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 # v3.0.0
         with:
           image: ${{ matrix.name }}
@@ -104,6 +126,24 @@ jobs:
             ${{ github.event.release.tag_name }}
             latest
           registry: ghcr.io/${{ github.repository_owner }}
+
+      - name: Attest SBOM for ${{ matrix.name }}
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          sbom-path: ${{ matrix.name }}.spdx.json
+          push-to-registry: true
+
+      - name: Verify image attestation
+        env:
+          EE_NAME: ${{ matrix.name }}
+          IMAGE_DIGEST: ${{ steps.push.outputs.digest }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh attestation verify \
+            "oci://ghcr.io/${{ github.repository_owner }}/${EE_NAME}@${IMAGE_DIGEST}" \
+            --repo "${{ github.repository }}"
 
   announcement:
     name: Generate release announcements
