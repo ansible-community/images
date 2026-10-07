@@ -95,7 +95,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           uv run --locked --group test \
-            pytest -v \
+            pytest -v execution-environments/tests \
             --ee-name "${EE_NAME}" \
             --image-ref "${EE_NAME}:${RELEASE_TAG}"
 
