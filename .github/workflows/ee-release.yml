@@ -99,10 +99,20 @@ jobs:
             --ee-name "${EE_NAME}" \
             --image-ref "${EE_NAME}:${RELEASE_TAG}"
 
+      - name: Save ${{ matrix.name }} for SBOM generation
+        env:
+          EE_NAME: ${{ matrix.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          podman save --format oci-archive \
+            --output "${RUNNER_TEMP}/${EE_NAME}.oci.tar" \
+            "${EE_NAME}:${RELEASE_TAG}"
+
       - name: Generate SPDX SBOM for ${{ matrix.name }}
         uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
-          image: ${{ matrix.name }}:${{ github.event.release.tag_name }}
+          # Scan the tested Podman image without requiring a Podman API socket.
+          image: oci-archive:${{ runner.temp }}/${{ matrix.name }}.oci.tar
           format: spdx-json
           output-file: ${{ matrix.name }}.spdx.json
           # Keep this pinned alongside anchore/sbom-action@v0.24.3; update both together.
