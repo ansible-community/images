@@ -3,5 +3,5 @@
 # This file is maintained manually. Add entries for packages that are not
 # provided by collection dependency metadata.
 
-ansible-core==2.21.3
+ansible-core==2.21.5
 ansible-runner==2.4.3
