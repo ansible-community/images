@@ -50,7 +50,8 @@ IMAGE_DIGEST="$(skopeo inspect --format '{{.Digest}}' \
     docker://ghcr.io/ansible-community/community-ee-base:latest)"
 gh attestation verify \
     "oci://ghcr.io/ansible-community/community-ee-base@${IMAGE_DIGEST}" \
-    --repo ansible-community/images
+    --repo ansible-community/images \
+    --predicate-type https://spdx.dev/Document/v2.3
 ```
 
 ## Maintainers
