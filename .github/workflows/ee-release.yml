@@ -27,7 +27,7 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
 
       - name: Set up uv and Python 3.14
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           python-version: "3.14"
           version: "0.12.9"
@@ -72,7 +72,7 @@ jobs:
           ref: ${{ needs.validate-release.outputs.commit }}
 
       - name: Set up uv and Python 3.14
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           version: "0.12.9"
           python-version: "3.14"
@@ -171,7 +171,7 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
 
       - name: Set up uv and Python 3.14
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           python-version: "3.14"
           version: "0.12.9"
