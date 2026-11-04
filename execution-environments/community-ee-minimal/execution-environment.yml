@@ -2,7 +2,7 @@
 version: 3
 images:
   base_image:
-    name: quay.io/fedora/fedora:44
+    name: quay.io/fedora/fedora:45
 dependencies:
   ansible_core:
     package_pip: ansible-core
